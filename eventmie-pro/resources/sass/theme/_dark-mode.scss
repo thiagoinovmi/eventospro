@@ -1,0 +1,521 @@
+// Dark mode styles
+[data-bs-theme="dark"] {
+    // Base styles
+    background-color: $body-bg-dark;
+    color: $body-color-dark;
+
+    // Component overrides
+    .card {
+        background-color: $card-bg-dark;
+        border-color: $border-color-dark;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-control {
+        background-color: $input-bg-dark;
+        border-color: $input-border-color-dark;
+        color: $input-color-dark;
+
+        &:focus {
+            background-color: $input-bg-dark;
+            border-color: $dark-primary;
+            color: $input-color-dark;
+            box-shadow: 0 0 0 0.2rem rgba($dark-primary, 0.25);
+        }
+
+        &::placeholder {
+            color: rgba($input-color-dark, 0.5);
+        }
+    }
+
+    .dropdown-menu {
+        background-color: $dropdown-bg-dark;
+        border-color: $dropdown-border-color-dark;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+        .dropdown-item {
+            color: $body-color-dark !important;
+
+            &:hover, &:focus {
+                color: $body-color-dark !important;
+                background-color: $dark-secondary;
+            }
+        }
+
+        .dropdown-divider {
+            border-color: $border-color-dark;
+        }
+
+        .dropdown-header {
+            color: #ffffff !important;
+        }
+    }
+
+    .modal {
+        .modal-content {
+            background-color: $card-bg-dark;
+            border: 1px solid rgba($body-color-dark, 0.1);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5);
+
+            .modal-header {
+                border-bottom: 1px solid rgba($body-color-dark, 0.1);
+                padding: 1rem 1.5rem;
+
+                .modal-title {
+                    color: $body-color-dark;
+                    font-weight: 600;
+                }
+
+                .close {
+                    padding: 0.5rem 0.75rem;
+                    margin: -0.5rem -0.5rem -0.5rem auto;
+                    color: $body-color-dark;
+                    
+                    span {
+                        font-size: 1.5rem;
+                        font-weight: 700;
+                    }
+                }
+            }
+
+            .modal-body {
+                padding: 1.5rem;
+
+                .form-label {
+                    color: $body-color-dark;
+                    font-weight: 500;
+                    margin-bottom: 0.5rem;
+
+                    sup {
+                        color: $dark-danger;
+                        font-weight: bold;
+                        margin-left: 2px;
+                    }
+                }
+
+                .form-control {
+                    background-color: rgba($body-color-dark, 0.05);
+                    border: 1px solid rgba($body-color-dark, 0.1);
+                    color: $body-color-dark;
+                    padding: 0.75rem 1rem;
+                    border-radius: 0.375rem;
+
+                    &:focus {
+                        background-color: rgba($body-color-dark, 0.1);
+                        border-color: $dark-primary;
+                        box-shadow: 0 0 0 0.2rem rgba($dark-primary, 0.25);
+                    }
+
+                    &::placeholder {
+                        color: rgba($body-color-dark, 0.5);
+                    }
+                }
+
+                .help.text-danger {
+                    font-size: 0.875rem;
+                    margin-top: 0.375rem;
+                }
+
+                .mb-3 {
+                    margin-bottom: 1.5rem !important;
+                }
+            }
+
+            .modal-footer {
+                border-top: 1px solid rgba($body-color-dark, 0.1);
+                padding: 1rem 1.5rem;
+
+                .btn {
+                    padding: 0.5rem 1.25rem;
+                    font-weight: 500;
+
+                    i {
+                        margin-right: 0.5rem;
+                    }
+                }
+            }
+        }
+    }
+
+    .modal-header {
+        border-bottom-color: $modal-header-border-color-dark;
+    }
+
+    .table {
+        background-color: $table-bg-dark;
+        color: $body-color-dark;
+
+        th, td {
+            border-color: $table-border-color-dark;
+        }
+
+        tbody tr {
+            &:hover {
+                background-color: rgba($dark-primary, 0.05);
+            }
+        }
+    }
+
+    // Text colors
+    .text-muted {
+        color: $text-muted-dark !important;
+    }
+
+    // Border colors
+    .border {
+        border-color: $border-color-dark !important;
+    }
+
+    .border-top {
+        border-top-color: $border-color-dark !important;
+    }
+
+    .border-bottom {
+        border-bottom-color: $border-color-dark !important;
+    }
+
+    .border-start {
+        border-left-color: $border-color-dark !important;
+    }
+
+    .border-end {
+        border-right-color: $border-color-dark !important;
+    }
+
+    // Box shadows
+    .shadow-sm {
+        box-shadow: $box-shadow-sm-dark !important;
+    }
+
+    .shadow {
+        box-shadow: $box-shadow-dark !important;
+    }
+
+    .shadow-lg {
+        box-shadow: $box-shadow-lg-dark !important;
+    }
+
+    // Custom components
+    .nav-header {
+        background-color: $card-bg-dark;
+        border-bottom-color: $border-color-dark;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .footer {
+        background-color: $card-bg-dark;
+        border-top-color: $border-color-dark;
+    }
+
+    // Button overrides
+    .btn-outline-dark {
+        color: $dark-dark;
+        border-color: $dark-dark;
+        
+        &:hover {
+            color: $body-bg-dark;
+            background-color: $dark-dark;
+            border-color: $dark-dark;
+        }
+    }
+
+    .btn-dark {
+        color: $body-bg-dark;
+        background-color: $dark-dark;
+        border-color: $dark-dark;
+
+        &:hover {
+            background-color: darken($dark-dark, 10%);
+            border-color: darken($dark-dark, 10%);
+        }
+    }
+
+    // List groups
+    .list-group-item {
+        background-color: $card-bg-dark;
+        border-color: $border-color-dark;
+        color: $body-color-dark;
+    }
+
+    // Alerts
+    .alert {
+        border-color: $border-color-dark;
+        background-color: $dark-secondary;
+    }
+
+    // Form elements
+    .form-select {
+        background-color: $input-bg-dark;
+        border-color: $input-border-color-dark;
+        color: $input-color-dark;
+
+        &:focus {
+            border-color: $dark-primary;
+            box-shadow: 0 0 0 0.2rem rgba($dark-primary, 0.25);
+        }
+    }
+
+    .form-check-input {
+        background-color: $input-bg-dark;
+        border-color: $input-border-color-dark;
+
+        &:checked {
+            background-color: $dark-primary;
+            border-color: $dark-primary;
+        }
+
+        &:focus {
+            box-shadow: 0 0 0 0.2rem rgba($dark-primary, 0.25);
+        }
+    }
+
+    // Links
+    a:not(.btn):not(.nav-link):not(.dropdown-item):not(.footer-link) {
+        color: $dark-primary !important;
+        
+        &:hover {
+            color: lighten($dark-primary, 15%) !important;
+        }
+    }
+
+    // Custom scrollbar
+    ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: $body-bg-dark;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: $border-color-dark;
+        border-radius: 5px;
+
+        &:hover {
+            background: lighten($border-color-dark, 10%);
+        }
+    }
+
+    // Navigation
+    .nav-link {
+        color: $body-color-dark;
+
+        &:hover, &:focus {
+            color: $dark-primary;
+        }
+
+        &.active {
+            color: $dark-primary;
+        }
+    }
+
+    // Badges
+    .badge {
+        &.bg-light {
+            background-color: $dark-light !important;
+            color: $body-color-dark;
+        }
+    }
+
+    // Cards
+    .card-header {
+        background-color: $dark-secondary;
+        border-bottom-color: $border-color-dark;
+    }
+
+    .card-footer {
+        background-color: $dark-secondary;
+        border-top-color: $border-color-dark;
+    }
+
+    // Mobile menu styles
+    @media (max-width: 991.98px) {
+        .navbar-collapse {
+            background-color: $card-bg-dark;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 0.5rem;
+            box-shadow: $box-shadow-dark;
+
+            .nav-link {
+                padding: 0.75rem 1rem;
+                color: $body-color-dark !important;
+
+                &:hover, &:focus {
+                    background-color: $dark-secondary;
+                    border-radius: 0.375rem;
+                }
+            }
+
+            .dropdown-menu {
+                background-color: transparent;
+                border: none;
+                box-shadow: none;
+                padding-left: 1rem;
+
+                .dropdown-item {
+                    color: $body-color-dark !important;
+                    padding: 0.75rem 1rem;
+
+                    &:hover, &:focus {
+                        background-color: $dark-secondary;
+                        border-radius: 0.375rem;
+                    }
+                }
+            }
+        }
+    }
+
+    // Text color overrides for dark mode
+    h1, h2, h3, h4, h5, h6,
+    .h1, .h2, .h3, .h4, .h5, .h6,
+    .fw-bold, .fw-semibold, .fw-medium,
+    .text-uppercase {
+        color: $body-color-dark !important;
+    }
+
+    // Card and content areas
+    .card, .content-area {
+        h1, h2, h3, h4, h5, h6,
+        .h1, .h2, .h3, .h4, .h5, .h6,
+        p, span, div {
+            color: $body-color-dark !important;
+        }
+    }
+
+    // Event titles and descriptions
+    .event-title,
+    .event-description,
+    .lh-p2,
+    [class*="text-"] {
+        color: $body-color-dark !important;
+    }
+
+    // Override any dark text utilities
+    .text-dark {
+        color: $body-color-dark !important;
+    }
+
+    // Navigation items color fix
+    .navbar {
+        .nav-link {
+            color: $body-color-dark !important;
+
+            &:hover, &:focus {
+                color: rgba($body-color-dark, 0.8) !important;
+            }
+        }
+
+        .dropdown-menu {
+            .nav-link {
+                color: $body-color-dark !important;
+            }
+        }
+
+        // Keep primary color only for specific elements
+        .btn-primary {
+            color: #fff !important;
+        }
+    }
+
+    // Override any primary colored nav items
+    .navbar-nav {
+        .nav-item {
+            .nav-link {
+                color: $body-color-dark !important;
+
+                &:hover, &:focus {
+                    color: rgba($body-color-dark, 0.8) !important;
+                }
+            }
+        }
+    }
+
+    // How It Works section
+    .home-main-how-it-work {
+        background-color: $card-bg-dark !important;
+
+        h2 {
+            color: $body-color-dark !important;
+            .font-weight-light {
+                color: $body-color-dark !important;
+            }
+        }
+
+        .howit-tabs {
+            .tab-label {
+                color: $body-color-dark !important;
+                border-color: rgba($body-color-dark, 0.2) !important;
+
+                &:hover {
+                    border-color: $dark-primary !important;
+                }
+            }
+
+            input[type="radio"]:checked + .tab-label {
+                color: $dark-primary !important;
+                border-color: $dark-primary !important;
+            }
+        }
+
+        .step {
+            .step-icon {
+                color: $dark-primary !important;
+                border: 2px solid $dark-primary !important;
+            }
+
+            .step-number {
+                color: rgba($body-color-dark, 0.1) !important;
+            }
+
+            h5 {
+                color: $body-color-dark !important;
+            }
+
+            p {
+                color: rgba($body-color-dark, 0.7) !important;
+            }
+        }
+
+        .text-muted {
+            color: rgba($body-color-dark, 0.7) !important;
+        }
+    }
+
+    // Pagination styling
+    .pagination {
+        .page-item {
+            .page-link {
+                background-color: transparent;
+                border-color: rgba($body-color-dark, 0.2);
+                color: $body-color-dark !important;
+
+                &:hover, &:focus {
+                    background-color: $dark-secondary;
+                    border-color: $dark-primary;
+                    color: $body-color-dark !important;
+                }
+            }
+
+            &.active .page-link,
+            &.active span.page-link {
+                background-color: $dark-primary !important;
+                border-color: $dark-primary !important;
+                color: #ffffff !important;
+            }
+        }
+    }
+
+    // Dropdown items specific styling
+    .dropdown-menu {
+        .dropdown-item {
+            color: $body-color-dark !important;
+
+            &:hover, &:focus {
+                color: $body-color-dark !important;
+                background-color: $dark-secondary;
+            }
+        }
+    }
+} 

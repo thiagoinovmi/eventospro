@@ -1,0 +1,29 @@
+//
+// user-variables.scss
+// Use this to overwrite Bootstrap and Geeks variables
+//
+// Example of a variable override to change Geeks primary color
+// Remove the "//" to comment it in and see it in action!
+$primary: #2276FF;
+$secondary: #161920;
+$dark: #0d0e12;
+
+$success: #22C55E;
+$info: #06B6D4;
+$warning: #F59E0B;
+$danger: #EF4444;
+$light: #fafafa;
+$pink: #EC4899;
+
+$border-radius: .7rem;
+$border-radius-sm: 0.35rem;
+$border-radius-lg: 1rem;
+
+// Override Bootstrap container max-widths (without !default to force override)
+$container-max-widths: (
+  sm: 640px,
+  md: 768px,
+  lg: 1024px,
+  xl: 1280px,
+  xxl: 1536px
+);

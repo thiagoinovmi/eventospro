@@ -1,0 +1,47 @@
+// Dark theme color system
+$body-bg-dark: #0d0e12;          // Darkest background
+$body-color-dark: #F0F5FF;       // Light text color
+
+// Dark theme colors
+$dark-primary: #2276FF;          // Primary blue
+$dark-secondary: #161920;        // Slightly lighter than body background
+$dark-success: #22C55E;          // Keep existing success
+$dark-info: #2276FF;            // Use primary blue for info
+$dark-warning: #F59E0B;          // Keep existing warning
+$dark-danger: #EF4444;          // Keep existing danger
+$dark-light: #161920;           // Slightly lighter than body background
+$dark-dark: #F0F5FF;            // Light text/border color
+
+// Dark theme grays
+$gray-100-dark: #0d0e12;        // Darkest (body background)
+$gray-200-dark: #161920;        // Slightly lighter
+$gray-300-dark: #9E9E9E;        // Mid gray
+$gray-400-dark: #9E9E9E;        // Mid gray
+$gray-500-dark: #9E9E9E;        // Mid gray
+$gray-600-dark: #F0F5FF;        // Light gray (for text)
+$gray-700-dark: #F0F5FF;        // Light gray
+$gray-800-dark: #F0F5FF;        // Light gray
+$gray-900-dark: #F0F5FF;        // Lightest
+
+// Dark theme component colors
+$border-color-dark: #161920;     // Slightly lighter than background
+$card-bg-dark: #0d0e12;         // Same as body background
+$input-bg-dark: #161920;        // Slightly lighter than background
+$input-border-color-dark: #161920;
+$input-color-dark: #F0F5FF;
+$dropdown-bg-dark: #161920;        // Slightly lighter than body background for better contrast
+$dropdown-border-color-dark: #2a2e3a;
+$dropdown-link-color-dark: #F0F5FF;
+$dropdown-link-hover-bg-dark: #1f2937;
+$modal-content-bg-dark: #0d0e12;
+$modal-header-border-color-dark: #161920;
+$table-bg-dark: #0d0e12;
+$table-border-color-dark: #161920;
+
+// Dark theme box shadows
+$box-shadow-sm-dark: 0 .125rem .25rem rgba(0, 0, 0, .25);
+$box-shadow-dark: 0 .5rem 1rem rgba(0, 0, 0, .35);
+$box-shadow-lg-dark: 0 1rem 3rem rgba(0, 0, 0, .45);
+
+// Dark theme text colors
+$text-muted-dark: #9E9E9E; 

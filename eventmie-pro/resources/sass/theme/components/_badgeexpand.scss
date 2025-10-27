@@ -1,0 +1,30 @@
+.badge-expandable {
+    display: inline-flex;
+    align-items: center;
+    overflow: hidden;
+    max-width: 28px;
+    padding: 4px 8px;
+    transition: max-width .3s ease, padding .3s ease;
+    white-space: nowrap;
+    position: relative;
+    cursor: pointer;
+}
+
+.badge-expandable i {
+    margin-right: 4px;
+}
+
+.badge-expandable .badge-text {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    display: inline-block;
+}
+
+.badge-expandable:hover {
+    max-width: 200px; /* Expand on hover */
+    padding: 6px 12px;
+}
+
+.badge-expandable:hover .badge-text {
+    opacity: 1;
+}

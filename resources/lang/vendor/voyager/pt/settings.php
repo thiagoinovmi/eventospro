@@ -1,0 +1,27 @@
+<?php
+
+return [
+    'usage_help'           => 'Você pode obter o valor de cada configuração em qualquer lugar do seu site chamando',
+    'save'                 => 'Salvar configurações',
+    'new'                  => 'Nova configuração',
+    'help_name'            => 'Nome da configuração, ex: Título do Administrador',
+    'help_key'             => 'Chave da configuração, ex: admin_title',
+    'help_option'          => '(opcional, aplicam-se as mesmas opções do campo de formulário correspondente)',
+    'add_new'              => 'Adicionar nova configuração',
+    'delete_question'      => 'Tem certeza de que deseja excluir a configuração :setting?',
+    'delete_confirm'       => 'Sim, excluir esta configuração',
+    'successfully_created' => 'Configuração criada com sucesso',
+    'successfully_saved'   => 'Configuração salva com sucesso',
+    'successfully_deleted' => 'Configuração excluída com sucesso',
+    'already_at_top'       => 'Esta configuração já está no topo da lista',
+    'already_at_bottom'    => 'Esta configuração já está no final da lista',
+    'key_already_exists'   => 'A chave :key já existe',
+    'moved_order_up'       => 'A configuração :name foi movida para cima',
+    'moved_order_down'     => 'A configuração :name foi movida para baixo',
+    'successfully_removed' => 'Valor de :name removido com sucesso',
+    'group_general'        => 'Geral',
+    'group_admin'          => 'Administrador',
+    'group_site'           => 'Site',
+    'group'                => 'Grupo',
+    'help_group'           => 'Grupo ao qual esta configuração pertence',
+];

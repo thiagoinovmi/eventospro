@@ -1,0 +1,146 @@
+// Dark mode utility classes
+
+// Text colors for dark mode
+[data-bs-theme="dark"] {
+    .text-dark {
+        color: $dark-dark !important;
+    }
+
+    .text-light {
+        color: $dark-light !important;
+    }
+
+    // Background utilities
+    .bg-dark {
+        background-color: $body-bg-dark !important;
+    }
+
+    .bg-light {
+        background-color: $dark-light !important;
+    }
+
+    .bg-white {
+        background-color: $body-bg-dark !important;
+    }
+
+    .bg-transparent {
+        background-color: transparent !important;
+    }
+
+    // Border utilities
+    .border-dark {
+        border-color: #F0F5FF !important;
+    }
+
+    .border-light {
+        border-color: $dark-light !important;
+    }
+
+    // Hover states
+    .hover-dark {
+        &:hover {
+            color: $dark-dark !important;
+        }
+    }
+
+    .hover-light {
+        &:hover {
+            color: $dark-light !important;
+        }
+    }
+
+    .hover-primary {
+        &:hover {
+            color: $dark-primary !important;
+        }
+    }
+
+    // Focus states
+    .focus-dark {
+        &:focus {
+            color: $dark-dark !important;
+            box-shadow: 0 0 0 0.25rem rgba($dark-dark, 0.25) !important;
+        }
+    }
+
+    // Active states
+    .active-dark {
+        &.active {
+            color: $dark-dark !important;
+            background-color: rgba($dark-dark, 0.1) !important;
+        }
+    }
+
+    // Opacity utilities
+    .opacity-dark {
+        opacity: 0.75 !important;
+    }
+
+    // Link colors
+    a:not(.btn) {
+        color: $dark-primary;
+        
+        &:hover {
+            color: lighten($dark-primary, 10%);
+        }
+    }
+
+    // Custom background utilities
+    .bg-card {
+        background-color: $card-bg-dark !important;
+    }
+
+    .bg-input {
+        background-color: $input-bg-dark !important;
+    }
+
+    .bg-secondary {
+        background-color: $dark-secondary !important;
+    }
+
+    // Custom border utilities
+    .border-subtle {
+        border-color: rgba($border-color-dark, 0.5) !important;
+    }
+
+    // Custom text utilities
+    .text-subtle {
+        color: rgba($body-color-dark, 0.75) !important;
+    }
+
+    // Gradient backgrounds
+    .bg-gradient {
+        background: linear-gradient(180deg, $body-bg-dark 0%, $dark-secondary 100%) !important;
+    }
+
+    // Card overlays
+    .card-img-overlay {
+        background-color: rgba($body-bg-dark, 0.75);
+    }
+
+    // Custom utilities for the new color scheme
+    .bg-primary-subtle {
+        background-color: rgba($dark-primary, 0.1) !important;
+    }
+
+    .text-primary {
+        color: $dark-primary !important;
+    }
+
+    .border-primary {
+        border-color: $dark-primary !important;
+    }
+
+    // Hover effects
+    .hover-bg-primary {
+        &:hover {
+            background-color: rgba($dark-primary, 0.1) !important;
+        }
+    }
+
+    .hover-border-primary {
+        &:hover {
+            border-color: $dark-primary !important;
+        }
+    }
+} 

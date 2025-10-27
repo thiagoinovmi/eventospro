@@ -1,0 +1,1 @@
+@extends('eventmie::bookings.show')

@@ -1,0 +1,157 @@
+<?php
+
+namespace Classiebit\Eventmie\Http\Controllers;
+use App\Http\Controllers\Controller; 
+use Facades\Classiebit\Eventmie\Eventmie;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+
+use Classiebit\Eventmie\Models\Event;
+use Classiebit\Eventmie\Models\User;
+use Classiebit\Eventmie\Models\Ticket;
+use Classiebit\Eventmie\Models\Banner;
+use Classiebit\Eventmie\Models\Tag;
+use Classiebit\Eventmie\Models\Category;
+use Classiebit\Eventmie\Models\Post;
+use Classiebit\Eventmie\Models\Country;
+use Classiebit\Eventmie\Models\Venue;
+use Carbon\Carbon;
+
+
+class WelcomeController extends Controller
+{
+    
+    public function __construct()
+    {
+        
+        // language change
+        $this->middleware('common');
+    
+        $this->event            = new Event;
+        $this->ticket           = new Ticket;
+        $this->banner           = new Banner;
+        $this->tag              = new Tag;
+        $this->user             = new User;
+        $this->category         = new Category;
+        $this->post             = new Post;
+        $this->country          = new Country;
+    }
+
+
+    // get featured events
+    public function index($view = 'eventmie::welcome', $extra = [])
+    {
+
+        $featured_events     = collect($this->get_featured_events());
+        $top_selling_events  = collect($this->get_top_selling_events());
+        $upcomming_events    = collect($this->get_upcomming_events());
+        $banners             = $this->banner->get_banners();
+        $categories          = $this->category->get_categories();
+        $currency            = setting('regional.currency_default');
+        $topVenues           = Venue::withCount('events')->orderByDesc('events_count')->limit(8)->get();
+        
+        $countries           = $this->country->get_countries_having_events();
+        $cities              = $countries['cities'];
+        
+        //get blog for welcome page
+        $posts               = $this->post->index();
+        
+        return Eventmie::view($view, 
+            compact(
+                'featured_events', 'top_selling_events', 
+                'upcomming_events', 'banners',
+                'categories', 'posts', 'currency', 'topVenues', 'cities',
+                'extra'
+            ));
+            
+    }
+
+    // get featured events API
+    protected function get_featured_events()
+    {
+        $featured_events  = $this->event->get_featured_events();
+        
+
+        $events_data             = [];
+        foreach($featured_events as $key => $value)
+        {
+                $value->load(['tickets' => function ($query) {
+                    $query->orderBy('price', 'asc');
+                }]);
+            // online event - yes or no
+            $value                  = $value->makeVisible('online_location');
+            // check event is online or not
+            $value->online_location    = (!empty($value->online_location)) ? 1 : 0; 
+
+            // Attach venues to the event
+            $event_data['venues'] = $value->venues->toArray();
+
+            $events_data[$key]             = $value;
+            
+        }
+
+        return  $events_data;
+        
+    }
+
+    // get top selling events API
+    protected function get_top_selling_events()
+    {
+        $top_selling_events  = $this->event->get_top_selling_events();
+
+        $events_data             = [];
+        foreach($top_selling_events as $key => $value)
+        {
+                $value->load(['tickets' => function ($query) {
+                    $query->orderBy('price', 'asc');
+                }]);
+    
+            if($value->total_booking)
+            {
+                // online event - yes or no
+                $value                  = $value->makeVisible('online_location');
+                // check event is online or not
+                $value->online_location    = (!empty($value->online_location)) ? 1 : 0; 
+
+
+                // Attach venues to the event
+                $event_data['venues'] = $value->venues->toArray();
+
+                $events_data[$key]     = $value;
+            }
+            
+        }
+
+        return  $events_data;
+        
+    }
+
+    // get upcomming events
+    protected function get_upcomming_events()
+    {
+        $upcomming_events  = $this->event->get_upcomming_events();
+
+        $events_data             = [];
+        foreach($upcomming_events as $key => $value)
+        {   
+    
+                $value->load(['tickets' => function ($query) {
+                    $query->orderBy('price', 'asc');
+                }]);
+            // online event - yes or no
+            $value                  = $value->makeVisible('online_location');
+            // check event is online or not
+            $value->online_location    = (!empty($value->online_location)) ? 1 : 0; 
+
+            // Attach venues to the event
+            $event_data['venues'] = $value->venues->toArray();
+
+            $events_data[$key]             = $value;
+            
+        }
+        
+        return  $events_data;
+        
+    }
+}

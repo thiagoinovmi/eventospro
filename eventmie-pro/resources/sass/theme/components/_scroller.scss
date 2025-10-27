@@ -1,0 +1,71 @@
+/* Horizontal scroller */
+.h-scroll{
+    flex-wrap: nowrap;
+    overflow-y: hidden;
+    white-space: nowrap;
+    overflow-x: auto;
+}
+
+.h-scroll::-webkit-scrollbar {
+    width: 6px;
+    height: 1px;
+    background-color: transparent;
+}
+
+.h-scroll::-webkit-scrollbar-thumb {
+    background-color: transparent;
+}
+.h-scroll-dark{
+    flex-wrap: nowrap;
+    overflow-y: hidden;
+    white-space: nowrap;
+    overflow-x: auto;
+}
+
+.h-scroll-dark::-webkit-scrollbar {
+    width: 6px;
+    height: 1px;
+    background-color: transparent;
+}
+
+.h-scroll-dark::-webkit-scrollbar-thumb {
+    background-color: transparent;
+}
+
+/* Vertical scroller */
+.v-scroll{
+    overflow-x: hidden;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    overflow-y: auto;
+}
+
+.v-scroll::-webkit-scrollbar {
+    width: 6px;
+    height: 5px;
+    background-color: transparent;
+}
+
+.v-scroll::-webkit-scrollbar-thumb {
+    background-color: transparent;
+}
+.v-scroll-dark{
+    overflow-x: hidden;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    overflow-y: auto;
+}
+
+.v-scroll-dark::-webkit-scrollbar {
+    width: 6px;
+    height: 5px;
+    background-color: transparent;
+}
+
+.v-scroll-dark::-webkit-scrollbar-thumb {
+    background-color: transparent;
+}
+
+.mh-30 {
+    max-height: 32rem;
+}
