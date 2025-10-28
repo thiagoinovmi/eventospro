@@ -1,4 +1,4 @@
-# 🎉 Eventos Inovmi - Eventmie Pro v3.0
+# 🎉 Eventos Inovmi - EventosPro v1.0
 
 [![GitHub](https://img.shields.io/badge/GitHub-thiagoinovmi%2Feventospro-blue?logo=github)](https://github.com/thiagoinovmi/eventospro)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
@@ -10,7 +10,7 @@
 
 ## 📌 Sobre o Projeto
 
-**Eventos Inovmi** é uma plataforma completa de gerenciamento de eventos desenvolvida pela **Inovmi Tecnologia**. Construída sobre o framework **Eventmie Pro v3.0**, oferece uma solução robusta e escalável para criar, gerenciar e monetizar eventos online e presenciais.
+**Eventos Inovmi** é uma plataforma completa de gerenciamento de eventos desenvolvida pela **Inovmi Tecnologia**. Construída sobre o framework **Laravel**, oferece uma solução robusta e escalável para criar, gerenciar e monetizar eventos online e presenciais.
 
 ### 🏢 Desenvolvido por
 **Inovmi Tecnologia**  
@@ -466,7 +466,6 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 ## 🙏 Agradecimentos
 
-- **Eventmie Pro** - Pacote base de eventos
 - **Laravel** - Framework web
 - **Vue.js** - Framework JavaScript
 - **Voyager** - Admin panel
