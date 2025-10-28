@@ -94,7 +94,6 @@ Especializada em soluções web e mobile para gestão de eventos e experiências
 
 ### Pacotes Principais
 - **Voyager:** Admin panel e CRUD
-- **Eventmie Pro:** Pacote de eventos
 - **Yajra DataTables:** Tabelas interativas
 - **Omnipay:** Processamento de pagamentos
 - **Spatie Honeypot:** Proteção contra spam
