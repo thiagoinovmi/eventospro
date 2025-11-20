@@ -1,15 +1,15 @@
 <?php
 
 return [
-    'field_password_keep'          => 'Deixe em branco para manter o mesmo',
-    'field_select_dd_relationship' => 'Certifique-se de configurar o relacionamento apropriado no método :method da classe :class.',
-    'type_checkbox'                => 'Caixa de seleção',
-    'type_codeeditor'              => 'Editor de código',
-    'type_file'                    => 'Arquivo',
+    'field_password_keep'          => 'Deixar vazio para manter o atual',
+    'field_select_dd_relationship' => 'Make sure to setup the appropriate relationship in the :method method of the :class class.',
+    'type_checkbox'                => 'Check Box',
+    'type_codeeditor'              => 'Editor de Código',
+    'type_file'                    => 'Ficheiro',
     'type_image'                   => 'Imagem',
-    'type_radiobutton'             => 'Botão de opção',
-    'type_richtextbox'             => 'Editor de texto avançado',
-    'type_selectdropdown'          => 'Menu suspenso',
-    'type_textarea'                => 'Área de texto',
-    'type_textbox'                 => 'Campo de texto',
+    'type_radiobutton'             => 'Radio Button',
+    'type_richtextbox'             => 'Rich Textbox',
+    'type_selectdropdown'          => 'Select Dropdown',
+    'type_textarea'                => 'Text Area',
+    'type_textbox'                 => 'Text Box',
 ];

@@ -21,6 +21,10 @@ class User extends \Classiebit\Eventmie\Models\User
         'name',
         'email',
         'password',
+        'document_type',
+        'document',
+        'pix_type',
+        'pix_key',
     ];
 
     /**

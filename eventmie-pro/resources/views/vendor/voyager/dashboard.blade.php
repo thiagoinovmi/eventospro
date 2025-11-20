@@ -95,7 +95,7 @@
                             <div class="box">
                                 <i class="voyager-dollar text-center"></i>
                                 <div class="info">
-                                    <h3>{{ $total_revenue . ' ' . setting('regional.currency_default') }}</h3>
+                                    <h3>R$ {{ number_format($total_revenue, 2, ',', '.') }}</h3>
                                     <p>{{ __('voyager::generic.Revenue') }}</p>
                                 </div>
                             </div>

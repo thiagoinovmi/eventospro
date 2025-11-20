@@ -1,0 +1,32 @@
+<?php
+
+return [
+    // User table fields
+    'id'                          => 'ID',
+    'name'                        => 'Nome',
+    'email'                       => 'Email',
+    'password'                    => 'Senha',
+    'remember_token'              => 'Token de Lembrete',
+    'created_at'                  => 'Criado em',
+    'updated_at'                  => 'Atualizado em',
+    'avatar'                      => 'Avatar',
+    'user_belongsto_role_relationship' => 'Função',
+    'user_belongstomany_role_relationship' => 'Funções',
+    'settings'                    => 'Configurações',
+    'role_id'                     => 'Função',
+    'email_verified_at'           => 'E-mail Verificado em',
+    'organisation'                => 'Organização',
+    'bank_name'                   => 'Nome do Banco',
+    'bank_code'                   => 'Código do Banco',
+    'bank_branch_name'            => 'Nome da Agência',
+    'bank_branch_code'            => 'Código da Agência',
+    'bank_account_number'         => 'Número da Conta',
+    'bank_account_name'           => 'Nome da Conta',
+    'bank_account_phone'          => 'Telefone da Conta',
+    'address'                     => 'Endereço',
+    'phone'                       => 'Telefone',
+    'fb_access_token'             => 'Token de Acesso Facebook',
+    'status'                      => 'Status',
+    'document_type'               => 'Tipo de Documento',
+    'document'                    => 'CPF/CNPJ',
+];

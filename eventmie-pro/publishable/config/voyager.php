@@ -48,7 +48,11 @@ return [
 
     'models' => [
         'namespace' => 'Classiebit\\Eventmie\\Models\\',
+        'data_row' => 'App\\Models\\DataRow',
     ],
+
+    'pkg_dev_mode'       => env('EVENTMIE_PKG_DEV', 0),
+    'demo_mode'          => env('DEMO_MODE', 0),
 
     /*
     |--------------------------------------------------------------------------

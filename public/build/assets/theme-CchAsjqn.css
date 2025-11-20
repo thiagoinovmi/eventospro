@@ -40319,7 +40319,7 @@ h6.text-uppercase,
   opacity: 1;
 }
 .nav-header .navbar-nav .nav-link {
-  text-transform: capitalize;
+  /*text-transform: capitalize;*/
   color: #fff;
   padding: 40px 35px;
   font-size: 15px;
@@ -40393,7 +40393,7 @@ h6.text-uppercase,
   }
 }
 .nav-header .nav-item {
-  text-transform: capitalize;
+  /*text-transform: capitalize;*/
   color: #fff;
 }
 @media (max-width: 991px) {
@@ -40428,7 +40428,7 @@ h6.text-uppercase,
   display: inline-block;
   padding: 24px 0;
   margin: 0 8px;
-  text-transform: capitalize;
+  /*text-transform: capitalize;*/
   font-size: 14px;
   color: #0d0e12;
   line-height: 1.2;
@@ -40476,7 +40476,7 @@ h6.text-uppercase,
 }
 .nav-header.nav-header-classic .navbar .dropdown-menu .dropdown-item {
   padding: 3px 25px;
-  text-transform: capitalize;
+  /*text-transform: capitalize;*/
   font-size: 16px;
   color: #464a56;
   font-weight: 500;

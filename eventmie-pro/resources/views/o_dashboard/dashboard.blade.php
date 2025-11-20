@@ -35,7 +35,7 @@
                     <i class="fas fa-wallet"></i>
                 </div>
                 <div class="stat-content">
-                    <div class="stat-number">{{ $total_earning }}</div>
+                    <div class="stat-number">R$ {{ number_format($total_earning, 2, ',', '.') }}</div>
                     <div class="stat-currency text-uppercase">@lang('eventmie-pro::em.total')</div>
                     <div class="stat-label">@lang('eventmie-pro::em.earning')</div>
                 </div>

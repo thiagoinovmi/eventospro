@@ -113,7 +113,7 @@
                             href="{{ route($item['route']) }}"
                             title="@lang($item['title'])">
                             <span class="nav-icon"><i class="{{ $item['icon'] }}"></i></span>
-                            <span class="fw-semibold d-none d-sm-block tool-h">@lang($item['title']) - t</span>
+                            <span class="fw-semibold d-none d-sm-block tool-h">@lang($item['title'])</span>
                             <span class="tooltiptext d-lg-none d-block">@lang($item['tooltip'])</span>
                         </a>
                     </li>

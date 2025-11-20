@@ -356,7 +356,9 @@ class VoyagerUserController extends BaseVoyagerUserController
         }
 
         foreach ($dataType->editRows as $key => $row) {
-            $dataType->editRows[$key]['col_width'] = isset($row->details->width) ? $row->details->width : 100;
+            // Ensure details is decoded as object
+            $details = is_string($row->details) ? json_decode($row->details) : $row->details;
+            $dataType->editRows[$key]['col_width'] = isset($details->width) ? $details->width : 100;
         }
 
         // If a column has a relationship associated with it, we do not want to show that field
@@ -403,7 +405,9 @@ class VoyagerUserController extends BaseVoyagerUserController
                             : false;
 
         foreach ($dataType->addRows as $key => $row) {
-            $dataType->addRows[$key]['col_width'] = $row->details->width ?? 100;
+            // Ensure details is decoded as object
+            $details = is_string($row->details) ? json_decode($row->details) : $row->details;
+            $dataType->addRows[$key]['col_width'] = $details->width ?? 100;
         }
 
         // If a column has a relationship associated with it, we do not want to show that field

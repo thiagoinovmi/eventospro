@@ -32,6 +32,7 @@ return [
     'model_class'            => 'Nome da Classe do Model',
     'model_name'             => 'Nome do Model',
     'model_name_ph'          => 'ex. \App\User, se vazio irá tentar usar o nome da tabela',
+    'order'                  => 'Ordenar',
     'policy_class'           => 'Policy Class Name',
     'policy_name'            => 'Nome da Policy',
     'policy_name_ph'         => 'ex. \App\Policies\UserPolicy, se vazio irá tentar usar o pré definido',

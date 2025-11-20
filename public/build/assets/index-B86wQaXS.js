@@ -11,6 +11,8 @@ const _sfc_main$4 = {
       email: null,
       address: null,
       phone: null,
+      document_type: null,
+      document: null,
       avatar: null,
       is_organiser,
       avatarUrl: null
@@ -19,7 +21,7 @@ const _sfc_main$4 = {
   methods: {
     // ...mapMutations(["add"]),
     editProfile() {
-      this.name = this.user.name, this.username = this.user.username, this.email = this.user.email, this.address = this.user.address, this.phone = this.user.phone;
+      this.name = this.user.name, this.username = this.user.username, this.email = this.user.email, this.address = this.user.address, this.phone = this.user.phone, this.document_type = this.user.document_type, this.document = this.user.document;
     },
     // validate data on form submit
     validateForm(event) {
@@ -73,7 +75,18 @@ var _sfc_render$4 = function render() {
   } } }), _c("span", { directives: [{ name: "show", rawName: "v-show", value: _vm.errors.has("address"), expression: "errors.has('address')" }], staticClass: "help text-danger" }, [_vm._v(_vm._s(_vm.errors.first("address")))])])]), _c("div", { staticClass: "form-group row mt-3" }, [_c("label", { staticClass: "col-md-3 form-label" }, [_vm._v(_vm._s(_vm.trans("em.phone")))]), _c("div", { staticClass: "col-md-9" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.phone, expression: "phone" }], staticClass: "form-control", attrs: { "name": "phone", "type": "text" }, domProps: { "value": _vm.phone }, on: { "input": function($event) {
     if ($event.target.composing) return;
     _vm.phone = $event.target.value;
-  } } }), _c("span", { directives: [{ name: "show", rawName: "v-show", value: _vm.errors.has("phone"), expression: "errors.has('phone')" }], staticClass: "help text-danger" }, [_vm._v(_vm._s(_vm.errors.first("phone")))])])]), _c("div", { staticClass: "form-group row mt-3" }, [_c("div", { staticClass: "col-md-9 offset-md-3" }, [_c("button", { staticClass: "btn btn-primary", attrs: { "type": "submit" } }, [_c("i", { staticClass: "fas fa-sd-card" }), _vm._v(" " + _vm._s(_vm.trans("em.save")) + " ")])])])])])])])])]);
+  } } }), _c("span", { directives: [{ name: "show", rawName: "v-show", value: _vm.errors.has("phone"), expression: "errors.has('phone')" }], staticClass: "help text-danger" }, [_vm._v(_vm._s(_vm.errors.first("phone")))])])]), _c("div", { staticClass: "form-group row mt-3" }, [_c("label", { staticClass: "col-md-3 form-label" }, [_vm._v("Tipo de Documento")]), _c("div", { staticClass: "col-md-9" }, [_c("select", { directives: [{ name: "model", rawName: "v-model", value: _vm.document_type, expression: "document_type" }, { name: "validate", rawName: "v-validate", value: "", expression: "''" }], staticClass: "form-control", attrs: { "name": "document_type", "data-vv-as": "Tipo de Documento" }, on: { "change": function($event) {
+    var $$selectedVal = Array.prototype.filter.call($event.target.options, function(o) {
+      return o.selected;
+    }).map(function(o) {
+      var val = "_value" in o ? o._value : o.value;
+      return val;
+    });
+    _vm.document_type = $event.target.multiple ? $$selectedVal : $$selectedVal[0];
+  } } }, [_c("option", { attrs: { "value": "" } }, [_vm._v("Selecione")]), _c("option", { attrs: { "value": "cpf" } }, [_vm._v("CPF")]), _c("option", { attrs: { "value": "cnpj" } }, [_vm._v("CNPJ")])]), _c("span", { directives: [{ name: "show", rawName: "v-show", value: _vm.errors.has("document_type"), expression: "errors.has('document_type')" }], staticClass: "help text-danger" }, [_vm._v(_vm._s(_vm.errors.first("document_type")))])])]), _c("div", { staticClass: "form-group row mt-3" }, [_c("label", { staticClass: "col-md-3 form-label" }, [_vm._v("CPF/CNPJ")]), _c("div", { staticClass: "col-md-9" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.document, expression: "document" }, { name: "validate", rawName: "v-validate", value: "", expression: "''" }], staticClass: "form-control", attrs: { "name": "document", "type": "text", "placeholder": "Digite seu CPF ou CNPJ", "data-vv-as": "CPF/CNPJ" }, domProps: { "value": _vm.document }, on: { "input": function($event) {
+    if ($event.target.composing) return;
+    _vm.document = $event.target.value;
+  } } }), _c("span", { directives: [{ name: "show", rawName: "v-show", value: _vm.errors.has("document"), expression: "errors.has('document')" }], staticClass: "help text-danger" }, [_vm._v(_vm._s(_vm.errors.first("document")))])])]), _c("div", { staticClass: "form-group row mt-3" }, [_c("div", { staticClass: "col-md-9 offset-md-3" }, [_c("button", { staticClass: "btn btn-primary", attrs: { "type": "submit" } }, [_c("i", { staticClass: "fas fa-sd-card" }), _vm._v(" " + _vm._s(_vm.trans("em.save")) + " ")])])])])])])])])]);
 };
 var _sfc_staticRenderFns$4 = [];
 var __component__$4 = /* @__PURE__ */ normalizeComponent(
@@ -490,4 +503,4 @@ window.app = new Vue({
     });
   }
 });
-//# sourceMappingURL=index-B8fSvWjZ.js.map
+//# sourceMappingURL=index-B86wQaXS.js.map

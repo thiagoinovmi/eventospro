@@ -68,6 +68,53 @@
                             </div>
 
                             <div class="form-group row mt-3">
+                                <label class="col-md-3 form-label">Tipo de Documento</label>
+                                <div class="col-md-9">
+                                    <select class="form-control" name="document_type" v-model="document_type" v-validate="''" data-vv-as="Tipo de Documento">
+                                        <option value="">Selecione</option>
+                                        <option value="cpf">CPF</option>
+                                        <option value="cnpj">CNPJ</option>
+                                    </select>
+                                    <span v-show="errors.has('document_type')" class="help text-danger">{{ errors.first("document_type")
+                                    }}</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group row mt-3">
+                                <label class="col-md-3 form-label">CPF/CNPJ</label>
+                                <div class="col-md-9">
+                                    <input class="form-control" name="document" type="text" v-model="document" placeholder="Digite seu CPF ou CNPJ" v-validate="''" data-vv-as="CPF/CNPJ" />
+                                    <span v-show="errors.has('document')" class="help text-danger">{{ errors.first("document")
+                                    }}</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group row mt-3">
+                                <label class="col-md-3 form-label">Tipo de Chave PIX</label>
+                                <div class="col-md-9">
+                                    <select class="form-control" name="pix_type" v-model="pix_type" v-validate="''" data-vv-as="Tipo de Chave PIX">
+                                        <option value="" disabled>Selecione o tipo de chave</option>
+                                        <option value="email">Email</option>
+                                        <option value="cpf">CPF</option>
+                                        <option value="cnpj">CNPJ</option>
+                                        <option value="phone">Telefone</option>
+                                        <option value="random">Aleatória</option>
+                                    </select>
+                                    <span v-show="errors.has('pix_type')" class="help text-danger">{{ errors.first("pix_type")
+                                    }}</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group row mt-3">
+                                <label class="col-md-3 form-label">Chave PIX</label>
+                                <div class="col-md-9">
+                                    <input class="form-control" name="pix_key" type="text" v-model="pix_key" placeholder="Digite sua chave PIX" v-validate="''" data-vv-as="Chave PIX" />
+                                    <span v-show="errors.has('pix_key')" class="help text-danger">{{ errors.first("pix_key")
+                                    }}</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group row mt-3">
                                 <div class="col-md-9 offset-md-3">
                                     <button class="btn btn-primary" type="submit">
                                         <i class="fas fa-sd-card"></i>
@@ -95,6 +142,10 @@ export default {
             email: null,
             address: null,
             phone: null,
+            document_type: null,
+            document: null,
+            pix_type: null,
+            pix_key: null,
             avatar : null,
             is_organiser : is_organiser,
             avatarUrl : null,
@@ -110,7 +161,11 @@ export default {
             this.username = this.user.username,
             this.email = this.user.email,
             this.address = this.user.address,
-            this.phone = this.user.phone;
+            this.phone = this.user.phone,
+            this.document_type = this.user.document_type,
+            this.document = this.user.document,
+            this.pix_type = this.user.pix_type,
+            this.pix_key = this.user.pix_key;
         },
 
         // validate data on form submit

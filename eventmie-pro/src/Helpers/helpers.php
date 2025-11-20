@@ -38,7 +38,9 @@ if (!function_exists('format_carbon_date'))
 {
     function format_carbon_date($only_date = false)
     {
-        $df = explode('::', setting('regional.date_format'))[0];
+        $date_format = setting('regional.date_format') ?? 'Y-m-d::h:i A';
+        $parts = explode('::', $date_format);
+        $df = $parts[0] ?? 'Y-m-d';
 
         if($only_date)
            return $df; 

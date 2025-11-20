@@ -43,6 +43,7 @@ return [
 
     'models' => [
        // 'namespace' => 'App\\Models\\',
+       'data_row' => 'App\\Models\\DataRow',
     ],
 
     /*
@@ -217,6 +218,9 @@ return [
         // storing cache values between requests
         'cache' => false,
     ],
+
+    'pkg_dev_mode'       => env('EVENTMIE_PKG_DEV', 0),
+    'demo_mode'          => env('DEMO_MODE', 0),
 
     // Activate compass when environment is NOT local
     'compass_in_production' => false,

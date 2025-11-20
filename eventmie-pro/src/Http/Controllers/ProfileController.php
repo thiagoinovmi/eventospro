@@ -74,8 +74,11 @@ class ProfileController extends Controller
         
         $request->validate([
             'name' => 'required|string',
-            
-            'email' => 'required|email|unique:users,email,'.Auth::id()
+            'email' => 'required|email|unique:users,email,'.Auth::id(),
+            'document_type' => 'nullable|in:cpf,cnpj',
+            'document' => 'nullable|string|max:32|unique:users,document,'.Auth::id(),
+            'pix_type' => 'nullable|in:email,cpf,cnpj,phone,random',
+            'pix_key' => 'nullable|string|max:255'
         ]);
         
         $user = User::find(Auth::id());
@@ -85,6 +88,10 @@ class ProfileController extends Controller
         $user->email                 = $request->email;
         $user->address               = $request->address;
         $user->phone                 = $request->phone;
+        $user->document_type         = $request->document_type;
+        $user->document              = $request->document;
+        $user->pix_type              = $request->pix_type;
+        $user->pix_key               = $request->pix_key;
 
         $this->uploadImage($request, $user);
 

@@ -1,26 +1,26 @@
 <?php
 
-// Traduções do DataTable: https://github.com/DataTables/Plugins/tree/master/i18n
+// DataTable translations from: https://github.com/DataTables/Plugins/tree/master/i18n
 return [
-    'sEmptyTable'     => 'Nenhum dado disponível na tabela',
-    'sInfo'           => 'Mostrando de _START_ até _END_ de _TOTAL_ registros',
-    'sInfoEmpty'      => 'Mostrando de 0 até 0 de 0 registros',
-    'sInfoFiltered'   => '(filtrado de _MAX_ registros totais)',
+    'sEmptyTable'     => 'Não há registos para apresentar',
+    'sInfo'           => 'Mostrando de _START_ até _END_ de _TOTAL_ registos',
+    'sInfoEmpty'      => 'Mostrando de 0 até 0 de 0 registos',
+    'sInfoFiltered'   => '(filtrado de _MAX_ registos no total)',
     'sInfoPostFix'    => '',
-    'sInfoThousands'  => '.',
-    'sLengthMenu'     => 'Mostrar _MENU_ registros',
-    'sLoadingRecords' => 'Carregando...',
-    'sProcessing'     => 'Processando...',
-    'sSearch'         => 'Pesquisar:',
-    'sZeroRecords'    => 'Nenhum registro correspondente encontrado',
+    'sInfoThousands'  => ',',
+    'sLengthMenu'     => 'Mostrar _MENU_ registos',
+    'sLoadingRecords' => 'A Carregar...',
+    'sProcessing'     => 'A processar...',
+    'sSearch'         => 'Procurar:',
+    'sZeroRecords'    => 'Não foram encontrados resultados',
     'oPaginate'       => [
         'sFirst'    => 'Primeiro',
-        'sLast'     => 'Último',
-        'sNext'     => 'Próximo',
         'sPrevious' => 'Anterior',
+        'sNext'     => 'Seguinte',
+        'sLast'     => 'Último',
     ],
     'oAria' => [
-        'sSortAscending'  => ': ativar para ordenar a coluna de forma ascendente',
-        'sSortDescending' => ': ativar para ordenar a coluna de forma descendente',
+        'sSortAscending'  => ': ativar para ordenar de forma crescente',
+        'sSortDescending' => ': ativar para ordenar de forma decrescente',
     ],
 ];

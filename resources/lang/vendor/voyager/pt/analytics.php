@@ -1,14 +1,14 @@
 <?php
 
 return [
-    'by_pageview'            => 'Por visualizações de página',
-    'by_sessions'            => 'Por sessões',
-    'by_users'               => 'Por usuários',
-    'no_client_id'           => 'Para visualizar as análises, você precisa obter um ID de cliente do Google Analytics e adicioná-lo às suas configurações na chave <code>google_analytics_client_id</code>. Obtenha sua chave no Console do Desenvolvedor do Google:',
-    'set_view'               => 'Selecionar uma visualização',
-    'this_vs_last_week'      => 'Esta semana vs Semana passada',
-    'this_vs_last_year'      => 'Este ano vs Ano passado',
-    'top_browsers'           => 'Navegadores mais usados',
-    'top_countries'          => 'Países principais',
-    'various_visualizations' => 'Diversas visualizações',
+    'by_pageview'            => 'Por pageview',
+    'by_sessions'            => 'Por sessions',
+    'by_users'               => 'Por users',
+    'no_client_id'           => 'Para aceder ao analytics precisa adicionar nas Configurações do Voyager o key <code>google_analytics_client_id </code> com o código google analytics client id. Obtenha o seu key através do Google developer console:',
+    'set_view'               => 'Selecionar Vista',
+    'this_vs_last_week'      => 'Esta Semana vs Semana Passada',
+    'this_vs_last_year'      => 'Este Ano vs Ano Passado',
+    'top_browsers'           => 'Top Browsers',
+    'top_countries'          => 'Top Países',
+    'various_visualizations' => 'Visualizações várias',
 ];

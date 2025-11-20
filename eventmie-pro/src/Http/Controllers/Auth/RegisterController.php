@@ -115,6 +115,8 @@ class RegisterController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8'],
+            'document_type' => ['required', 'in:cpf,cnpj'],
+            'document' => ['required', 'string', 'max:32', 'unique:users,document'],
             'accept' => ['required'],
         ]);
     }
@@ -131,6 +133,8 @@ class RegisterController extends Controller
                     'name'      => $data['name'],
                     'email'     => $data['email'],
                     'password'  => Hash::make($data['password']),
+                    'document_type' => $data['document_type'],
+                    'document'  => $data['document'],
                     'role_id'  => 2,
                 ]);
 

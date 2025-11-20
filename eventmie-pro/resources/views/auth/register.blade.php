@@ -34,6 +34,22 @@
                         name="name" value="{{ old('name') }}" required autofocus placeholder="@lang('eventmie-pro::em.name')">
                 </div>
 
+                {{-- CPF/CNPJ Tipo --}}
+                <div class="mb-3">
+                    <label for="document_type" class="form-label">Tipo de Documento</label>
+                    <select id="document_type" name="document_type" class="form-control{{ $errors->has('document_type') ? ' is-invalid' : '' }}" required>
+                        <option value="">Selecione</option>
+                        <option value="cpf" {{ old('document_type') === 'cpf' ? 'selected' : '' }}>CPF</option>
+                        <option value="cnpj" {{ old('document_type') === 'cnpj' ? 'selected' : '' }}>CNPJ</option>
+                    </select>
+                </div>
+
+                {{-- CPF/CNPJ Número --}}
+                <div class="mb-3">
+                    <label for="document" class="form-label">CPF/CNPJ</label>
+                    <input id="document" type="text" class="form-control{{ $errors->has('document') ? ' is-invalid' : '' }}" name="document" value="{{ old('document') }}" required placeholder="Digite seu CPF ou CNPJ">
+                </div>
+
                 <!-- email -->
                 <div class="mb-3">
                     <label for="email" class="form-label">@lang('eventmie-pro::em.email_address')</label>
@@ -62,7 +78,7 @@
                 <!-- button -->
 
                 <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-door-open"></i>
-                    @lang('eventmie-pro::em.register')</button>
+                    @lang('eventmie-pro::em.confirm_register')</button>
 
                 <div class="d-flex justify-content-between mb-2 pb-2 mt-3 text-sm ">
                     <!-- form check -->
