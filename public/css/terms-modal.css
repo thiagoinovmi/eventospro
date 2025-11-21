@@ -28,59 +28,71 @@ body.modal-open {
     overflow: hidden;
 }
 
+/* Botões de Política e Termos */
+#privacyButton,
+#termsButton {
+    background-color: #9b0000 !important;
+    border-color: #9b0000 !important;
+    color: white !important;
+    font-weight: 500;
+}
+
+#privacyButton:hover,
+#termsButton:hover {
+    background-color: #7a0000 !important;
+    border-color: #7a0000 !important;
+    color: white !important;
+}
+
+#privacyButton i,
+#termsButton i {
+    color: white !important;
+}
+
+#privacyButton.btn-success,
+#termsButton.btn-success {
+    background-color: #28a745 !important;
+    border-color: #28a745 !important;
+    color: white !important;
+}
+
+#privacyButton.btn-success:hover,
+#termsButton.btn-success:hover {
+    background-color: #218838 !important;
+    border-color: #218838 !important;
+    color: white !important;
+}
+
 /* Garantir que o modal fica acima */
+#privacyModal,
 #termsModal {
     z-index: 1050;
 }
 
+#privacyModal.show,
 #termsModal.show {
     display: block !important;
 }
 
-/* Abas */
-.nav-tabs {
-    border-bottom: 1px solid #dee2e6;
-}
-
-.nav-tabs .nav-link {
-    color: #495057;
-    border: 1px solid transparent;
-    border-bottom: 3px solid transparent;
-    cursor: pointer;
-}
-
-.nav-tabs .nav-link:hover {
-    border-color: #e9ecef #e9ecef #dee2e6;
-}
-
-.nav-tabs .nav-link.active {
-    color: #495057;
-    background-color: #fff;
-    border-color: #dee2e6 #dee2e6 #fff;
-    border-bottom-color: #007bff;
-}
-
-/* Check verde */
-.fa-check.text-success {
-    color: #28a745 !important;
-}
-
 /* Modal body com scroll */
 .modal-body {
-    max-height: 400px;
+    max-height: 500px;
     overflow-y: auto;
 }
 
 /* Botão confirmar */
-#confirmTermsBtn {
-    min-width: 200px;
+#privacyConfirmBtn,
+#termsConfirmBtn {
+    min-width: 120px;
 }
 
-#confirmTermsBtn:disabled {
+#privacyConfirmBtn:disabled,
+#termsConfirmBtn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
 
-#confirmTermsBtn:not(:disabled) {
+#privacyConfirmBtn:not(:disabled),
+#termsConfirmBtn:not(:disabled) {
     cursor: pointer;
 }

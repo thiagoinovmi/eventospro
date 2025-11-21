@@ -90,6 +90,9 @@
         const privacyConfirmBtn = document.getElementById('privacyConfirmBtn');
 
         if (privacyCheckbox && privacyConfirmBtn) {
+            // Inicialmente desabilitado
+            privacyCheckbox.disabled = true;
+            
             privacyCheckbox.addEventListener('change', function() {
                 privacyConfirmBtn.disabled = !this.checked;
             });
@@ -111,6 +114,9 @@
         const termsConfirmBtn = document.getElementById('termsConfirmBtn');
 
         if (termsCheckbox && termsConfirmBtn) {
+            // Inicialmente desabilitado
+            termsCheckbox.disabled = true;
+            
             termsCheckbox.addEventListener('change', function() {
                 termsConfirmBtn.disabled = !this.checked;
             });
@@ -160,10 +166,24 @@
             if (type === 'privacy' && !state.privacyRead) {
                 console.log('[TermsModal] ✓ Política lida completamente');
                 state.privacyRead = true;
+                
+                // Habilitar checkbox
+                const privacyCheckbox = document.getElementById('privacyAcceptCheckbox');
+                if (privacyCheckbox) {
+                    privacyCheckbox.disabled = false;
+                    console.log('[TermsModal] ✓ Checkbox de Política habilitado');
+                }
                 updateButtons();
             } else if (type === 'terms' && !state.termsRead) {
                 console.log('[TermsModal] ✓ Termos lidos completamente');
                 state.termsRead = true;
+                
+                // Habilitar checkbox
+                const termsCheckbox = document.getElementById('termsAcceptCheckbox');
+                if (termsCheckbox) {
+                    termsCheckbox.disabled = false;
+                    console.log('[TermsModal] ✓ Checkbox de Termos habilitado');
+                }
                 updateButtons();
             }
         }
