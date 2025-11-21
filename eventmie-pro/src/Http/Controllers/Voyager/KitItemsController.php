@@ -3,6 +3,7 @@
 namespace Classiebit\Eventmie\Http\Controllers\Voyager;
 
 use Classiebit\Eventmie\Models\KitItem;
+use Classiebit\Eventmie\Models\Kit;
 use Illuminate\Http\Request;
 use TCG\Voyager\Http\Controllers\VoyagerBaseController;
 use TCG\Voyager\Facades\Voyager;
@@ -15,10 +16,16 @@ class KitItemsController extends VoyagerBaseController
     }
 
     /**
-     * Index - List all kit items
+     * Index - List all kit items or filter by kit
      */
     public function index(Request $request)
     {
+        // Se houver kit_id, filtrar por kit
+        if ($request->has('kit_id') && $request->kit_id) {
+            $kit = Kit::findOrFail($request->kit_id);
+            $request->merge(['kit_id' => $kit->id]);
+        }
+        
         return parent::index($request);
     }
 
