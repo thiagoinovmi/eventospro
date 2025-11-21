@@ -82,20 +82,37 @@ export default {
     fetchPages() {
       // Buscar Política de Privacidade
       fetch(`/api/pages/${this.privacyPageId}`)
-        .then(response => response.json())
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
         .then(data => {
           this.privacyContent = data.body || 'Conteúdo não disponível';
         })
-        .catch(error => console.error('Erro ao buscar Política de Privacidade:', error));
+        .catch(error => {
+          console.error('Erro ao buscar Política de Privacidade:', error);
+          this.privacyContent = 'Erro ao carregar Política de Privacidade';
+        });
 
       // Buscar Termos e Condições
       fetch(`/api/pages/${this.termsPageId}`)
-        .then(response => response.json())
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
         .then(data => {
           this.termsContent = data.body || 'Conteúdo não disponível';
           this.loading = false;
         })
-        .catch(error => console.error('Erro ao buscar Termos e Condições:', error));
+        .catch(error => {
+          console.error('Erro ao buscar Termos e Condições:', error);
+          this.termsContent = 'Erro ao carregar Termos e Condições';
+          this.loading = false;
+        });
     },
     handleScroll() {
       const element = this.$refs.modalBody;
