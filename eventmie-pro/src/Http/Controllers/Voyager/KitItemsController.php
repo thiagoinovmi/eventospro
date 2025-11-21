@@ -63,19 +63,19 @@ class KitItemsController extends VoyagerBaseController
         // Check permission
         $this->authorize('add', app($dataType->model_name));
         
-        // Debug: Log all request data
-        \Log::info('KitItemsController store() - Request data:', [
-            'all' => $request->all(),
-            'kit_id_from_get' => $request->get('kit_id'),
-            'kit_id_from_query' => $request->query('kit_id'),
-            'has_kit_id' => $request->has('kit_id'),
-        ]);
-        
         // Validate fields with ajax
         $val = $this->validateBread($request->all(), $dataType->addRows)->validate();
 
         // Use insertUpdateData para processar corretamente
         $data = $this->insertUpdateData($request, $slug, $dataType->addRows, new $dataType->model_name());
+        
+        // Se kit_id não foi capturado, adicionar agora
+        if (!$data->kit_id && $request->has('kit_id')) {
+            $kit_id = $request->get('kit_id');
+            if ($kit_id) {
+                $data->update(['kit_id' => $kit_id]);
+            }
+        }
 
         event(new BreadDataAdded($dataType, $data));
 
