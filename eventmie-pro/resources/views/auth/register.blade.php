@@ -7,13 +7,7 @@
 @section('authcontent')
 
     <div id="register-app">
-        <terms-modal 
-            ref="termsModal"
-            @terms-accepted="handleTermsAccepted"
-        ></terms-modal>
-    </div>
-
-    <div class="card border-0 shadow">
+        <div class="card border-0 shadow">
         @if ($errors->any())
             <div class="alert alert-danger">
                 <ul>
@@ -138,6 +132,12 @@
 
 
         </div>
+
+        <!-- Modal de Termos -->
+        <terms-modal 
+            ref="termsModal"
+            @terms-accepted="handleTermsAccepted"
+        ></terms-modal>
     </div>
 
     @vite('eventmie-pro/resources/js/register/index.js')

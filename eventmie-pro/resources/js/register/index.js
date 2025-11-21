@@ -1,8 +1,10 @@
 import Vue from 'vue';
 import TermsModal from './components/TermsModal.vue';
 
+console.log('Register app loading...');
+
 // Inicializar o app Vue para o modal de termos
-new Vue({
+const registerApp = new Vue({
   el: '#register-app',
   components: {
     TermsModal
@@ -17,6 +19,7 @@ new Vue({
   },
   methods: {
     handleTermsAccepted(data) {
+      console.log('Terms accepted:', data);
       this.privacyAccepted = data.privacy_policy_accepted;
       this.termsAccepted = data.terms_conditions_accepted;
       this.privacyAcceptedAt = data.privacy_policy_accepted_at;
@@ -41,10 +44,17 @@ new Vue({
       }
     },
     showTermsModal() {
-      this.$refs.termsModal.show();
+      console.log('Opening terms modal...');
+      if (this.$refs.termsModal) {
+        this.$refs.termsModal.show();
+      } else {
+        console.error('TermsModal ref not found');
+      }
     }
   },
   mounted() {
+    console.log('Register app mounted');
+    
     // Desabilitar o botão de submit inicialmente
     const submitButton = document.querySelector('button[type="submit"]');
     if (submitButton) {
@@ -53,11 +63,16 @@ new Vue({
     
     // Adicionar listener ao botão de termos
     const termsButton = document.querySelector('[data-terms-button]');
+    console.log('Terms button:', termsButton);
     if (termsButton) {
       termsButton.addEventListener('click', (e) => {
         e.preventDefault();
         this.showTermsModal();
       });
+    } else {
+      console.warn('Terms button not found');
     }
   }
 });
+
+console.log('Register app initialized:', registerApp);
