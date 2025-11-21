@@ -194,7 +194,7 @@
     ]
   },
   "eventmie-pro/resources/js/profile/index.js": {
-    "file": "assets/index-B86wQaXS.js",
+    "file": "assets/index-DENsBT5S.js",
     "name": "index",
     "src": "eventmie-pro/resources/js/profile/index.js",
     "isEntry": true,
@@ -203,6 +203,12 @@
       "_vuex.esm-BLukzcBM.js",
       "_vue-croppa-_GJG_wG0.js"
     ]
+  },
+  "eventmie-pro/resources/js/register/index.js": {
+    "file": "assets/index-DYh0oktI.js",
+    "name": "index",
+    "src": "eventmie-pro/resources/js/register/index.js",
+    "isEntry": true
   },
   "eventmie-pro/resources/js/tags_manage/index.js": {
     "file": "assets/index-CStn48C3.js",
