@@ -89,16 +89,10 @@
                                                     <img src="@if( !filter_var($data->{$row->field}, FILTER_VALIDATE_URL)){{ Voyager::image( $data->{$row->field} ) }}@else{{ $data->{$row->field} }}@endif" style="width:100px">
                                                 @elseif($row->type == 'relationship')
                                                     @include('voyager::formfields.relationship', ['view' => 'browse','options' => $row->details])
+                                                @elseif(($row->type == 'select_dropdown' || $row->type == 'radio_btn') && property_exists($row->details, 'options'))
+                                                    {!! $row->details->options->{$data->{$row->field}} ?? '' !!}
                                                 @elseif($row->type == 'select_dropdown')
-                                                    @if(property_exists($row->details, 'options'))
-                                                        @if(isset($row->details->options->{$data->{$row->field}}))
-                                                            {{ $row->details->options->{$data->{$row->field}} }}
-                                                        @else
-                                                            {{ $data->{$row->field} }}
-                                                        @endif
-                                                    @else
-                                                        {{ $data->{$row->field} }}
-                                                    @endif
+                                                    {{ $data->{$row->field} }}
                                                 @elseif($row->type == 'date' || $row->type == 'timestamp')
                                                     @if(strtotime($data->{$row->field}))
                                                         {{ Carbon\Carbon::parse($data->{$row->field})->format(format_carbon_date(true)) }}
