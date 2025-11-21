@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use TCG\Voyager\Http\Controllers\VoyagerBaseController;
 use TCG\Voyager\Facades\Voyager;
 use TCG\Voyager\Events\BreadDataAdded;
+use TCG\Voyager\Events\BreadDataUpdated;
 
 class KitItemsController extends VoyagerBaseController
 {
@@ -137,7 +138,47 @@ class KitItemsController extends VoyagerBaseController
      */
     public function update(Request $request, $id)
     {
-        return parent::update($request, $id);
+        $slug = $this->getSlug($request);
+
+        $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
+
+        // Pegando kit_id do request
+        $kitId = $request->get('kit_id');
+
+        if (!$kitId) {
+            // Trate o erro de maneira explícita
+            return back()
+                ->withInput()
+                ->withErrors(['kit_id' => 'O kit é obrigatório.']);
+        }
+
+        // Garanta que o Voyager enxergue o kit_id ANTES de validar
+        $request->merge(['kit_id' => $kitId]);
+
+        // Check permission
+        $this->authorize('edit', app($dataType->model_name));
+
+        // Validate fields with ajax
+        $val = $this->validateBread($request->all(), $dataType->editRows, $id)->validate();
+
+        $data = $this->insertUpdateData($request, $slug, $dataType->editRows, app($dataType->model_name)->findOrFail($id));
+
+        event(new BreadDataUpdated($dataType, $data));
+
+        if (!$request->has('_tagging')) {
+            if (auth()->user()->can('browse', $data)) {
+                $redirect = redirect()->route("voyager.{$dataType->slug}.index", ['kit_id' => $kitId]);
+            } else {
+                $redirect = redirect()->back();
+            }
+
+            return $redirect->with([
+                'message'    => __('voyager::generic.successfully_updated')." {$dataType->getTranslatedAttribute('display_name_singular')}",
+                'alert-type' => 'success',
+            ]);
+        } else {
+            return response()->json(['success' => true, 'data' => $data]);
+        }
     }
 
     /**
