@@ -164,8 +164,6 @@
 @endsection
 
 @section('scripts')
-    @vite('eventmie-pro/resources/js/register/index.js')
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Carregar conteúdo do modal
