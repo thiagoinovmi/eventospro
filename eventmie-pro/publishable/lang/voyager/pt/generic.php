@@ -109,6 +109,12 @@ return [
     "Event"                                           => "Evento",
     "Events"                                          => "Eventos",
     "events"                                          => "Eventos",
+    "Kit"                                             => "Kit",
+    "Kits"                                            => "Kits",
+    "kits"                                            => "Kits",
+    "KitItem"                                         => "Item do Kit",
+    "KitItems"                                        => "Itens do Kit",
+    "kit_items"                                       => "Itens do Kit",
     "Category"                                        => "Categoria",
     "Categories"                                      => "Categorias",
     "categories"                                      => "Categorias",
@@ -474,6 +480,18 @@ return [
     // Venues
     'venue_id'                                        => 'ID do Local',
     'faq'                                             => 'Perguntas Frequentes',
+    
+    // Kits
+    'kit_id'                                          => 'ID do Kit',
+    'kit_name'                                        => 'Nome do Kit',
+    'kit_description'                                 => 'Descrição do Kit',
+    'kit_status'                                      => 'Status do Kit',
+    'kit_items'                                       => 'Itens do Kit',
+    'kit_item_id'                                     => 'ID do Item',
+    'kit_item_name'                                   => 'Nome do Item',
+    'kit_item_description'                            => 'Descrição do Item',
+    'kit_item_image'                                  => 'Imagem do Item',
+    'kit_item_order'                                  => 'Ordem do Item',
     
     // Settings
     'setting_id'                                      => 'ID da Configuração',

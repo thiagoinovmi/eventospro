@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
         $this->call(TicketsTableSeeder::class);
         $this->call(PagesTableSeeder::class);
         $this->call(PostsTableSeeder::class);
+        $this->call(KitsTableSeeder::class);
 
         // voyager tables
         $this->call(DataTypesTableSeeder::class);
