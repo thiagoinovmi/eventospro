@@ -92,6 +92,10 @@ return [
     'yes'                    => 'Sim',
     'yes_please'             => 'Sim, por favor',
     'remember_me'            => 'Lembrar-me',
+    'active'                 => 'Ativo',
+    'inactive'               => 'Inativo',
+    'on'                     => 'Ligado',
+    'off'                    => 'Desligado',
 
     "User"                                            => "Usuário",
     "Users"                                           => "Usuários",
