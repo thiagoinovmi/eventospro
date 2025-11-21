@@ -25,6 +25,10 @@ class User extends \Classiebit\Eventmie\Models\User
         'document',
         'pix_type',
         'pix_key',
+        'privacy_policy_accepted',
+        'terms_conditions_accepted',
+        'privacy_policy_accepted_at',
+        'terms_conditions_accepted_at',
     ];
 
     /**
@@ -47,6 +51,10 @@ class User extends \Classiebit\Eventmie\Models\User
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'privacy_policy_accepted' => 'boolean',
+            'terms_conditions_accepted' => 'boolean',
+            'privacy_policy_accepted_at' => 'datetime',
+            'terms_conditions_accepted_at' => 'datetime',
         ];
     }
 }

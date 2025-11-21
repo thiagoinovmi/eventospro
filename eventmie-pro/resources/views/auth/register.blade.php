@@ -6,6 +6,13 @@
 
 @section('authcontent')
 
+    <div id="register-app">
+        <terms-modal 
+            ref="termsModal"
+            @terms-accepted="handleTermsAccepted"
+        ></terms-modal>
+    </div>
+
     <div class="card border-0 shadow">
         @if ($errors->any())
             <div class="alert alert-danger">
@@ -68,16 +75,22 @@
                 </div>
 
 
+                {{-- Campos hidden para termos --}}
+                <input type="hidden" name="privacy_policy_accepted" id="privacy_policy_accepted" value="0">
+                <input type="hidden" name="terms_conditions_accepted" id="terms_conditions_accepted" value="0">
+                <input type="hidden" name="privacy_policy_accepted_at" id="privacy_policy_accepted_at" value="">
+                <input type="hidden" name="terms_conditions_accepted_at" id="terms_conditions_accepted_at" value="">
+
                 <div class="mb-2">
                     <input class="form-check-input" type="checkbox" name="accept" id="accept" checked value="1"
                         hidden>
                     <p class="text-sm">
-                        @lang('eventmie-pro::em.accept_terms')
+                        <a href="#" data-terms-link>Leia e aceite a Política de Privacidade e Termos e Condições</a>
                     </p>
                 </div>
                 <!-- button -->
 
-                <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-door-open"></i>
+                <button type="submit" class="btn btn-primary btn-block" disabled><i class="fas fa-door-open"></i>
                     @lang('eventmie-pro::em.confirm_register')</button>
 
                 <div class="d-flex justify-content-between mb-2 pb-2 mt-3 text-sm ">
@@ -119,5 +132,22 @@
 
         </div>
     </div>
+
+    @vite('eventmie-pro/resources/js/register/index.js')
+
+    <script>
+        // Adicionar listeners para atualizar os campos hidden quando o formulário for submetido
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const privacyAccepted = document.getElementById('privacy_policy_accepted');
+            const termsAccepted = document.getElementById('terms_conditions_accepted');
+            
+            // Verificar se os termos foram aceitos
+            if (privacyAccepted.value !== '1' || termsAccepted.value !== '1') {
+                e.preventDefault();
+                alert('Por favor, leia e aceite a Política de Privacidade e Termos e Condições');
+                return false;
+            }
+        });
+    </script>
 
 @endsection

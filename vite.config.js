@@ -20,6 +20,7 @@ export default defineConfig({
         "eventmie-pro/resources/js/event_earning/index.js",
         "eventmie-pro/resources/js/venues_listing/index.js",
         "eventmie-pro/resources/js/profile/index.js",
+        "eventmie-pro/resources/js/register/index.js",
         "eventmie-pro/resources/sass/theme.scss",
         "eventmie-pro/resources/sass/vendor.scss",
       ],

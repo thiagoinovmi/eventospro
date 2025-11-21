@@ -118,6 +118,10 @@ class RegisterController extends Controller
             'document_type' => ['required', 'in:cpf,cnpj'],
             'document' => ['required', 'string', 'max:32', 'unique:users,document'],
             'accept' => ['required'],
+            'privacy_policy_accepted' => ['required', 'in:1,true'],
+            'terms_conditions_accepted' => ['required', 'in:1,true'],
+            'privacy_policy_accepted_at' => ['required', 'date_format:Y-m-d H:i:s'],
+            'terms_conditions_accepted_at' => ['required', 'date_format:Y-m-d H:i:s'],
         ]);
     }
 
@@ -135,6 +139,10 @@ class RegisterController extends Controller
                     'password'  => Hash::make($data['password']),
                     'document_type' => $data['document_type'],
                     'document'  => $data['document'],
+                    'privacy_policy_accepted' => true,
+                    'terms_conditions_accepted' => true,
+                    'privacy_policy_accepted_at' => $data['privacy_policy_accepted_at'],
+                    'terms_conditions_accepted_at' => $data['terms_conditions_accepted_at'],
                     'role_id'  => 2,
                 ]);
 
