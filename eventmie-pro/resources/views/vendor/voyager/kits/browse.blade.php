@@ -12,6 +12,7 @@
                 <i class="voyager-plus"></i> <span>{{ __('voyager::generic.add_new') }}</span>
             </a>
         @endcan
+        @include('voyager::multilingual.language-selector')
     </div>
 @stop
 
