@@ -1,5 +1,21 @@
 <?php
 return [
+    /* xxxXXXxxx NO NEED TO TRANSLATE THESE xxxXXXxxx */    
+    "lang_en"                                => 'English',
+    "lang_ar"                                => 'عربى',
+    "lang_de"                                => 'Deutsche',
+    "lang_fr"                                => 'Française',
+    "lang_es"                                => 'Español',
+    "lang_hi"                                => 'हिन्दी',
+    "lang_it"                                => 'Italiano',
+    "lang_ja"                                => '日本語',
+    "lang_nl"                                => 'Nederlands',
+    "lang_ru"                                => 'русский',
+    "lang_pt"                                => 'português',
+    "lang_zh_CN"                             => '中国',
+    "lang_zh_TW"                             => '中國',
+    /* xxxXXXxxx NO NEED TO TRANSLATE THESE xxxXXXxxx */    
+
     'reset'                           => 'Redefinir',
     'forgot'                          => 'Esquecido',
     'send'                            => 'Mandar',
