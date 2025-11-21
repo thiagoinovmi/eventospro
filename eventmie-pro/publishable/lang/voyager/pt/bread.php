@@ -40,8 +40,6 @@ return [
     'updated_order'          => 'Order updated successfully',
     'url_slug'               => 'URL Slug (único)',
     'url_slug_ph'            => 'URL slug (ex. posts)',
-    
-    // BREAD Configuration Fields
     'order_column'           => 'Coluna de Ordenação',
     'order_ident_column'     => 'Coluna de Identificação de Ordenação',
     'order_direction'        => 'Direção de Ordenação',
