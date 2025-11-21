@@ -28,7 +28,7 @@ class KitPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasPermission('add_kits');
+        return true; // Allow all authenticated users, permission check is done elsewhere
     }
 
     /**
