@@ -170,6 +170,17 @@
                                 <p>Carregando conteúdo...</p>
                             </div>
                         </div>
+                        <div class="modal-footer border-top">
+                            <div class="form-check me-auto">
+                                <input type="checkbox" class="form-check-input" id="privacyCheckbox">
+                                <label class="form-check-label" for="privacyCheckbox">
+                                    Li e aceito a Política de Privacidade
+                                </label>
+                            </div>
+                            <button type="button" class="btn btn-primary" id="privacyConfirmBtn" disabled>
+                                <i class="fas fa-check me-2"></i>Confirmar
+                            </button>
+                        </div>
                     </div>
                     
                     <!-- Aba Termos e Condições -->
@@ -180,13 +191,24 @@
                                 <p>Carregando conteúdo...</p>
                             </div>
                         </div>
+                        <div class="modal-footer border-top">
+                            <div class="form-check me-auto">
+                                <input type="checkbox" class="form-check-input" id="termsCheckbox">
+                                <label class="form-check-label" for="termsCheckbox">
+                                    Li e aceito os Termos e Condições de Uso
+                                </label>
+                            </div>
+                            <button type="button" class="btn btn-primary" id="termsConfirmBtn" disabled>
+                                <i class="fas fa-check me-2"></i>Confirmar
+                            </button>
+                        </div>
                     </div>
                 </div>
                 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="confirmTermsBtn" disabled>
-                        <i class="fas fa-check me-2"></i><span id="confirmBtnText">Li e aceito a Política de Privacidade</span>
+                    <button type="button" class="btn btn-success" id="finalConfirmBtn" disabled>
+                        <i class="fas fa-check-double me-2"></i>Confirmar Aceitação Completa
                     </button>
                 </div>
             </div>

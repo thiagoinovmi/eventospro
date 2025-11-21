@@ -1,6 +1,6 @@
-// Script para gerenciar o modal de termos com abas
-// Validação de scroll para cada aba
-// Checks verdes quando ler completamente
+// Script para gerenciar o modal de termos com abas independentes
+// Cada aba tem seu próprio botão de confirmação
+// Botão de registro só libera quando ambas forem confirmadas
 
 (function() {
     'use strict';
@@ -10,8 +10,8 @@
     const state = {
         privacyRead: false,
         termsRead: false,
-        privacyAccepted: false,
-        termsAccepted: false
+        privacyConfirmed: false,
+        termsConfirmed: false
     };
 
     function initTermsModal() {
@@ -96,17 +96,10 @@
                         document.body.appendChild(backdrop);
                     }
                     
-                    // Resetar estado APENAS se o modal foi fechado antes
-                    // Se já tem algo aceito, não resetar
-                    if (!state.privacyAccepted && !state.termsAccepted) {
-                        console.log('[TermsModal] Resetando estado (primeira abertura)');
-                        state.privacyRead = false;
-                        state.termsRead = false;
-                    } else {
-                        console.log('[TermsModal] Mantendo estado anterior');
-                    }
+                    // Resetar estado de leitura mas manter confirmações
+                    console.log('[TermsModal] Modal aberto - Estado atual:', JSON.stringify(state));
                     updateCheckmarks();
-                    updateConfirmButton();
+                    updateFinalButton();
                 } else {
                     console.error('[TermsModal] Modal não encontrado');
                 }
@@ -198,112 +191,101 @@
             }
         }
 
-        function updateConfirmButton() {
-            const confirmBtn = document.getElementById('confirmTermsBtn');
-            console.log('[TermsModal] updateConfirmButton chamado - Estado:', state);
+        function updateFinalButton() {
+            const finalConfirmBtn = document.getElementById('finalConfirmBtn');
+            console.log('[TermsModal] updateFinalButton chamado - Estado:', JSON.stringify(state));
             
-            if (confirmBtn) {
-                // Etapa 1: Habilitar quando política for lida
-                if (state.privacyRead && !state.privacyAccepted) {
-                    confirmBtn.disabled = false;
-                    console.log('[TermsModal] ✓ Etapa 1: Botão habilitado para aceitar Política');
-                    console.log('[TermsModal] privacyRead:', state.privacyRead, 'privacyAccepted:', state.privacyAccepted);
-                }
-                // Etapa 2: Habilitar quando termos forem lidos
-                else if (state.termsRead && state.privacyAccepted && !state.termsAccepted) {
-                    confirmBtn.disabled = false;
-                    console.log('[TermsModal] ✓ Etapa 2: Botão habilitado para aceitar Termos');
-                    console.log('[TermsModal] termsRead:', state.termsRead, 'privacyAccepted:', state.privacyAccepted, 'termsAccepted:', state.termsAccepted);
-                }
-                // Desabilitar em outros casos
-                else {
-                    confirmBtn.disabled = true;
-                    console.log('[TermsModal] ✗ Botão desabilitado - Condições não atendidas');
-                    console.log('[TermsModal] privacyRead:', state.privacyRead, 'privacyAccepted:', state.privacyAccepted);
-                    console.log('[TermsModal] termsRead:', state.termsRead, 'termsAccepted:', state.termsAccepted);
+            if (finalConfirmBtn) {
+                // Habilitar apenas quando ambas forem confirmadas
+                if (state.privacyConfirmed && state.termsConfirmed) {
+                    finalConfirmBtn.disabled = false;
+                    console.log('[TermsModal] ✓ Botão final habilitado - Ambas confirmadas');
+                } else {
+                    finalConfirmBtn.disabled = true;
+                    console.log('[TermsModal] ✗ Botão final desabilitado');
+                    console.log('[TermsModal] privacyConfirmed:', state.privacyConfirmed, 'termsConfirmed:', state.termsConfirmed);
                 }
             } else {
-                console.error('[TermsModal] Botão confirmTermsBtn não encontrado!');
+                console.error('[TermsModal] Botão finalConfirmBtn não encontrado!');
             }
         }
 
-        // Confirmar aceitação (com dois estados)
-        const confirmBtn = document.getElementById('confirmTermsBtn');
-        const confirmBtnText = document.getElementById('confirmBtnText');
+        // Botão de confirmação da Política de Privacidade
+        const privacyCheckbox = document.getElementById('privacyCheckbox');
+        const privacyConfirmBtn = document.getElementById('privacyConfirmBtn');
         
-        if (confirmBtn) {
-            confirmBtn.addEventListener('click', function() {
-                console.log('[TermsModal] Botão clicado - Estado:', state);
+        if (privacyCheckbox && privacyConfirmBtn) {
+            privacyCheckbox.addEventListener('change', function() {
+                console.log('[TermsModal] Checkbox Política mudou:', this.checked);
+                privacyConfirmBtn.disabled = !this.checked;
+            });
+            
+            privacyConfirmBtn.addEventListener('click', function() {
+                console.log('[TermsModal] Confirmando Política de Privacidade');
+                if (!privacyCheckbox.checked) {
+                    alert('Por favor, marque o checkbox');
+                    return;
+                }
+                state.privacyConfirmed = true;
+                console.log('[TermsModal] Estado:', JSON.stringify(state));
+                updateFinalButton();
+            });
+        }
+        
+        // Botão de confirmação dos Termos e Condições
+        const termsCheckbox = document.getElementById('termsCheckbox');
+        const termsConfirmBtn = document.getElementById('termsConfirmBtn');
+        
+        if (termsCheckbox && termsConfirmBtn) {
+            termsCheckbox.addEventListener('change', function() {
+                console.log('[TermsModal] Checkbox Termos mudou:', this.checked);
+                termsConfirmBtn.disabled = !this.checked;
+            });
+            
+            termsConfirmBtn.addEventListener('click', function() {
+                console.log('[TermsModal] Confirmando Termos e Condições');
+                if (!termsCheckbox.checked) {
+                    alert('Por favor, marque o checkbox');
+                    return;
+                }
+                state.termsConfirmed = true;
+                console.log('[TermsModal] Estado:', JSON.stringify(state));
+                updateFinalButton();
+            });
+        }
+        
+        // Botão final de confirmação
+        const finalConfirmBtn = document.getElementById('finalConfirmBtn');
+        if (finalConfirmBtn) {
+            finalConfirmBtn.addEventListener('click', function() {
+                console.log('[TermsModal] Confirmação final - Estado:', JSON.stringify(state));
                 
-                // Etapa 1: Aceitar Política de Privacidade
-                if (state.privacyRead && !state.privacyAccepted) {
-                    console.log('[TermsModal] Etapa 1: Aceitando Política de Privacidade');
-                    state.privacyAccepted = true;
-                    
-                    // Mudar texto do botão
-                    if (confirmBtnText) {
-                        confirmBtnText.textContent = 'Li e aceito os Termos e Condições de Uso';
-                    }
-                    
-                    // Desabilitar botão até ler termos
-                    confirmBtn.disabled = true;
-                    
-                    // Mudar para aba de termos usando Bootstrap Tab API
-                    setTimeout(() => {
-                        const termsTabElement = document.getElementById('terms-content');
-                        if (termsTabElement) {
-                            // Usar Bootstrap Tab API
-                            if (typeof bootstrap !== 'undefined' && bootstrap.Tab) {
-                                const tab = new bootstrap.Tab(document.getElementById('terms-tab'));
-                                tab.show();
-                                console.log('[TermsModal] ✓ Mudando para aba de Termos (Bootstrap Tab API)');
-                            } else {
-                                // Fallback: clicar no botão
-                                const termsTab = document.getElementById('terms-tab');
-                                if (termsTab) {
-                                    termsTab.click();
-                                    console.log('[TermsModal] ✓ Mudando para aba de Termos (click)');
-                                }
-                            }
-                        }
-                    }, 300);
-                    
+                if (!state.privacyConfirmed || !state.termsConfirmed) {
+                    alert('Por favor, confirme ambos os documentos');
                     return;
                 }
                 
-                // Etapa 2: Aceitar Termos e Condições
-                if (state.termsRead && !state.termsAccepted) {
-                    console.log('[TermsModal] Etapa 2: Aceitando Termos e Condições');
-                    state.termsAccepted = true;
-                    
-                    // Atualizar campos hidden
-                    document.getElementById('privacy_policy_accepted').value = '1';
-                    document.getElementById('terms_conditions_accepted').value = '1';
-                    document.getElementById('privacy_policy_accepted_at').value = new Date().toISOString();
-                    document.getElementById('terms_conditions_accepted_at').value = new Date().toISOString();
-                    
-                    // Habilitar o botão de submit
-                    const submitButton = document.querySelector('button[type="submit"]');
-                    if (submitButton) {
-                        submitButton.disabled = false;
-                        console.log('[TermsModal] Botão de submit habilitado');
-                    }
-                    
-                    // Esconder mensagem de aviso
-                    const warningMessage = document.getElementById('terms-warning');
-                    if (warningMessage) {
-                        warningMessage.style.display = 'none';
-                        console.log('[TermsModal] Mensagem de aviso escondida');
-                    }
-                    
-                    // Fechar modal
-                    closeModal();
-                    return;
+                // Atualizar campos hidden
+                document.getElementById('privacy_policy_accepted').value = '1';
+                document.getElementById('terms_conditions_accepted').value = '1';
+                document.getElementById('privacy_policy_accepted_at').value = new Date().toISOString();
+                document.getElementById('terms_conditions_accepted_at').value = new Date().toISOString();
+                
+                // Habilitar o botão de submit
+                const submitButton = document.querySelector('button[type="submit"]');
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    console.log('[TermsModal] ✓ Botão de submit habilitado');
                 }
                 
-                // Se chegou aqui, algo está errado
-                console.log('[TermsModal] Estado inválido');
-                alert('Por favor, leia completamente o documento atual');
+                // Esconder mensagem de aviso
+                const warningMessage = document.getElementById('terms-warning');
+                if (warningMessage) {
+                    warningMessage.style.display = 'none';
+                }
+                
+                // Fechar modal
+                closeModal();
             });
         }
 
