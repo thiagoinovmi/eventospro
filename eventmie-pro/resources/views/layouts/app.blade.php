@@ -9,6 +9,9 @@
 
     @include('eventmie::layouts.include_css')
     
+    {{-- CSS para modal de termos --}}
+    <link rel="stylesheet" href="{{ asset('css/terms-modal.css') }}">
+    
     {!! CookieConsent::styles() !!}
 
     @yield('stylesheet')
