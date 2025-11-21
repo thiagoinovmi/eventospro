@@ -1,8 +1,12 @@
-import { createApp } from 'vue';
+import Vue from 'vue';
 import TermsModal from './components/TermsModal.vue';
 
+// Registrar o componente globalmente
+Vue.component('TermsModal', TermsModal);
+
 // Inicializar o app Vue para o modal de termos
-const registerApp = createApp({
+new Vue({
+  el: '#register-app',
   components: {
     TermsModal
   },
@@ -21,10 +25,22 @@ const registerApp = createApp({
       this.privacyAcceptedAt = data.privacy_policy_accepted_at;
       this.termsAcceptedAt = data.terms_conditions_accepted_at;
       
+      // Atualizar campos hidden
+      document.getElementById('privacy_policy_accepted').value = '1';
+      document.getElementById('terms_conditions_accepted').value = '1';
+      document.getElementById('privacy_policy_accepted_at').value = data.privacy_policy_accepted_at;
+      document.getElementById('terms_conditions_accepted_at').value = data.terms_conditions_accepted_at;
+      
       // Habilitar o botão de submit
       const submitButton = document.querySelector('button[type="submit"]');
       if (submitButton) {
         submitButton.disabled = false;
+      }
+      
+      // Esconder mensagem de aviso
+      const warningMessage = document.getElementById('terms-warning');
+      if (warningMessage) {
+        warningMessage.style.display = 'none';
       }
     },
     showTermsModal() {
@@ -38,19 +54,13 @@ const registerApp = createApp({
       submitButton.disabled = true;
     }
     
-    // Adicionar listener ao link de termos
-    const termsLink = document.querySelector('[data-terms-link]');
-    if (termsLink) {
-      termsLink.addEventListener('click', (e) => {
+    // Adicionar listener ao botão de termos
+    const termsButton = document.querySelector('[data-terms-button]');
+    if (termsButton) {
+      termsButton.addEventListener('click', (e) => {
         e.preventDefault();
         this.showTermsModal();
       });
     }
   }
 });
-
-// Montar o app se o elemento existir
-const registerElement = document.getElementById('register-app');
-if (registerElement) {
-  registerApp.mount(registerElement);
-}

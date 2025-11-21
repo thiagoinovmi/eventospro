@@ -79,23 +79,23 @@ export default {
     this.fetchPages();
   },
   methods: {
-    async fetchPages() {
-      try {
-        // Buscar Política de Privacidade
-        const privacyResponse = await fetch(`/api/pages/${this.privacyPageId}`);
-        const privacyData = await privacyResponse.json();
-        this.privacyContent = privacyData.body || 'Conteúdo não disponível';
+    fetchPages() {
+      // Buscar Política de Privacidade
+      fetch(`/api/pages/${this.privacyPageId}`)
+        .then(response => response.json())
+        .then(data => {
+          this.privacyContent = data.body || 'Conteúdo não disponível';
+        })
+        .catch(error => console.error('Erro ao buscar Política de Privacidade:', error));
 
-        // Buscar Termos e Condições
-        const termsResponse = await fetch(`/api/pages/${this.termsPageId}`);
-        const termsData = await termsResponse.json();
-        this.termsContent = termsData.body || 'Conteúdo não disponível';
-
-        this.loading = false;
-      } catch (error) {
-        console.error('Erro ao buscar páginas:', error);
-        this.loading = false;
-      }
+      // Buscar Termos e Condições
+      fetch(`/api/pages/${this.termsPageId}`)
+        .then(response => response.json())
+        .then(data => {
+          this.termsContent = data.body || 'Conteúdo não disponível';
+          this.loading = false;
+        })
+        .catch(error => console.error('Erro ao buscar Termos e Condições:', error));
     },
     handleScroll() {
       const element = this.$refs.modalBody;

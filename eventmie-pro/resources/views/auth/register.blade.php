@@ -81,15 +81,22 @@
                 <input type="hidden" name="privacy_policy_accepted_at" id="privacy_policy_accepted_at" value="">
                 <input type="hidden" name="terms_conditions_accepted_at" id="terms_conditions_accepted_at" value="">
 
-                <div class="mb-2">
+                <div class="mb-3">
                     <input class="form-check-input" type="checkbox" name="accept" id="accept" checked value="1"
                         hidden>
-                    <p class="text-sm">
-                        <a href="#" data-terms-link>Leia e aceite a Política de Privacidade e Termos e Condições</a>
-                    </p>
+                    <button type="button" class="btn btn-info btn-block mb-3" data-terms-button>
+                        <i class="fas fa-file-contract"></i>
+                        Leia e Aceite a Política de Privacidade e Termos e Condições
+                    </button>
                 </div>
-                <!-- button -->
 
+                <!-- Mensagem de aviso -->
+                <div class="alert alert-danger mb-3" id="terms-warning" role="alert">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <strong>Atenção!</strong> Você deve ler e aceitar a Política de Privacidade e Termos e Condições para prosseguir com o cadastro.
+                </div>
+
+                <!-- button -->
                 <button type="submit" class="btn btn-primary btn-block" disabled><i class="fas fa-door-open"></i>
                     @lang('eventmie-pro::em.confirm_register')</button>
 
