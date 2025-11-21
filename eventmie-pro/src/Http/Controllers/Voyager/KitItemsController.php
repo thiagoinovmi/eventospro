@@ -157,15 +157,20 @@ class KitItemsController extends VoyagerBaseController
                 ]);
                 
                 if (!empty($files)) {
-                    // Usar o arquivo mais recente
-                    $latestFile = null;
-                    $latestTime = 0;
-                    
-                    foreach ($files as $file) {
-                        $time = $file->getMTime();
-                        if ($time > $latestTime) {
-                            $latestTime = $time;
-                            $latestFile = $file->getFilename();
+                    // Se há apenas 1 arquivo, usar esse
+                    if (count($files) === 1) {
+                        $latestFile = $files[0]->getFilename();
+                    } else {
+                        // Se há múltiplos, usar o mais recente
+                        $latestFile = null;
+                        $latestTime = 0;
+                        
+                        foreach ($files as $file) {
+                            $time = $file->getMTime();
+                            if ($time > $latestTime) {
+                                $latestTime = $time;
+                                $latestFile = $file->getFilename();
+                            }
                         }
                     }
                     
@@ -177,6 +182,7 @@ class KitItemsController extends VoyagerBaseController
                         \Log::info('KitItemsController - Imagem corrigida', [
                             'old_path' => $imagePath,
                             'new_path' => $newPath,
+                            'file_count' => count($files),
                         ]);
                     }
                 } else {
