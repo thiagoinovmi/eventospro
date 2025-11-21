@@ -148,7 +148,7 @@ return [
     'organisers'                      => 'Organizadores',
     'become'                          => 'Tornar-se',
     'want_to_create_host'             => 'Quer criar e hospedar eventos?',
-    'organiser_note_1'                => 'Depois de se tornar um organizador, você não poderá se tornar cliente novamente.',
+    'organiser_note_1'                => 'Caso torne-se um organizador, orientamos o uso apenas para gestão e organização de eventos. Caso deseje possuir um perfil de usuário comum, faça o cadastro de uma nova conta.',
     'organiser_note_2'                => 'Os organizadores podem adicionar e gerenciar seus próprios eventos e não podem reservar nenhum evento.',
     'organiser_note_3'                => 'Os organizadores podem reservar seus eventos para qualquer cliente (usuário) do site.',
     'organiser_note_4'                => 'Os organizadores podem gerenciar as reservas de seus próprios eventos apenas.',
