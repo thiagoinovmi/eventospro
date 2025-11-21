@@ -108,6 +108,7 @@ return [
     "pages"                                           => "Páginas",
     "Event"                                           => "Evento",
     "Events"                                          => "Eventos",
+    "events"                                          => "Eventos",
     "Category"                                        => "Categoria",
     "Categories"                                      => "Categorias",
     "categories"                                      => "Categorias",
