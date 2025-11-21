@@ -128,14 +128,8 @@ class KitItemsController extends VoyagerBaseController
     {
         $storageDisk = getDisk();
 
-        \Log::info('KitItemsController::processImage - Iniciando', [
-            'has_file' => $request->hasFile('image'),
-            'disk' => $storageDisk,
-        ]);
-
         // Apenas processar se houver arquivo de imagem
         if (!$request->hasFile('image')) {
-            \Log::info('KitItemsController::processImage - Sem arquivo de imagem');
             return;
         }
 
@@ -143,80 +137,34 @@ class KitItemsController extends VoyagerBaseController
             $path = 'kit-items/' . \Carbon\Carbon::now()->format('FY') . '/';
             $imageName = time() . rand(1, 999) . '.jpg';
 
-            \Log::info('KitItemsController::processImage - Processando', [
-                'path' => $path,
-                'image_name' => $imageName,
-            ]);
-
             // Processar a imagem
             $image = \Intervention\Image\Facades\Image::make($request->file('image'));
-            
-            // Obter conteúdo ANTES de codificar
             $imageContent = $image->encode('jpg', 90)->getEncoded();
-
-            \Log::info('KitItemsController::processImage - Imagem codificada', [
-                'size' => strlen($imageContent),
-                'type' => gettype($imageContent),
-            ]);
 
             if ($storageDisk === 's3') {
                 // Salvar no S3
                 \Illuminate\Support\Facades\Storage::disk('s3')->put($path . $imageName, $imageContent);
                 $imageUrl = $path . $imageName;
             } else {
-                // Salvar localmente - usar file_put_contents
+                // Salvar localmente
                 $fullPath = storage_path('app/public/' . $path);
                 
                 // Criar diretório se não existir
                 if (!is_dir($fullPath)) {
                     mkdir($fullPath, 0775, true);
-                    \Log::info('KitItemsController::processImage - Diretório criado', [
-                        'directory' => $fullPath,
-                    ]);
                 }
                 
                 // Salvar conteúdo da imagem como arquivo
                 $filePath = $fullPath . $imageName;
-                
-                \Log::info('KitItemsController::processImage - Antes de salvar', [
-                    'file_path' => $filePath,
-                    'content_size' => strlen($imageContent),
-                    'dir_exists' => is_dir($fullPath),
-                    'dir_writable' => is_writable($fullPath),
-                ]);
-                
-                $bytesWritten = file_put_contents($filePath, $imageContent);
+                file_put_contents($filePath, $imageContent);
                 chmod($filePath, 0644);
-                
-                \Log::info('KitItemsController::processImage - Após salvar', [
-                    'bytes_written' => $bytesWritten,
-                    'file_exists' => file_exists($filePath),
-                    'file_size' => file_exists($filePath) ? filesize($filePath) : 0,
-                ]);
                 
                 $imageUrl = $path . $imageName;
             }
 
-            \Log::info('KitItemsController::processImage - Arquivo salvo', [
-                'image_url' => $imageUrl,
-                'full_path' => storage_path('app/public/' . $imageUrl),
-                'exists' => \File::exists(storage_path('app/public/' . $imageUrl)),
-                'file_size' => \File::exists(storage_path('app/public/' . $imageUrl)) ? filesize(storage_path('app/public/' . $imageUrl)) : 0,
-            ]);
-
             // Fazer merge no request com o caminho correto
             $request->merge(['image' => $imageUrl]);
-
-            \Log::info('KitItemsController::processImage - Sucesso', [
-                'image_name' => $imageName,
-                'image_url' => $imageUrl,
-                'disk' => $storageDisk,
-            ]);
         } catch (\Exception $e) {
-            \Log::error('KitItemsController::processImage - Erro', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
             throw $e;
         }
     }
