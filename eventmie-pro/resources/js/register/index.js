@@ -1,9 +1,6 @@
 import Vue from 'vue';
 import TermsModal from './components/TermsModal.vue';
 
-// Registrar o componente globalmente
-Vue.component('TermsModal', TermsModal);
-
 // Inicializar o app Vue para o modal de termos
 new Vue({
   el: '#register-app',
