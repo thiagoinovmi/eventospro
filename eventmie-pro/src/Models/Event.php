@@ -287,7 +287,14 @@ class Event extends Model
     {
         return $this->belongsTo(Category::class);
     }
-    
+
+    /**
+     * Get the kits for this event.
+     */
+    public function kits()
+    {
+        return $this->belongsToMany(Kit::class, 'event_kit');
+    }
 
     /**
      * =====================GEt events for particular organiser start=====================================

@@ -7,7 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 class Category extends Model
 {
     protected $guarded = [];
-     /**
+
+    protected $casts = [
+        'has_kit' => 'boolean',
+    ];
+
+    /**
      * getThumbAttribute
      *
      * @param  mixed $value
@@ -29,6 +34,14 @@ class Category extends Model
     public function events()
     {
         return $this->hasMany(Event::class);
+    }
+
+    /**
+     * Get the kits for this category.
+     */
+    public function kits()
+    {
+        return $this->hasMany(Kit::class, 'category_id');
     }
 
     // get categories
