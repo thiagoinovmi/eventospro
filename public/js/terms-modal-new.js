@@ -5,8 +5,6 @@
 (function() {
     'use strict';
 
-    console.log('[TermsModal] Script carregado');
-
     const state = {
         privacyRead: false,
         privacyConfirmed: false,
@@ -15,20 +13,16 @@
     };
 
     function initTermsModals() {
-        console.log('[TermsModal] Inicializando...');
-
         // Carregar Política de Privacidade
         fetch('/api/pages/2')
             .then(response => response.json())
             .then(data => {
-                console.log('[TermsModal] Política carregada');
                 const privacyTitle = document.getElementById('privacy-title');
                 const privacyContent = document.getElementById('privacyContent');
                 if (privacyTitle) privacyTitle.textContent = data.title || 'Política de Privacidade';
                 if (privacyContent) privacyContent.innerHTML = data.body || 'Conteúdo não disponível';
             })
             .catch(error => {
-                console.error('[TermsModal] Erro ao carregar política:', error);
                 const privacyContent = document.getElementById('privacyContent');
                 if (privacyContent) privacyContent.innerHTML = 'Erro ao carregar conteúdo';
             });
@@ -37,14 +31,12 @@
         fetch('/api/pages/3')
             .then(response => response.json())
             .then(data => {
-                console.log('[TermsModal] Termos carregados');
                 const termsTitle = document.getElementById('terms-title');
                 const termsContent = document.getElementById('termsContent');
                 if (termsTitle) termsTitle.textContent = data.title || 'Termos e Condições de Uso';
                 if (termsContent) termsContent.innerHTML = data.body || 'Conteúdo não disponível';
             })
             .catch(error => {
-                console.error('[TermsModal] Erro ao carregar termos:', error);
                 const termsContent = document.getElementById('termsContent');
                 if (termsContent) termsContent.innerHTML = 'Erro ao carregar conteúdo';
             });
@@ -54,7 +46,6 @@
         if (privacyButton) {
             privacyButton.addEventListener('click', function(e) {
                 e.preventDefault();
-                console.log('[TermsModal] Abrindo modal de Política');
                 openModal('privacyModal');
             });
         }
@@ -64,7 +55,6 @@
         if (termsButton) {
             termsButton.addEventListener('click', function(e) {
                 e.preventDefault();
-                console.log('[TermsModal] Abrindo modal de Termos');
                 openModal('termsModal');
             });
         }
@@ -94,14 +84,11 @@
             privacyCheckbox.disabled = true;
             
             privacyCheckbox.addEventListener('change', function() {
-                console.log('[TermsModal] Checkbox Política mudou:', this.checked);
-                
                 if (this.checked) {
                     // Marcado: habilitar botão
                     privacyConfirmBtn.disabled = false;
                 } else {
                     // Desmarcado: resetar estado e desabilitar botão
-                    console.log('[TermsModal] ⚠ Política desmarcada - Resetando estado');
                     state.privacyConfirmed = false;
                     privacyConfirmBtn.disabled = true;
                     updateButtons();
@@ -113,7 +100,6 @@
                     alert('Por favor, marque o checkbox');
                     return;
                 }
-                console.log('[TermsModal] Confirmando Política de Privacidade');
                 state.privacyConfirmed = true;
                 updateButtons();
                 closeModal('privacyModal');
@@ -129,14 +115,11 @@
             termsCheckbox.disabled = true;
             
             termsCheckbox.addEventListener('change', function() {
-                console.log('[TermsModal] Checkbox Termos mudou:', this.checked);
-                
                 if (this.checked) {
                     // Marcado: habilitar botão
                     termsConfirmBtn.disabled = false;
                 } else {
                     // Desmarcado: resetar estado e desabilitar botão
-                    console.log('[TermsModal] ⚠ Termos desmarcados - Resetando estado');
                     state.termsConfirmed = false;
                     termsConfirmBtn.disabled = true;
                     updateButtons();
@@ -148,7 +131,6 @@
                     alert('Por favor, marque o checkbox');
                     return;
                 }
-                console.log('[TermsModal] Confirmando Termos e Condições');
                 state.termsConfirmed = true;
                 updateButtons();
                 closeModal('termsModal');
@@ -177,8 +159,6 @@
                 }
             });
         }
-
-        console.log('[TermsModal] Inicialização completa');
     }
 
     function checkScroll(type, element) {
@@ -186,25 +166,21 @@
 
         if (isAtBottom) {
             if (type === 'privacy' && !state.privacyRead) {
-                console.log('[TermsModal] ✓ Política lida completamente');
                 state.privacyRead = true;
                 
                 // Habilitar checkbox
                 const privacyCheckbox = document.getElementById('privacyAcceptCheckbox');
                 if (privacyCheckbox) {
                     privacyCheckbox.disabled = false;
-                    console.log('[TermsModal] ✓ Checkbox de Política habilitado');
                 }
                 updateButtons();
             } else if (type === 'terms' && !state.termsRead) {
-                console.log('[TermsModal] ✓ Termos lidos completamente');
                 state.termsRead = true;
                 
                 // Habilitar checkbox
                 const termsCheckbox = document.getElementById('termsAcceptCheckbox');
                 if (termsCheckbox) {
                     termsCheckbox.disabled = false;
-                    console.log('[TermsModal] ✓ Checkbox de Termos habilitado');
                 }
                 updateButtons();
             }
@@ -212,8 +188,6 @@
     }
 
     function updateButtons() {
-        console.log('[TermsModal] Estado:', JSON.stringify(state));
-
         // Atualizar botão de Política
         const privacyButton = document.getElementById('privacyButton');
         const privacyCheckIcon = document.getElementById('privacyCheckIcon');
@@ -222,7 +196,6 @@
                 privacyButton.classList.remove('btn-danger');
                 privacyButton.classList.add('btn-success');
                 if (privacyCheckIcon) privacyCheckIcon.style.display = 'inline';
-                console.log('[TermsModal] ✓ Botão Política verde');
             } else {
                 privacyButton.classList.add('btn-danger');
                 privacyButton.classList.remove('btn-success');
@@ -238,7 +211,6 @@
                 termsButton.classList.remove('btn-danger');
                 termsButton.classList.add('btn-success');
                 if (termsCheckIcon) termsCheckIcon.style.display = 'inline';
-                console.log('[TermsModal] ✓ Botão Termos verde');
             } else {
                 termsButton.classList.add('btn-danger');
                 termsButton.classList.remove('btn-success');
@@ -254,7 +226,6 @@
         if (submitButton) {
             if (state.privacyConfirmed && state.termsConfirmed) {
                 submitButton.disabled = false;
-                console.log('[TermsModal] ✓ Botão de registro habilitado');
 
                 // Atualizar campos hidden
                 document.getElementById('privacy_policy_accepted').value = '1';
@@ -265,7 +236,6 @@
                 // Esconder mensagem de aviso
                 if (warningMessage) {
                     warningMessage.style.display = 'none';
-                    console.log('[TermsModal] ✓ Mensagem de aviso escondida');
                 }
             } else {
                 submitButton.disabled = true;
@@ -273,7 +243,6 @@
                 // Mostrar mensagem de aviso
                 if (warningMessage) {
                     warningMessage.style.display = 'block';
-                    console.log('[TermsModal] ⚠ Mensagem de aviso exibida');
                 }
             }
         }
