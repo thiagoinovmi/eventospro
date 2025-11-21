@@ -5,10 +5,17 @@
 @section('page_header')
     <div class="container-fluid">
         <h1 class="page-title">
-            <i class="{{ $dataType->icon }}"></i> {{ trans('voyager::generic.' . strtolower($dataType->slug)) ?? $dataType->getTranslatedAttribute('display_name_plural') }}
+            <i class="{{ $dataType->icon }}"></i> 
+            {{ trans('voyager::generic.' . strtolower($dataType->slug)) ?? $dataType->getTranslatedAttribute('display_name_plural') }}
+            @if(isset($kit))
+                <small>do Kit: <strong>{{ $kit->name }}</strong></small>
+            @endif
         </h1>
-        <a href="{{ route('voyager.'.$dataType->slug.'.create') }}" class="btn btn-success btn-add-new">
+        <a href="{{ route('voyager.'.$dataType->slug.'.create', ['kit_id' => request('kit_id')]) }}" class="btn btn-success btn-add-new">
             <i class="voyager-plus"></i> <span>{{ __('voyager::generic.add_new') }}</span>
+        </a>
+        <a href="{{ route('voyager.kits.index') }}" class="btn btn-default btn-add-new">
+            <i class="voyager-arrow-left"></i> <span>Voltar aos Kits</span>
         </a>
         @include('voyager::multilingual.language-selector')
     </div>
@@ -46,18 +53,16 @@
                                             <td>
                                                 @if (isset($row->details->view))
                                                     @include($row->details->view, ['row' => $row, 'dataType' => $dataType, 'dataTypeContent' => $dataTypeContent, 'content' => $data->{$row->field}, 'action' => 'browse', 'view' => 'browse', 'options' => $row->details])
-                                                @elseif($row->type == 'checkbox')
-                                                    @if($data->{$row->field})
-                                                        <span class="label label-success">{{ __('voyager::generic.yes') }}</span>
-                                                    @else
-                                                        <span class="label label-danger">{{ __('voyager::generic.no') }}</span>
-                                                    @endif
+                                                @elseif($row->type == 'image')
+                                                    <img src="@if( !filter_var($data->{$row->field}, FILTER_VALIDATE_URL)){{ Voyager::image( $data->{$row->field} ) }}@else{{ $data->{$row->field} }}@endif" style="width:100px">
+                                                @elseif($row->type == 'relationship')
+                                                    @include('voyager::formfields.relationship', ['view' => 'browse','options' => $row->details])
                                                 @elseif($row->type == 'text')
                                                     <div>{{ mb_strlen( $data->{$row->field} ) > 100 ? mb_substr($data->{$row->field}, 0, 100) . ' ...' : $data->{$row->field} }}</div>
                                                 @elseif($row->type == 'text_area')
                                                     <div>{{ mb_strlen( $data->{$row->field} ) > 100 ? mb_substr($data->{$row->field}, 0, 100) . ' ...' : $data->{$row->field} }}</div>
-                                                @elseif($row->type == 'relationship')
-                                                    @include('voyager::formfields.relationship', ['view' => 'browse','options' => $row->details])
+                                                @elseif($row->type == 'number')
+                                                    {{ $data->{$row->field} }}
                                                 @else
                                                     <span>{{ $data->{$row->field} }}</span>
                                                 @endif
@@ -65,9 +70,6 @@
                                         @endforeach
                                         
                                         <td class="no-sort no-click bread-actions">
-                                            <a href="{{ route('voyager.kit-items.index', ['kit_id' => $data->getKey()]) }}" class="btn btn-sm btn-info pull-right manage-items">
-                                                <i class="voyager-list"></i> <span class="hidden-xs hidden-sm">Itens</span>
-                                            </a>
                                             @can('read', $data)
                                                 <a href="{{ route('voyager.'.$dataType->slug.'.show', $data->getKey()) }}" class="btn btn-sm btn-warning pull-right view">
                                                     <i class="voyager-eye"></i> <span class="hidden-xs hidden-sm">{{ __('voyager::generic.view') }}</span>
