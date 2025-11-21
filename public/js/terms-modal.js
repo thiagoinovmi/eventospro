@@ -96,9 +96,15 @@
                         document.body.appendChild(backdrop);
                     }
                     
-                    // Resetar estado
-                    state.privacyRead = false;
-                    state.termsRead = false;
+                    // Resetar estado APENAS se o modal foi fechado antes
+                    // Se já tem algo aceito, não resetar
+                    if (!state.privacyAccepted && !state.termsAccepted) {
+                        console.log('[TermsModal] Resetando estado (primeira abertura)');
+                        state.privacyRead = false;
+                        state.termsRead = false;
+                    } else {
+                        console.log('[TermsModal] Mantendo estado anterior');
+                    }
                     updateCheckmarks();
                     updateConfirmButton();
                 } else {
@@ -156,23 +162,24 @@
 
         function checkIfScrolledToBottom(element, type) {
             const isAtBottom = element.scrollHeight - element.scrollTop <= element.clientHeight + 10;
+            console.log('[TermsModal] Scroll check -', type, '- isAtBottom:', isAtBottom, '- scrollHeight:', element.scrollHeight, '- scrollTop:', element.scrollTop, '- clientHeight:', element.clientHeight);
             
             if (isAtBottom) {
                 if (type === 'privacy') {
                     if (!state.privacyRead) {
-                        console.log('[TermsModal] Política de Privacidade lida completamente');
+                        console.log('[TermsModal] ✓ Política de Privacidade lida completamente');
                         state.privacyRead = true;
                         updateCheckmarks();
                         updateConfirmButton();
-                        console.log('[TermsModal] Estado após ler política:', state);
+                        console.log('[TermsModal] Estado após ler política:', JSON.stringify(state));
                     }
                 } else if (type === 'terms') {
                     if (!state.termsRead) {
-                        console.log('[TermsModal] Termos e Condições lidos completamente');
+                        console.log('[TermsModal] ✓ Termos e Condições lidos completamente');
                         state.termsRead = true;
                         updateCheckmarks();
                         updateConfirmButton();
-                        console.log('[TermsModal] Estado após ler termos:', state);
+                        console.log('[TermsModal] Estado após ler termos:', JSON.stringify(state));
                     }
                 }
             }
