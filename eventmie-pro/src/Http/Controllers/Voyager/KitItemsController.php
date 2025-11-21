@@ -78,6 +78,11 @@ class KitItemsController extends VoyagerBaseController
         // Use insertUpdateData para processar corretamente
         $data = $this->insertUpdateData($request, $slug, $dataType->addRows, new $dataType->model_name());
 
+        // Se não temos kit_id no request, atualizar o item com kit_id da URL
+        if (!$data->kit_id && $kit_id) {
+            $data->update(['kit_id' => $kit_id]);
+        }
+
         event(new BreadDataAdded($dataType, $data));
 
         if (!$request->has('_tagging')) {

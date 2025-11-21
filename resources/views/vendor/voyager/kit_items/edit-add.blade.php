@@ -37,11 +37,6 @@
                         <!-- CSRF TOKEN -->
                         {{ csrf_field() }}
 
-                        <!-- Kit ID Hidden Field -->
-                        @if(request('kit_id'))
-                            <input type="hidden" name="kit_id" value="{{ request('kit_id') }}">
-                        @endif
-
                         <div class="panel-body">
 
                             @if (count($errors) > 0)
