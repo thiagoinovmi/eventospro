@@ -20,10 +20,19 @@ class KitItemsController extends VoyagerBaseController
      */
     public function index(Request $request)
     {
-        // Se houver kit_id, filtrar por kit
+        // Se houver kit_id, usar view customizada
         if ($request->has('kit_id') && $request->kit_id) {
             $kit = Kit::findOrFail($request->kit_id);
-            $request->merge(['kit_id' => $kit->id]);
+            
+            // Buscar itens do kit
+            $dataType = Voyager::model('DataType')->where('slug', 'kit-items')->firstOrFail();
+            $dataTypeContent = KitItem::where('kit_id', $kit->id)
+                ->orderBy('order')
+                ->paginate(15);
+            
+            $isServerSide = true;
+            
+            return view('voyager::kit_items.browse-by-kit', compact('dataType', 'dataTypeContent', 'kit', 'isServerSide'));
         }
         
         return parent::index($request);
