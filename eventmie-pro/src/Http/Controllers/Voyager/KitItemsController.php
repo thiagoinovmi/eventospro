@@ -96,11 +96,11 @@ class KitItemsController extends VoyagerBaseController
         // Validate fields with ajax
         $val = $this->validateBread($request->all(), $dataType->addRows)->validate();
 
-        // Agora o insertUpdateData já recebe kit_id preenchido
-        $data = $this->insertUpdateData($request, $slug, $dataType->addRows, new $dataType->model_name());
+        // Processar imagem antes de inserir
+        $this->processImage($request);
 
-        // Corrigir nome da imagem se necessário
-        $this->fixImagePath($data);
+        // Agora o insertUpdateData já recebe kit_id e imagem preenchidos
+        $data = $this->insertUpdateData($request, $slug, $dataType->addRows, new $dataType->model_name());
 
         event(new BreadDataAdded($dataType, $data));
 
@@ -121,85 +121,46 @@ class KitItemsController extends VoyagerBaseController
     }
 
     /**
-     * Corrigir o caminho da imagem se o arquivo no banco não corresponder ao arquivo no disco
+     * Processar imagem antes de inserir/atualizar
+     * Segue o padrão do BannersController
      */
-    private function fixImagePath($data)
+    private function processImage($request)
     {
-        if (!$data->image) {
-            \Log::info('KitItemsController - fixImagePath: Sem imagem');
+        $storageDisk = getDisk();
+
+        // Apenas processar se houver arquivo de imagem
+        if (!$request->hasFile('image')) {
             return;
         }
 
-        $imagePath = $data->image;
-        $fullPath = storage_path('app/public/' . $imagePath);
+        $path = 'kit-items/' . \Carbon\Carbon::now()->format('FY') . '/';
+        $imageName = time() . rand(1, 999) . '.jpg';
 
-        \Log::info('KitItemsController - fixImagePath Debug', [
-            'image_path' => $imagePath,
-            'full_path' => $fullPath,
-            'exists' => \File::exists($fullPath),
-        ]);
+        // Processar e salvar a imagem
+        $image = \Intervention\Image\Facades\Image::make($request->file('image'))
+            ->encode('jpg', 90);
 
-        // Se o arquivo não existe, procurar na mesma pasta
-        if (!\File::exists($fullPath)) {
-            $directory = dirname($fullPath);
-            
-            \Log::info('KitItemsController - Arquivo não existe, procurando na pasta', [
-                'directory' => $directory,
-                'dir_exists' => \File::exists($directory),
-            ]);
-            
-            if (\File::exists($directory)) {
-                $files = \File::files($directory);
-                
-                \Log::info('KitItemsController - Arquivos encontrados na pasta', [
-                    'count' => count($files),
-                    'files' => array_map(function($f) { return $f->getFilename(); }, $files),
-                ]);
-                
-                if (!empty($files)) {
-                    // Se há apenas 1 arquivo, usar esse
-                    if (count($files) === 1) {
-                        $latestFile = $files[0]->getFilename();
-                    } else {
-                        // Se há múltiplos, usar o mais recente
-                        $latestFile = null;
-                        $latestTime = 0;
-                        
-                        foreach ($files as $file) {
-                            $time = $file->getMTime();
-                            if ($time > $latestTime) {
-                                $latestTime = $time;
-                                $latestFile = $file->getFilename();
-                            }
-                        }
-                    }
-                    
-                    if ($latestFile) {
-                        $newPath = str_replace(basename($imagePath), $latestFile, $imagePath);
-                        $data->image = $newPath;
-                        $data->save();
-                        
-                        \Log::info('KitItemsController - Imagem corrigida', [
-                            'old_path' => $imagePath,
-                            'new_path' => $newPath,
-                            'file_count' => count($files),
-                        ]);
-                    }
-                } else {
-                    \Log::warning('KitItemsController - Nenhum arquivo encontrado na pasta', [
-                        'directory' => $directory,
-                    ]);
-                }
-            } else {
-                \Log::error('KitItemsController - Diretório não existe', [
-                    'directory' => $directory,
-                ]);
-            }
+        if ($storageDisk === 's3') {
+            // Salvar no S3
+            \Illuminate\Support\Facades\Storage::disk('s3')->put($path . $imageName, $image);
+            $imageUrl = $path . $imageName;
         } else {
-            \Log::info('KitItemsController - Arquivo existe, sem correção necessária', [
-                'image_path' => $imagePath,
-            ]);
+            // Salvar localmente
+            if (!\File::exists(storage_path('app/public/' . $path))) {
+                \File::makeDirectory(storage_path('app/public/' . $path), 0775, true);
+            }
+            $image->save(storage_path('app/public/' . $path . $imageName));
+            $imageUrl = $path . $imageName;
         }
+
+        // Fazer merge no request com o caminho correto
+        $request->merge(['image' => $imageUrl]);
+
+        \Log::info('KitItemsController - Imagem processada', [
+            'image_name' => $imageName,
+            'image_url' => $imageUrl,
+            'disk' => $storageDisk,
+        ]);
     }
 
     /**
@@ -240,14 +201,8 @@ class KitItemsController extends VoyagerBaseController
         // Garanta que o Voyager enxergue o kit_id ANTES de validar
         $request->merge(['kit_id' => $kitId]);
 
-        // Debug: Log imagem antes da atualização
+        // Obter dados antigos
         $oldData = app($dataType->model_name)->findOrFail($id);
-        \Log::info('KitItemsController::update - Antes', [
-            'id' => $id,
-            'old_image' => $oldData->image,
-            'request_image' => $request->get('image'),
-            'has_image_file' => $request->hasFile('image'),
-        ]);
 
         // Check permission
         $this->authorize('edit', app($dataType->model_name));
@@ -255,16 +210,10 @@ class KitItemsController extends VoyagerBaseController
         // Validate fields with ajax
         $val = $this->validateBread($request->all(), $dataType->editRows, $id)->validate();
 
+        // Processar imagem antes de atualizar
+        $this->processImage($request);
+
         $data = $this->insertUpdateData($request, $slug, $dataType->editRows, $oldData);
-
-        // Debug: Log imagem após a atualização
-        \Log::info('KitItemsController::update - Depois', [
-            'id' => $id,
-            'new_image' => $data->image,
-        ]);
-
-        // Corrigir nome da imagem se necessário
-        $this->fixImagePath($data);
 
         event(new BreadDataUpdated($dataType, $data));
 
