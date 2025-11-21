@@ -161,13 +161,19 @@ class KitItemsController extends VoyagerBaseController
                 \Illuminate\Support\Facades\Storage::disk('s3')->put($path . $imageName, (string) $image);
                 $imageUrl = $path . $imageName;
             } else {
-                // Salvar localmente - criar stream da imagem
-                $imageStream = fopen('php://memory', 'r+');
-                fwrite($imageStream, (string) $image);
-                rewind($imageStream);
+                // Salvar localmente - usar save() do Intervention Image
+                $fullPath = storage_path('app/public/' . $path);
                 
-                \Illuminate\Support\Facades\Storage::disk('public')->put($path . $imageName, $imageStream);
-                fclose($imageStream);
+                // Criar diretório se não existir
+                if (!is_dir($fullPath)) {
+                    mkdir($fullPath, 0775, true);
+                    \Log::info('KitItemsController::processImage - Diretório criado', [
+                        'directory' => $fullPath,
+                    ]);
+                }
+                
+                // Salvar imagem diretamente
+                $image->save($fullPath . $imageName);
                 
                 $imageUrl = $path . $imageName;
             }
@@ -176,6 +182,7 @@ class KitItemsController extends VoyagerBaseController
                 'image_url' => $imageUrl,
                 'full_path' => storage_path('app/public/' . $imageUrl),
                 'exists' => \File::exists(storage_path('app/public/' . $imageUrl)),
+                'file_size' => \File::exists(storage_path('app/public/' . $imageUrl)) ? filesize(storage_path('app/public/' . $imageUrl)) : 0,
             ]);
 
             // Fazer merge no request com o caminho correto
