@@ -136,20 +136,17 @@ class KitItemsController extends VoyagerBaseController
         $path = 'kit-items/' . \Carbon\Carbon::now()->format('FY') . '/';
         $imageName = time() . rand(1, 999) . '.jpg';
 
-        // Processar e salvar a imagem
+        // Processar a imagem
         $image = \Intervention\Image\Facades\Image::make($request->file('image'))
             ->encode('jpg', 90);
 
         if ($storageDisk === 's3') {
             // Salvar no S3
-            \Illuminate\Support\Facades\Storage::disk('s3')->put($path . $imageName, $image);
+            \Illuminate\Support\Facades\Storage::disk('s3')->put($path . $imageName, (string) $image);
             $imageUrl = $path . $imageName;
         } else {
-            // Salvar localmente
-            if (!\File::exists(storage_path('app/public/' . $path))) {
-                \File::makeDirectory(storage_path('app/public/' . $path), 0775, true);
-            }
-            $image->save(storage_path('app/public/' . $path . $imageName));
+            // Salvar localmente usando Storage
+            \Illuminate\Support\Facades\Storage::disk('public')->put($path . $imageName, (string) $image);
             $imageUrl = $path . $imageName;
         }
 
