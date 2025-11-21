@@ -152,16 +152,18 @@ class KitItemsController extends VoyagerBaseController
             $image = \Intervention\Image\Facades\Image::make($request->file('image'))
                 ->encode('jpg', 90);
 
+            $imageContent = (string) $image;
+
             \Log::info('KitItemsController::processImage - Imagem codificada', [
-                'size' => strlen((string) $image),
+                'size' => strlen($imageContent),
             ]);
 
             if ($storageDisk === 's3') {
                 // Salvar no S3
-                \Illuminate\Support\Facades\Storage::disk('s3')->put($path . $imageName, (string) $image);
+                \Illuminate\Support\Facades\Storage::disk('s3')->put($path . $imageName, $imageContent);
                 $imageUrl = $path . $imageName;
             } else {
-                // Salvar localmente - usar save() do Intervention Image
+                // Salvar localmente - usar file_put_contents
                 $fullPath = storage_path('app/public/' . $path);
                 
                 // Criar diretório se não existir
@@ -172,8 +174,10 @@ class KitItemsController extends VoyagerBaseController
                     ]);
                 }
                 
-                // Salvar imagem diretamente
-                $image->save($fullPath . $imageName);
+                // Salvar conteúdo da imagem como arquivo
+                $filePath = $fullPath . $imageName;
+                file_put_contents($filePath, $imageContent);
+                chmod($filePath, 0644);
                 
                 $imageUrl = $path . $imageName;
             }
