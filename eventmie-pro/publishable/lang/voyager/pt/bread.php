@@ -41,8 +41,11 @@ return [
     'url_slug'               => 'URL Slug (único)',
     'url_slug_ph'            => 'URL slug (ex. posts)',
     'order_column'           => 'Coluna de Ordenação',
-    'order_ident_column'     => 'Coluna de Identificação de Ordenação',
+    'order_column_ph'        => 'A coluna onde a ordem é armazenada',
+    'order_ident_column'     => 'Coluna de Exibição de Ordenação',
+    'order_ident_column_ph'  => 'A coluna que é exibida na página de ordenação',
     'order_direction'        => 'Direção de Ordenação',
-    'default_search_key'     => 'Chave de Pesquisa Padrão',
+    'default_search_key'     => 'Campo de Pesquisa Padrão no Servidor',
+    'default_search_key_ph'  => 'O campo será pré-selecionado para pesquisa no servidor',
     'scope'                  => 'Escopo',
 ];
