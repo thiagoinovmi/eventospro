@@ -112,7 +112,17 @@ Vue.component('alert-message', AlertComponent);
 Vue.config.productionTip = false;
 Vue.config.devtools = true;
 Vue.config.debug = true;
-Vue.config.silent = false; 
+Vue.config.silent = false;
+
+/**
+ * Suprimir aviso de deprecation do Vue 2
+ */
+Vue.config.warnHandler = function(msg, vm, trace) {
+    if (msg.includes('The Components object is deprecated')) {
+        return; // Suprimir este aviso específico
+    }
+    console.warn(`[Vue warn]: ${msg}${trace}`);
+}; 
 
 /**
  * Custom Global Imports 

@@ -1,9 +1,9 @@
 {
-  "_EventListing-B7jOsUwz.js": {
-    "file": "assets/EventListing-B7jOsUwz.js",
+  "_EventListing-D3GFoeom.js": {
+    "file": "assets/EventListing-D3GFoeom.js",
     "name": "EventListing",
     "imports": [
-      "_mixins-DZWn0auj.js"
+      "_mixins-DsimpN2H.js"
     ],
     "css": [
       "assets/EventListing-DHRL6iLo.css"
@@ -13,41 +13,41 @@
     "file": "assets/EventListing-DHRL6iLo.css",
     "src": "_EventListing-DHRL6iLo.css"
   },
-  "_OnlineEvent-CmcHyvlO.js": {
-    "file": "assets/OnlineEvent-CmcHyvlO.js",
+  "_OnlineEvent-CvpFjThr.js": {
+    "file": "assets/OnlineEvent-CvpFjThr.js",
     "name": "OnlineEvent",
     "imports": [
-      "_mixins-DZWn0auj.js"
+      "_mixins-DsimpN2H.js"
+    ]
+  },
+  "_Pagination-BM8l-uY9.js": {
+    "file": "assets/Pagination-BM8l-uY9.js",
+    "name": "Pagination",
+    "imports": [
+      "_mixins-DsimpN2H.js"
+    ],
+    "css": [
+      "assets/Pagination-CgdrU5Aw.css"
     ]
   },
   "_Pagination-CgdrU5Aw.css": {
     "file": "assets/Pagination-CgdrU5Aw.css",
     "src": "_Pagination-CgdrU5Aw.css"
   },
-  "_Pagination-smYCG8Sc.js": {
-    "file": "assets/Pagination-smYCG8Sc.js",
-    "name": "Pagination",
-    "imports": [
-      "_mixins-DZWn0auj.js"
-    ],
-    "css": [
-      "assets/Pagination-CgdrU5Aw.css"
-    ]
-  },
-  "_Tag-D5a0VTRD.js": {
-    "file": "assets/Tag-D5a0VTRD.js",
+  "_Tag-CgnK8mlC.js": {
+    "file": "assets/Tag-CgnK8mlC.js",
     "name": "Tag",
     "imports": [
       "_vuex.esm-BLukzcBM.js",
-      "_mixins-DZWn0auj.js"
+      "_mixins-DsimpN2H.js"
     ]
   },
-  "_Venue-CFJFyphe.js": {
-    "file": "assets/Venue-CFJFyphe.js",
+  "_Venue-B_5iplA0.js": {
+    "file": "assets/Venue-B_5iplA0.js",
     "name": "Venue",
     "imports": [
       "_vuex.esm-BLukzcBM.js",
-      "_mixins-DZWn0auj.js"
+      "_mixins-DsimpN2H.js"
     ],
     "css": [
       "assets/Venue-DI6O2AZJ.css"
@@ -61,36 +61,36 @@
     "file": "assets/index.esm-BNIJhBgk.js",
     "name": "index.esm"
   },
-  "_mixins-DZWn0auj.js": {
-    "file": "assets/mixins-DZWn0auj.js",
+  "_mixins-DsimpN2H.js": {
+    "file": "assets/mixins-DsimpN2H.js",
     "name": "mixins"
   },
-  "_vue-croppa-_GJG_wG0.js": {
-    "file": "assets/vue-croppa-_GJG_wG0.js",
+  "_vue-croppa-HlVxmI2c.js": {
+    "file": "assets/vue-croppa-HlVxmI2c.js",
     "name": "vue-croppa",
     "imports": [
-      "_mixins-DZWn0auj.js"
+      "_mixins-DsimpN2H.js"
     ]
   },
-  "_vue-match-heights-CT3viQSP.js": {
-    "file": "assets/vue-match-heights-CT3viQSP.js",
+  "_vue-match-heights-Oi5mu7tV.js": {
+    "file": "assets/vue-match-heights-Oi5mu7tV.js",
     "name": "vue-match-heights",
     "imports": [
-      "_mixins-DZWn0auj.js"
+      "_mixins-DsimpN2H.js"
     ]
   },
-  "_vue-multiselect.min-7Wzvo1wN.js": {
-    "file": "assets/vue-multiselect.min-7Wzvo1wN.js",
+  "_vue-multiselect.min-DoJvXMvW.js": {
+    "file": "assets/vue-multiselect.min-DoJvXMvW.js",
     "name": "vue-multiselect.min",
     "imports": [
-      "_mixins-DZWn0auj.js"
+      "_mixins-DsimpN2H.js"
     ]
   },
-  "_vue-select-BfyDRxDb.js": {
-    "file": "assets/vue-select-BfyDRxDb.js",
+  "_vue-select-rC5MlIUN.js": {
+    "file": "assets/vue-select-rC5MlIUN.js",
     "name": "vue-select",
     "imports": [
-      "_mixins-DZWn0auj.js"
+      "_mixins-DsimpN2H.js"
     ]
   },
   "_vuex.esm-BLukzcBM.js": {
@@ -98,166 +98,166 @@
     "name": "vuex.esm"
   },
   "eventmie-pro/resources/js/bookings_customer/index.js": {
-    "file": "assets/index-DnKsgJx6.js",
+    "file": "assets/index-DJ25I7T5.js",
     "name": "index",
     "src": "eventmie-pro/resources/js/bookings_customer/index.js",
     "isEntry": true,
     "imports": [
-      "_mixins-DZWn0auj.js",
-      "_Pagination-smYCG8Sc.js",
-      "_OnlineEvent-CmcHyvlO.js"
+      "_mixins-DsimpN2H.js",
+      "_Pagination-BM8l-uY9.js",
+      "_OnlineEvent-CvpFjThr.js"
     ]
   },
   "eventmie-pro/resources/js/bookings_organiser/index.js": {
-    "file": "assets/index-Dqa5vePE.js",
+    "file": "assets/index-Yg7qq85L.js",
     "name": "index",
     "src": "eventmie-pro/resources/js/bookings_organiser/index.js",
     "isEntry": true,
     "imports": [
-      "_mixins-DZWn0auj.js",
-      "_Pagination-smYCG8Sc.js",
+      "_mixins-DsimpN2H.js",
+      "_Pagination-BM8l-uY9.js",
       "_index.esm-BNIJhBgk.js",
-      "_OnlineEvent-CmcHyvlO.js"
+      "_OnlineEvent-CvpFjThr.js"
     ]
   },
   "eventmie-pro/resources/js/event_earning/index.js": {
-    "file": "assets/index-DvybhuCn.js",
+    "file": "assets/index-Y3eTSA9C.js",
     "name": "index",
     "src": "eventmie-pro/resources/js/event_earning/index.js",
     "isEntry": true,
     "imports": [
-      "_mixins-DZWn0auj.js",
+      "_mixins-DsimpN2H.js",
       "_index.esm-BNIJhBgk.js",
-      "_Pagination-smYCG8Sc.js"
+      "_Pagination-BM8l-uY9.js"
     ]
   },
   "eventmie-pro/resources/js/events_listing/index.js": {
-    "file": "assets/index-CdUL9GIj.js",
+    "file": "assets/index-BYqKndA_.js",
     "name": "index",
     "src": "eventmie-pro/resources/js/events_listing/index.js",
     "isEntry": true,
     "imports": [
-      "_mixins-DZWn0auj.js",
-      "_vue-match-heights-CT3viQSP.js",
+      "_mixins-DsimpN2H.js",
+      "_vue-match-heights-Oi5mu7tV.js",
       "_index.esm-BNIJhBgk.js",
-      "_Pagination-smYCG8Sc.js",
-      "_EventListing-B7jOsUwz.js"
+      "_Pagination-BM8l-uY9.js",
+      "_EventListing-D3GFoeom.js"
     ]
   },
   "eventmie-pro/resources/js/events_manage/index.js": {
-    "file": "assets/index-Den8dVED.js",
+    "file": "assets/index-DrDKxbXH.js",
     "name": "index",
     "src": "eventmie-pro/resources/js/events_manage/index.js",
     "isEntry": true,
     "imports": [
-      "_mixins-DZWn0auj.js",
+      "_mixins-DsimpN2H.js",
       "_vuex.esm-BLukzcBM.js",
-      "_vue-select-BfyDRxDb.js",
-      "_vue-multiselect.min-7Wzvo1wN.js",
+      "_vue-select-rC5MlIUN.js",
+      "_vue-multiselect.min-DoJvXMvW.js",
       "_index.esm-BNIJhBgk.js",
-      "_vue-croppa-_GJG_wG0.js",
-      "_Venue-CFJFyphe.js",
-      "_Tag-D5a0VTRD.js"
+      "_vue-croppa-HlVxmI2c.js",
+      "_Venue-B_5iplA0.js",
+      "_Tag-CgnK8mlC.js"
     ],
     "css": [
       "assets/index-B5nvC_Im.css"
     ]
   },
   "eventmie-pro/resources/js/events_show/index.js": {
-    "file": "assets/index-DxpDjiwZ.js",
+    "file": "assets/index-aHq7pFuI.js",
     "name": "index",
     "src": "eventmie-pro/resources/js/events_show/index.js",
     "isEntry": true,
     "imports": [
-      "_mixins-DZWn0auj.js",
+      "_mixins-DsimpN2H.js",
       "_vuex.esm-BLukzcBM.js",
-      "_vue-select-BfyDRxDb.js"
+      "_vue-select-rC5MlIUN.js"
     ],
     "css": [
       "assets/index-C0c_xwYf.css"
     ]
   },
   "eventmie-pro/resources/js/myevents/index.js": {
-    "file": "assets/index-byt1Q5lo.js",
+    "file": "assets/index-Cc2m8zW2.js",
     "name": "index",
     "src": "eventmie-pro/resources/js/myevents/index.js",
     "isEntry": true,
     "imports": [
-      "_mixins-DZWn0auj.js",
-      "_Pagination-smYCG8Sc.js",
-      "_vue-select-BfyDRxDb.js",
+      "_mixins-DsimpN2H.js",
+      "_Pagination-BM8l-uY9.js",
+      "_vue-select-rC5MlIUN.js",
       "_vuex.esm-BLukzcBM.js",
-      "_vue-multiselect.min-7Wzvo1wN.js"
+      "_vue-multiselect.min-DoJvXMvW.js"
     ],
     "css": [
       "assets/index-CVCiTZzu.css"
     ]
   },
   "eventmie-pro/resources/js/profile/index.js": {
-    "file": "assets/index-DENsBT5S.js",
+    "file": "assets/index-CHTS8XkK.js",
     "name": "index",
     "src": "eventmie-pro/resources/js/profile/index.js",
     "isEntry": true,
     "imports": [
-      "_mixins-DZWn0auj.js",
+      "_mixins-DsimpN2H.js",
       "_vuex.esm-BLukzcBM.js",
-      "_vue-croppa-_GJG_wG0.js"
+      "_vue-croppa-HlVxmI2c.js"
     ]
   },
   "eventmie-pro/resources/js/tags_manage/index.js": {
-    "file": "assets/index-CStn48C3.js",
+    "file": "assets/index-D4sUGo4F.js",
     "name": "index",
     "src": "eventmie-pro/resources/js/tags_manage/index.js",
     "isEntry": true,
     "imports": [
-      "_mixins-DZWn0auj.js",
-      "_Tag-D5a0VTRD.js",
-      "_Pagination-smYCG8Sc.js",
+      "_mixins-DsimpN2H.js",
+      "_Tag-CgnK8mlC.js",
+      "_Pagination-BM8l-uY9.js",
       "_vuex.esm-BLukzcBM.js"
     ]
   },
   "eventmie-pro/resources/js/ticket_scanner/index.js": {
-    "file": "assets/index-BVyFZdCV.js",
+    "file": "assets/index-CVwPtXPK.js",
     "name": "index",
     "src": "eventmie-pro/resources/js/ticket_scanner/index.js",
     "isEntry": true,
     "imports": [
-      "_mixins-DZWn0auj.js"
+      "_mixins-DsimpN2H.js"
     ]
   },
   "eventmie-pro/resources/js/venues_listing/index.js": {
-    "file": "assets/index-WOstQ3-Y.js",
+    "file": "assets/index-DOShoVJa.js",
     "name": "index",
     "src": "eventmie-pro/resources/js/venues_listing/index.js",
     "isEntry": true,
     "imports": [
-      "_mixins-DZWn0auj.js",
+      "_mixins-DsimpN2H.js",
       "_index.esm-BNIJhBgk.js",
-      "_vue-match-heights-CT3viQSP.js",
-      "_Pagination-smYCG8Sc.js"
+      "_vue-match-heights-Oi5mu7tV.js",
+      "_Pagination-BM8l-uY9.js"
     ]
   },
   "eventmie-pro/resources/js/venues_manage/index.js": {
-    "file": "assets/index-D2CFAR2R.js",
+    "file": "assets/index-BC4ZCK9u.js",
     "name": "index",
     "src": "eventmie-pro/resources/js/venues_manage/index.js",
     "isEntry": true,
     "imports": [
-      "_mixins-DZWn0auj.js",
-      "_Venue-CFJFyphe.js",
-      "_Pagination-smYCG8Sc.js",
+      "_mixins-DsimpN2H.js",
+      "_Venue-B_5iplA0.js",
+      "_Pagination-BM8l-uY9.js",
       "_vuex.esm-BLukzcBM.js"
     ]
   },
   "eventmie-pro/resources/js/welcome/index.js": {
-    "file": "assets/index-BFgOu0OX.js",
+    "file": "assets/index-DwO3xO3r.js",
     "name": "index",
     "src": "eventmie-pro/resources/js/welcome/index.js",
     "isEntry": true,
     "imports": [
-      "_mixins-DZWn0auj.js",
-      "_vue-match-heights-CT3viQSP.js",
-      "_EventListing-B7jOsUwz.js"
+      "_mixins-DsimpN2H.js",
+      "_vue-match-heights-Oi5mu7tV.js",
+      "_EventListing-D3GFoeom.js"
     ]
   },
   "eventmie-pro/resources/sass/theme.scss": {
