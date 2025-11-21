@@ -59,34 +59,34 @@ class KitItemsController extends VoyagerBaseController
         $slug = $this->getSlug($request);
 
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
-        
+
+        // Pegando kit_id da rota ou do request (query string)
+        $kitId = $request->route('kit_id') ?? $request->get('kit_id');
+
+        if (!$kitId) {
+            // Trate o erro de maneira explícita
+            return back()
+                ->withInput()
+                ->withErrors(['kit_id' => 'O kit é obrigatório.']);
+        }
+
+        // Garante que o Voyager enxergue o kit_id ANTES de validar
+        $request->merge(['kit_id' => $kitId]);
+
         // Check permission
         $this->authorize('add', app($dataType->model_name));
-        
+
         // Validate fields with ajax
         $val = $this->validateBread($request->all(), $dataType->addRows)->validate();
 
-        // Use insertUpdateData para processar corretamente
+        // Agora o insertUpdateData já recebe kit_id preenchido
         $data = $this->insertUpdateData($request, $slug, $dataType->addRows, new $dataType->model_name());
-        
-        // Se kit_id não foi capturado, adicionar agora
-        if (!$data->kit_id && $request->has('kit_id')) {
-            $kit_id = $request->get('kit_id');
-            if ($kit_id) {
-                $data->update(['kit_id' => $kit_id]);
-            }
-        }
 
         event(new BreadDataAdded($dataType, $data));
 
         if (!$request->has('_tagging')) {
-            $kit_id = $request->get('kit_id');
             if (auth()->user()->can('browse', $data)) {
-                if ($kit_id) {
-                    $redirect = redirect()->route("voyager.{$dataType->slug}.index", ['kit_id' => $kit_id]);
-                } else {
-                    $redirect = redirect()->route("voyager.{$dataType->slug}.index");
-                }
+                $redirect = redirect()->route("voyager.{$dataType->slug}.index", ['kit_id' => $kitId]);
             } else {
                 $redirect = redirect()->back();
             }
