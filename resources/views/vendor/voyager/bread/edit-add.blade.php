@@ -39,7 +39,7 @@
                         {{ csrf_field() }}
 
                         <!-- Kit ID Hidden Field - Pass from URL to form -->
-                        @if($kit_id ?? null)
+                        @if(isset($kit_id) && $kit_id)
                             <input type="hidden" name="kit_id" value="{{ $kit_id }}">
                         @endif
 
