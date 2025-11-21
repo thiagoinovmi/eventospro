@@ -140,21 +140,28 @@
         ></terms-modal>
     </div>
 
+@endsection
+
+@section('scripts')
     @vite('eventmie-pro/resources/js/register/index.js')
 
     <script>
         // Adicionar listeners para atualizar os campos hidden quando o formulário for submetido
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const privacyAccepted = document.getElementById('privacy_policy_accepted');
-            const termsAccepted = document.getElementById('terms_conditions_accepted');
-            
-            // Verificar se os termos foram aceitos
-            if (privacyAccepted.value !== '1' || termsAccepted.value !== '1') {
-                e.preventDefault();
-                alert('Por favor, leia e aceite a Política de Privacidade e Termos e Condições');
-                return false;
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const privacyAccepted = document.getElementById('privacy_policy_accepted');
+                    const termsAccepted = document.getElementById('terms_conditions_accepted');
+                    
+                    // Verificar se os termos foram aceitos
+                    if (privacyAccepted.value !== '1' || termsAccepted.value !== '1') {
+                        e.preventDefault();
+                        alert('Por favor, leia e aceite a Política de Privacidade e Termos e Condições');
+                        return false;
+                    }
+                });
             }
         });
     </script>
-
 @endsection
