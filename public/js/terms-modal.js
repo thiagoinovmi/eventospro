@@ -144,15 +144,8 @@
                         console.log('[TermsModal] Política de Privacidade lida completamente');
                         state.privacyRead = true;
                         updateCheckmarks();
-                        
-                        // Mudar para aba de termos automaticamente
-                        setTimeout(() => {
-                            const termsTab = document.getElementById('terms-tab');
-                            if (termsTab) {
-                                termsTab.click();
-                                console.log('[TermsModal] Mudando para aba de Termos');
-                            }
-                        }, 500);
+                        updateConfirmButton();
+                        console.log('[TermsModal] Estado após ler política:', state);
                     }
                 } else if (type === 'terms') {
                     if (!state.termsRead) {
@@ -160,6 +153,7 @@
                         state.termsRead = true;
                         updateCheckmarks();
                         updateConfirmButton();
+                        console.log('[TermsModal] Estado após ler termos:', state);
                     }
                 }
             }
@@ -180,21 +174,30 @@
 
         function updateConfirmButton() {
             const confirmBtn = document.getElementById('confirmTermsBtn');
+            console.log('[TermsModal] updateConfirmButton chamado - Estado:', state);
+            
             if (confirmBtn) {
                 // Etapa 1: Habilitar quando política for lida
                 if (state.privacyRead && !state.privacyAccepted) {
                     confirmBtn.disabled = false;
-                    console.log('[TermsModal] Etapa 1: Botão habilitado para aceitar Política');
+                    console.log('[TermsModal] ✓ Etapa 1: Botão habilitado para aceitar Política');
+                    console.log('[TermsModal] privacyRead:', state.privacyRead, 'privacyAccepted:', state.privacyAccepted);
                 }
                 // Etapa 2: Habilitar quando termos forem lidos
                 else if (state.termsRead && state.privacyAccepted && !state.termsAccepted) {
                     confirmBtn.disabled = false;
-                    console.log('[TermsModal] Etapa 2: Botão habilitado para aceitar Termos');
+                    console.log('[TermsModal] ✓ Etapa 2: Botão habilitado para aceitar Termos');
+                    console.log('[TermsModal] termsRead:', state.termsRead, 'privacyAccepted:', state.privacyAccepted, 'termsAccepted:', state.termsAccepted);
                 }
                 // Desabilitar em outros casos
                 else {
                     confirmBtn.disabled = true;
+                    console.log('[TermsModal] ✗ Botão desabilitado - Condições não atendidas');
+                    console.log('[TermsModal] privacyRead:', state.privacyRead, 'privacyAccepted:', state.privacyAccepted);
+                    console.log('[TermsModal] termsRead:', state.termsRead, 'termsAccepted:', state.termsAccepted);
                 }
+            } else {
+                console.error('[TermsModal] Botão confirmTermsBtn não encontrado!');
             }
         }
 
