@@ -126,18 +126,35 @@ class KitItemsController extends VoyagerBaseController
     private function fixImagePath($data)
     {
         if (!$data->image) {
+            \Log::info('KitItemsController - fixImagePath: Sem imagem');
             return;
         }
 
         $imagePath = $data->image;
         $fullPath = storage_path('app/public/' . $imagePath);
 
+        \Log::info('KitItemsController - fixImagePath Debug', [
+            'image_path' => $imagePath,
+            'full_path' => $fullPath,
+            'exists' => \File::exists($fullPath),
+        ]);
+
         // Se o arquivo não existe, procurar na mesma pasta
         if (!\File::exists($fullPath)) {
             $directory = dirname($fullPath);
             
+            \Log::info('KitItemsController - Arquivo não existe, procurando na pasta', [
+                'directory' => $directory,
+                'dir_exists' => \File::exists($directory),
+            ]);
+            
             if (\File::exists($directory)) {
                 $files = \File::files($directory);
+                
+                \Log::info('KitItemsController - Arquivos encontrados na pasta', [
+                    'count' => count($files),
+                    'files' => array_map(function($f) { return $f->getFilename(); }, $files),
+                ]);
                 
                 if (!empty($files)) {
                     // Usar o arquivo mais recente
@@ -162,8 +179,20 @@ class KitItemsController extends VoyagerBaseController
                             'new_path' => $newPath,
                         ]);
                     }
+                } else {
+                    \Log::warning('KitItemsController - Nenhum arquivo encontrado na pasta', [
+                        'directory' => $directory,
+                    ]);
                 }
+            } else {
+                \Log::error('KitItemsController - Diretório não existe', [
+                    'directory' => $directory,
+                ]);
             }
+        } else {
+            \Log::info('KitItemsController - Arquivo existe, sem correção necessária', [
+                'image_path' => $imagePath,
+            ]);
         }
     }
 
