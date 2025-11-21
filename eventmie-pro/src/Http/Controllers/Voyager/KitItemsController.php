@@ -52,16 +52,23 @@ class KitItemsController extends VoyagerBaseController
             'full_url' => $request->fullUrl(),
         ]);
         
-        // Passar kit_id para a view
+        // Chamar parent para obter a response
         $response = parent::create($request);
         
-        // Se for uma view, adicionar kit_id aos dados
+        // Se for uma view, adicionar kit_id ao dataTypeContent
         if ($response instanceof \Illuminate\View\View) {
-            \Log::info('KitItemsController::create() - Adicionando kit_id à view', [
-                'kit_id' => $kitId,
-                'view_name' => $response->getName(),
-            ]);
-            $response->with('kit_id', $kitId);
+            // Obter o dataTypeContent da view
+            $dataTypeContent = $response->getData()['dataTypeContent'] ?? null;
+            
+            if ($dataTypeContent && $kitId) {
+                // Definir kit_id no dataTypeContent para que o Voyager renderize corretamente
+                $dataTypeContent->kit_id = $kitId;
+                
+                \Log::info('KitItemsController::create() - Definindo kit_id no dataTypeContent', [
+                    'kit_id' => $kitId,
+                    'dataTypeContent_kit_id' => $dataTypeContent->kit_id,
+                ]);
+            }
         }
         
         return $response;

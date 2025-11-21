@@ -38,20 +38,7 @@
                         <!-- CSRF TOKEN -->
                         {{ csrf_field() }}
 
-                        <!-- Kit ID Hidden Field - Pass from URL to form -->
-                        @php
-                            \Log::info('Voyager BREAD Template - Kit ID Debug', [
-                                'isset_kit_id' => isset($kit_id),
-                                'kit_id_value' => $kit_id ?? 'NOT_SET',
-                                'kit_id_type' => gettype($kit_id ?? null),
-                            ]);
-                        @endphp
-                        @if(isset($kit_id) && $kit_id)
-                            <input type="hidden" name="kit_id" value="{{ $kit_id }}">
-                            <!-- DEBUG: Kit ID renderizado = {{ $kit_id }} -->
-                        @else
-                            <!-- DEBUG: Kit ID NÃO foi renderizado. isset=${ isset($kit_id) ? 'true' : 'false' }, value=${ $kit_id ?? 'null' } -->
-                        @endif
+                        <!-- Kit ID will be set in dataTypeContent by controller if needed -->
 
                         <div class="panel-body">
 
