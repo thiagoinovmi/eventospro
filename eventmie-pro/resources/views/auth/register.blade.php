@@ -133,28 +133,60 @@
         </div>
     </div>
 
-    <!-- Modal de Termos e Condições -->
+    <!-- Modal de Termos e Condições com Abas -->
     <div class="modal fade" id="termsModal" tabindex="-1" role="dialog" aria-labelledby="termsModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="termsModalLabel">Política de Privacidade e Termos e Condições</h5>
+                    <h5 class="modal-title" id="termsModalLabel">Termos e Políticas</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body" id="termsContent" style="max-height: 500px; overflow-y: auto;">
-                    <p>Carregando...</p>
-                </div>
-                <div class="modal-footer">
-                    <div class="form-check mr-auto">
-                        <input type="checkbox" class="form-check-input" id="acceptTerms">
-                        <label class="form-check-label" for="acceptTerms">
-                            Aceito a Política de Privacidade e Termos e Condições
-                        </label>
+                
+                <!-- Abas -->
+                <ul class="nav nav-tabs" id="termsTabList" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="privacy-tab" data-bs-toggle="tab" data-bs-target="#privacy-content" type="button" role="tab" aria-controls="privacy-content" aria-selected="true">
+                            <span id="privacy-tab-text">Política de Privacidade</span>
+                            <i class="fas fa-check text-success ms-2" id="privacy-check" style="display: none;"></i>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="terms-tab" data-bs-toggle="tab" data-bs-target="#terms-content" type="button" role="tab" aria-controls="terms-content" aria-selected="false">
+                            <span id="terms-tab-text">Termos e Condições de Uso</span>
+                            <i class="fas fa-check text-success ms-2" id="terms-check" style="display: none;"></i>
+                        </button>
+                    </li>
+                </ul>
+                
+                <!-- Conteúdo das Abas -->
+                <div class="tab-content" id="termsTabContent">
+                    <!-- Aba Política de Privacidade -->
+                    <div class="tab-pane fade show active" id="privacy-content" role="tabpanel" aria-labelledby="privacy-tab">
+                        <div class="modal-body" style="max-height: 400px; overflow-y: auto;" id="privacyScroll">
+                            <h6 id="privacy-title">Carregando...</h6>
+                            <div id="privacyContent">
+                                <p>Carregando conteúdo...</p>
+                            </div>
+                        </div>
                     </div>
+                    
+                    <!-- Aba Termos e Condições -->
+                    <div class="tab-pane fade" id="terms-content" role="tabpanel" aria-labelledby="terms-tab">
+                        <div class="modal-body" style="max-height: 400px; overflow-y: auto;" id="termsScroll">
+                            <h6 id="terms-title">Carregando...</h6>
+                            <div id="termsContent">
+                                <p>Carregando conteúdo...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
                     <button type="button" class="btn btn-primary" id="confirmTermsBtn" disabled>
-                        Confirmar
+                        <i class="fas fa-check me-2"></i>Li e aceito os Termos e Condições
                     </button>
                 </div>
             </div>
