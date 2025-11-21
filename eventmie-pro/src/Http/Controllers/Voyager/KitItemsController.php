@@ -99,6 +99,9 @@ class KitItemsController extends VoyagerBaseController
         // Agora o insertUpdateData já recebe kit_id preenchido
         $data = $this->insertUpdateData($request, $slug, $dataType->addRows, new $dataType->model_name());
 
+        // Corrigir nome da imagem se necessário
+        $this->fixImagePath($data);
+
         event(new BreadDataAdded($dataType, $data));
 
         if (!$request->has('_tagging')) {
@@ -114,6 +117,53 @@ class KitItemsController extends VoyagerBaseController
             ]);
         } else {
             return response()->json(['success' => true, 'data' => $data]);
+        }
+    }
+
+    /**
+     * Corrigir o caminho da imagem se o arquivo no banco não corresponder ao arquivo no disco
+     */
+    private function fixImagePath($data)
+    {
+        if (!$data->image) {
+            return;
+        }
+
+        $imagePath = $data->image;
+        $fullPath = storage_path('app/public/' . $imagePath);
+
+        // Se o arquivo não existe, procurar na mesma pasta
+        if (!\File::exists($fullPath)) {
+            $directory = dirname($fullPath);
+            
+            if (\File::exists($directory)) {
+                $files = \File::files($directory);
+                
+                if (!empty($files)) {
+                    // Usar o arquivo mais recente
+                    $latestFile = null;
+                    $latestTime = 0;
+                    
+                    foreach ($files as $file) {
+                        $time = $file->getMTime();
+                        if ($time > $latestTime) {
+                            $latestTime = $time;
+                            $latestFile = $file->getFilename();
+                        }
+                    }
+                    
+                    if ($latestFile) {
+                        $newPath = str_replace(basename($imagePath), $latestFile, $imagePath);
+                        $data->image = $newPath;
+                        $data->save();
+                        
+                        \Log::info('KitItemsController - Imagem corrigida', [
+                            'old_path' => $imagePath,
+                            'new_path' => $newPath,
+                        ]);
+                    }
+                }
+            }
         }
     }
 
@@ -162,6 +212,9 @@ class KitItemsController extends VoyagerBaseController
         $val = $this->validateBread($request->all(), $dataType->editRows, $id)->validate();
 
         $data = $this->insertUpdateData($request, $slug, $dataType->editRows, app($dataType->model_name)->findOrFail($id));
+
+        // Corrigir nome da imagem se necessário
+        $this->fixImagePath($data);
 
         event(new BreadDataUpdated($dataType, $data));
 
