@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use TCG\Voyager\Models\Page;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,6 +26,22 @@ Route::get('/license', 'App\Http\Controllers\LicenseController@index');
 Route::get('/52cab7070ba5124895a63a3703f66893232', function() {
     header('location:install');die;
 });
+
+// API route para buscar páginas (Política de Privacidade e Termos)
+Route::get('/api/pages/{id}', function ($id) {
+    $page = Page::find($id);
+    
+    if (!$page) {
+        return response()->json(['error' => 'Página não encontrada'], 404);
+    }
+    
+    return response()->json([
+        'id' => $page->id,
+        'title' => $page->title,
+        'body' => $page->body,
+        'slug' => $page->slug,
+    ]);
+})->name('api.pages.show');
 
 if(file_exists(storage_path()."/installed")) {
     Eventmie::routes();
