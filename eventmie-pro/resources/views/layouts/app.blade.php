@@ -84,66 +84,6 @@
 
     {!! CookieConsent::scripts() !!}
 
-    {{-- Script para modal de termos de registro --}}
-    @if(Route::currentRouteName() === 'eventmie.register_show')
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                // Carregar conteúdo do modal
-                fetch('/api/pages/2')
-                    .then(response => response.json())
-                    .then(data => {
-                        const termsContent = document.getElementById('termsContent');
-                        if (termsContent) {
-                            termsContent.innerHTML = data.body || 'Conteúdo não disponível';
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Erro ao carregar termos:', error);
-                        const termsContent = document.getElementById('termsContent');
-                        if (termsContent) {
-                            termsContent.innerHTML = 'Erro ao carregar conteúdo';
-                        }
-                    });
-
-                // Gerenciar checkbox de aceitação
-                const acceptCheckbox = document.getElementById('acceptTerms');
-                const confirmBtn = document.getElementById('confirmTermsBtn');
-                
-                if (acceptCheckbox && confirmBtn) {
-                    acceptCheckbox.addEventListener('change', function() {
-                        confirmBtn.disabled = !this.checked;
-                    });
-
-                    // Confirmar aceitação
-                    confirmBtn.addEventListener('click', function() {
-                        window.handleTermsAccepted({
-                            privacy_policy_accepted: true,
-                            terms_conditions_accepted: true,
-                            privacy_policy_accepted_at: new Date().toISOString(),
-                            terms_conditions_accepted_at: new Date().toISOString()
-                        });
-                    });
-                }
-
-                // Adicionar listeners para atualizar os campos hidden quando o formulário for submetido
-                const form = document.querySelector('form');
-                if (form) {
-                    form.addEventListener('submit', function(e) {
-                        const privacyAccepted = document.getElementById('privacy_policy_accepted');
-                        const termsAccepted = document.getElementById('terms_conditions_accepted');
-                        
-                        // Verificar se os termos foram aceitos
-                        if (privacyAccepted && termsAccepted && (privacyAccepted.value !== '1' || termsAccepted.value !== '1')) {
-                            e.preventDefault();
-                            alert('Por favor, leia e aceite a Política de Privacidade e Termos e Condições');
-                            return false;
-                        }
-                    });
-                }
-            });
-        </script>
-    @endif
-
     {{-- Page specific javascript --}}
     @yield('javascript')
     @stack('scriptsDashboard')
