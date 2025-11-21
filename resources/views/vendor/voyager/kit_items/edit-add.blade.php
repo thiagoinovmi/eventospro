@@ -39,15 +39,19 @@
 
                         <!-- Kit ID Hidden Field - Pass from URL to form -->
                         @php
-                            $kitIdValue = old('kit_id', request('kit_id'));
-                            \Log::info('KitItemsController - Formulário Render', [
+                            // Tentar pegar kit_id de várias formas
+                            $kitIdValue = old('kit_id', $kit_id ?? request('kit_id'));
+                            
+                            \Log::info('KitItemsController - Formulário Render Debug', [
                                 'kit_id_value' => $kitIdValue,
-                                'request_kit_id' => request('kit_id'),
                                 'old_kit_id' => old('kit_id'),
+                                'request_kit_id' => request('kit_id'),
+                                'view_kit_id' => $kit_id ?? 'NOT_SET',
+                                'all_view_vars' => array_keys(get_defined_vars()),
                             ]);
                         @endphp
                         <input type="hidden" name="kit_id" value="{{ $kitIdValue }}">
-                        <!-- DEBUG: kit_id value = {{ $kitIdValue }} -->
+                        <!-- DEBUG: kit_id = {{ $kitIdValue }} | old = {{ old('kit_id') }} | request = {{ request('kit_id') }} | view = {{ $kit_id ?? 'NONE' }} -->
 
                         <div class="panel-body">
 

@@ -44,12 +44,24 @@ class KitItemsController extends VoyagerBaseController
      */
     public function create(Request $request)
     {
+        $kitId = $request->get('kit_id');
+        
+        \Log::info('KitItemsController::create() - Debug', [
+            'kit_id_from_request' => $kitId,
+            'all_query_params' => $request->query(),
+            'full_url' => $request->fullUrl(),
+        ]);
+        
         // Passar kit_id para a view
         $response = parent::create($request);
         
         // Se for uma view, adicionar kit_id aos dados
         if ($response instanceof \Illuminate\View\View) {
-            $response->with('kit_id', $request->get('kit_id'));
+            \Log::info('KitItemsController::create() - Adicionando kit_id à view', [
+                'kit_id' => $kitId,
+                'view_name' => $response->getName(),
+            ]);
+            $response->with('kit_id', $kitId);
         }
         
         return $response;
@@ -69,22 +81,38 @@ class KitItemsController extends VoyagerBaseController
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
 
         // DEBUG: Log all request data
-        \Log::info('KitItemsController::store() - Request Debug', [
+        $kitIdFromGet = $request->get('kit_id');
+        $kitIdFromRoute = $request->route('kit_id');
+        $hasKitId = $request->has('kit_id');
+        
+        \Log::info('KitItemsController::store() - Request Debug Completo', [
             'all_data' => $request->all(),
-            'kit_id_from_get' => $request->get('kit_id'),
-            'kit_id_from_route' => $request->route('kit_id'),
-            'has_kit_id' => $request->has('kit_id'),
+            'kit_id_from_get' => $kitIdFromGet,
+            'kit_id_from_route' => $kitIdFromRoute,
+            'has_kit_id' => $hasKitId,
+            'kit_id_is_null' => $kitIdFromGet === null,
+            'kit_id_is_empty_string' => $kitIdFromGet === '',
+            'kit_id_type' => gettype($kitIdFromGet),
         ]);
 
-        // Pegando kit_id da rota ou do request (query string)
-        $kitId = $request->route('kit_id') ?? $request->get('kit_id');
+        // Pegando kit_id da rota ou do request (query string ou POST)
+        $kitId = $kitIdFromRoute ?? $kitIdFromGet;
 
         if (!$kitId) {
+            \Log::warning('KitItemsController::store() - Kit ID Obrigatório', [
+                'kit_id' => $kitId,
+                'request_all' => $request->all(),
+            ]);
+            
             // Trate o erro de maneira explícita
             return back()
                 ->withInput()
                 ->withErrors(['kit_id' => 'O kit é obrigatório.']);
         }
+        
+        \Log::info('KitItemsController::store() - Kit ID Encontrado', [
+            'kit_id' => $kitId,
+        ]);
 
         // Garante que o Voyager enxergue o kit_id ANTES de validar
         $request->merge(['kit_id' => $kitId]);
