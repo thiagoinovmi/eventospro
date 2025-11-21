@@ -63,16 +63,19 @@ class KitItemsController extends VoyagerBaseController
         // Check permission
         $this->authorize('add', app($dataType->model_name));
         
-        // Validate fields with ajax
-        $val = $this->validateBread($request->all(), $dataType->addRows)->validate();
-
-        // Se houver kit_id, validar e adicionar ao request ANTES de insertUpdateData
+        // Se houver kit_id na URL, validar e adicionar ao request ANTES de validar
         $kit_id = null;
         if ($request->has('kit_id') && $request->kit_id) {
             $kit = Kit::findOrFail($request->kit_id);
             $kit_id = $kit->id;
-            // Usar request->request->set para que insertUpdateData capture
-            $request->request->set('kit_id', $kit_id);
+        }
+        
+        // Validate fields with ajax
+        $val = $this->validateBread($request->all(), $dataType->addRows)->validate();
+
+        // Adicionar kit_id ao request para que insertUpdateData capture
+        if ($kit_id) {
+            $request->merge(['kit_id' => $kit_id]);
         }
 
         // Use insertUpdateData para processar corretamente
