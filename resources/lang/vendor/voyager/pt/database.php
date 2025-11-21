@@ -41,4 +41,17 @@ return [
     'unknown_type'              => 'Tipo Desconhecido',
     'update_table'              => 'Alterar Tabela',
     'visibility'                => 'Visibilidade',
+    
+    // Relationship
+    'relationship'              => [
+        'relationship'          => 'Relacionamento',
+        'browse'                => 'Navegar',
+        'read'                  => 'Ler',
+        'edit'                  => 'Editar',
+        'add'                   => 'Adicionar',
+        'delete'                => 'Remover',
+        'open'                  => 'Abrir',
+        'relationship_details'  => 'Detalhes do Relacionamento',
+        'create'                => 'Criar',
+    ],
 ];

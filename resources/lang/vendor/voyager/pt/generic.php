@@ -504,4 +504,9 @@ return [
     'key'                                             => 'Chave',
     'value'                                           => 'Valor',
     'group'                                           => 'Grupo',
+    
+    // BREAD Configuration
+    'bread'                                           => 'BREAD',
+    'ascending'                                       => 'Ascendente',
+    'descending'                                      => 'Descendente',
 ];
