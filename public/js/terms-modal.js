@@ -131,27 +131,8 @@
             }
         }
 
-        // Monitorar scroll da Política de Privacidade
-        const privacyScrollElement = document.getElementById('privacyScroll');
-        if (privacyScrollElement) {
-            console.log('[TermsModal] Adicionando listener de scroll para Política');
-            privacyScrollElement.addEventListener('scroll', function() {
-                checkIfScrolledToBottom(this, 'privacy');
-            });
-        } else {
-            console.warn('[TermsModal] privacyScroll não encontrado');
-        }
-
-        // Monitorar scroll dos Termos e Condições
-        const termsScrollElement = document.getElementById('termsScroll');
-        if (termsScrollElement) {
-            console.log('[TermsModal] Adicionando listener de scroll para Termos');
-            termsScrollElement.addEventListener('scroll', function() {
-                checkIfScrolledToBottom(this, 'terms');
-            });
-        } else {
-            console.warn('[TermsModal] termsScroll não encontrado');
-        }
+        // Nota: Scroll listeners removidos - usando apenas checkboxes para validação
+        console.log('[TermsModal] Sistema de validação: Checkboxes independentes');
 
         function checkIfScrolledToBottom(element, type) {
             const isAtBottom = element.scrollHeight - element.scrollTop <= element.clientHeight + 10;
@@ -163,7 +144,6 @@
                         console.log('[TermsModal] ✓ Política de Privacidade lida completamente');
                         state.privacyRead = true;
                         updateCheckmarks();
-                        updateConfirmButton();
                         console.log('[TermsModal] Estado após ler política:', JSON.stringify(state));
                     }
                 } else if (type === 'terms') {
@@ -171,7 +151,6 @@
                         console.log('[TermsModal] ✓ Termos e Condições lidos completamente');
                         state.termsRead = true;
                         updateCheckmarks();
-                        updateConfirmButton();
                         console.log('[TermsModal] Estado após ler termos:', JSON.stringify(state));
                     }
                 }
