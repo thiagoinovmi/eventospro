@@ -222,12 +222,23 @@
                     // Desabilitar botão até ler termos
                     confirmBtn.disabled = true;
                     
-                    // Mudar para aba de termos
+                    // Mudar para aba de termos usando Bootstrap Tab API
                     setTimeout(() => {
-                        const termsTab = document.getElementById('terms-tab');
-                        if (termsTab) {
-                            termsTab.click();
-                            console.log('[TermsModal] Mudando para aba de Termos');
+                        const termsTabElement = document.getElementById('terms-content');
+                        if (termsTabElement) {
+                            // Usar Bootstrap Tab API
+                            if (typeof bootstrap !== 'undefined' && bootstrap.Tab) {
+                                const tab = new bootstrap.Tab(document.getElementById('terms-tab'));
+                                tab.show();
+                                console.log('[TermsModal] ✓ Mudando para aba de Termos (Bootstrap Tab API)');
+                            } else {
+                                // Fallback: clicar no botão
+                                const termsTab = document.getElementById('terms-tab');
+                                if (termsTab) {
+                                    termsTab.click();
+                                    console.log('[TermsModal] ✓ Mudando para aba de Termos (click)');
+                                }
+                            }
                         }
                     }, 300);
                     
