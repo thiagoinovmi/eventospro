@@ -101,7 +101,7 @@
                                                     @endif
                                                 @elseif($row->type == 'date' || $row->type == 'timestamp')
                                                     @if(strtotime($data->{$row->field}))
-                                                        {{ Carbon\Carbon::parse($data->{$row->field}})->format(format_carbon_date(true)) }}
+                                                        {{ Carbon\Carbon::parse($data->{$row->field})->format(format_carbon_date(true)) }}
                                                     @else
                                                         {{ $data->{$row->field} }}
                                                     @endif
