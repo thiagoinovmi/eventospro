@@ -39,6 +39,8 @@
 
                         <!-- Kit ID Hidden Field - Pass from URL to form -->
                         <input type="hidden" name="kit_id" value="{{ old('kit_id', request('kit_id')) }}">
+                        <!-- DEBUG: Verificar se kit_id está sendo passado -->
+                        <!-- kit_id value: {{ old('kit_id', request('kit_id')) }} -->
 
                         <div class="panel-body">
 

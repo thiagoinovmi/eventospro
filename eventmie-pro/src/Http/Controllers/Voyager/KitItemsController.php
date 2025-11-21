@@ -60,6 +60,14 @@ class KitItemsController extends VoyagerBaseController
 
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
 
+        // DEBUG: Log all request data
+        \Log::info('KitItemsController::store() - Request Debug', [
+            'all_data' => $request->all(),
+            'kit_id_from_get' => $request->get('kit_id'),
+            'kit_id_from_route' => $request->route('kit_id'),
+            'has_kit_id' => $request->has('kit_id'),
+        ]);
+
         // Pegando kit_id da rota ou do request (query string)
         $kitId = $request->route('kit_id') ?? $request->get('kit_id');
 
