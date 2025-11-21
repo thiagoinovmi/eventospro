@@ -161,8 +161,14 @@ class KitItemsController extends VoyagerBaseController
                 \Illuminate\Support\Facades\Storage::disk('s3')->put($path . $imageName, (string) $image);
                 $imageUrl = $path . $imageName;
             } else {
-                // Salvar localmente usando Storage
-                \Illuminate\Support\Facades\Storage::disk('public')->put($path . $imageName, (string) $image);
+                // Salvar localmente - criar stream da imagem
+                $imageStream = fopen('php://memory', 'r+');
+                fwrite($imageStream, (string) $image);
+                rewind($imageStream);
+                
+                \Illuminate\Support\Facades\Storage::disk('public')->put($path . $imageName, $imageStream);
+                fclose($imageStream);
+                
                 $imageUrl = $path . $imageName;
             }
 
