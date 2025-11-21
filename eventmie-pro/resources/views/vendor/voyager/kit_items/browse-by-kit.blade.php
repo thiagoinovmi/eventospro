@@ -4,25 +4,19 @@
 
 @section('page_header')
     <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-8">
-                <h1 class="page-title">
-                    <i class="voyager-box"></i> 
-                    Itens do Kit
-                    @if(isset($kit))
-                        <small>do Kit: <strong>{{ $kit->name }}</strong></small>
-                    @endif
-                </h1>
-            </div>
-            <div class="col-md-4 text-right">
-                <a href="{{ route('voyager.'.$dataType->slug.'.create', ['kit_id' => request('kit_id')]) }}" class="btn btn-success btn-add-new">
-                    <i class="voyager-plus"></i> <span>{{ __('voyager::generic.add_new') }}</span>
-                </a>
-                <a href="{{ route('voyager.kits.index') }}" class="btn btn-default btn-add-new">
-                    <i class="voyager-arrow-left"></i> <span>Voltar aos Kits</span>
-                </a>
-            </div>
-        </div>
+        <h1 class="page-title">
+            <i class="voyager-list"></i> 
+            {{ trans('voyager::generic.' . strtolower($dataType->slug)) ?? $dataType->getTranslatedAttribute('display_name_plural') }}
+            @if(isset($kit))
+                <small>do Kit: <strong>{{ $kit->name }}</strong></small>
+            @endif
+        </h1>
+        <a href="{{ route('voyager.'.$dataType->slug.'.create', ['kit_id' => request('kit_id')]) }}" class="btn btn-success btn-add-new">
+            <i class="voyager-plus"></i> <span>{{ __('voyager::generic.add_new') }}</span>
+        </a>
+        <a href="{{ route('voyager.kits.index') }}" class="btn btn-default btn-add-new">
+            <i class="voyager-arrow-left"></i> <span>Voltar aos Kits</span>
+        </a>
         @include('voyager::multilingual.language-selector')
     </div>
 @stop
