@@ -51,10 +51,11 @@ class KitItemsController extends VoyagerBaseController
      */
     public function store(Request $request)
     {
-        // Se houver kit_id, adicionar ao request
+        // Se houver kit_id, adicionar ao request de forma que o Voyager capture
         if ($request->has('kit_id') && $request->kit_id) {
             $kit = Kit::findOrFail($request->kit_id);
-            $request->merge(['kit_id' => $kit->id]);
+            // Usar request->request para que o Voyager capture
+            $request->request->set('kit_id', $kit->id);
         }
         
         return parent::store($request);
