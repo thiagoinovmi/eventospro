@@ -38,9 +38,7 @@
                         {{ csrf_field() }}
 
                         <!-- Kit ID Hidden Field - Pass from URL to form -->
-                        @if(request('kit_id'))
-                            <input type="hidden" name="kit_id" value="{{ request('kit_id') }}">
-                        @endif
+                        <input type="hidden" name="kit_id" value="{{ old('kit_id', request('kit_id')) }}">
 
                         <div class="panel-body">
 
