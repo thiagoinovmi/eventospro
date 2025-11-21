@@ -12,6 +12,9 @@
     {!! CookieConsent::styles() !!}
 
     @yield('stylesheet')
+
+    {{-- Script de debug para rastrear erros de Vue --}}
+    <script src="{{ asset('js/debug-components.js') }}"></script>
 </head>
 
 <body class="home @if(str_contains(request()->url(), 'dashboard')) dashboard-body-bg @else bg-white @endif" {!! is_rtl() ? 'dir="rtl"' : '' !!}>
