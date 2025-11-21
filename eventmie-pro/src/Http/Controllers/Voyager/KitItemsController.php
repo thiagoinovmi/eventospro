@@ -71,17 +71,12 @@ class KitItemsController extends VoyagerBaseController
         if ($request->has('kit_id') && $request->kit_id) {
             $kit = Kit::findOrFail($request->kit_id);
             $kit_id = $kit->id;
-            // Merge kit_id para que insertUpdateData capture
-            $request->merge(['kit_id' => $kit_id]);
+            // Usar request->request->set para que insertUpdateData capture
+            $request->request->set('kit_id', $kit_id);
         }
 
         // Use insertUpdateData para processar corretamente
         $data = $this->insertUpdateData($request, $slug, $dataType->addRows, new $dataType->model_name());
-
-        // Se não temos kit_id no request, atualizar o item com kit_id da URL
-        if (!$data->kit_id && $kit_id) {
-            $data->update(['kit_id' => $kit_id]);
-        }
 
         event(new BreadDataAdded($dataType, $data));
 
