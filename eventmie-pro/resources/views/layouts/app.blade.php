@@ -90,9 +90,9 @@
 
     {!! CookieConsent::scripts() !!}
 
-    {{-- Script para modal de termos (carregado inline, não processado pelo Vite) --}}
+    {{-- Script para modais de termos (carregado inline, não processado pelo Vite) --}}
     @if(Route::currentRouteName() === 'eventmie.register_show')
-        <script src="{{ asset('js/terms-modal.js') }}"></script>
+        <script src="{{ asset('js/terms-modal-new.js') }}"></script>
     @endif
 
     {{-- Page specific javascript --}}

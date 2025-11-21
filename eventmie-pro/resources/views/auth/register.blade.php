@@ -77,10 +77,18 @@
                 <div class="mb-3">
                     <input class="form-check-input" type="checkbox" name="accept" id="accept" checked value="1"
                         hidden>
-                    <button type="button" class="btn btn-info btn-block mb-3" data-terms-button>
-                        <i class="fas fa-file-contract"></i>
-                        Leia e Aceite a Política de Privacidade e Termos e Condições
-                    </button>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-danger flex-grow-1" id="privacyButton" data-privacy-button>
+                            <i class="fas fa-file-contract me-2"></i>
+                            <span id="privacyButtonText">Política de Privacidade</span>
+                            <i class="fas fa-check ms-2" id="privacyCheckIcon" style="display: none;"></i>
+                        </button>
+                        <button type="button" class="btn btn-danger flex-grow-1" id="termsButton" data-terms-button>
+                            <i class="fas fa-file-contract me-2"></i>
+                            <span id="termsButtonText">Termos e Condições</span>
+                            <i class="fas fa-check ms-2" id="termsCheckIcon" style="display: none;"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Mensagem de aviso -->
@@ -133,82 +141,64 @@
         </div>
     </div>
 
-    <!-- Modal de Termos e Condições com Abas -->
-    <div class="modal fade" id="termsModal" tabindex="-1" role="dialog" aria-labelledby="termsModalLabel" aria-hidden="true">
+    <!-- Modal Política de Privacidade -->
+    <div class="modal fade" id="privacyModal" tabindex="-1" role="dialog" aria-labelledby="privacyModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="termsModalLabel">Termos e Políticas</h5>
+                    <h5 class="modal-title" id="privacyModalLabel">Política de Privacidade</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                
-                <!-- Abas -->
-                <ul class="nav nav-tabs" id="termsTabList" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="privacy-tab" data-bs-toggle="tab" data-bs-target="#privacy-content" type="button" role="tab" aria-controls="privacy-content" aria-selected="true">
-                            <span id="privacy-tab-text">Política de Privacidade</span>
-                            <i class="fas fa-check text-success ms-2" id="privacy-check" style="display: none;"></i>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="terms-tab" data-bs-toggle="tab" data-bs-target="#terms-content" type="button" role="tab" aria-controls="terms-content" aria-selected="false">
-                            <span id="terms-tab-text">Termos e Condições de Uso</span>
-                            <i class="fas fa-check text-success ms-2" id="terms-check" style="display: none;"></i>
-                        </button>
-                    </li>
-                </ul>
-                
-                <!-- Conteúdo das Abas -->
-                <div class="tab-content" id="termsTabContent">
-                    <!-- Aba Política de Privacidade -->
-                    <div class="tab-pane fade show active" id="privacy-content" role="tabpanel" aria-labelledby="privacy-tab">
-                        <div class="modal-body" style="max-height: 400px; overflow-y: auto;" id="privacyScroll">
-                            <h6 id="privacy-title">Carregando...</h6>
-                            <div id="privacyContent">
-                                <p>Carregando conteúdo...</p>
-                            </div>
-                        </div>
-                        <div class="modal-footer border-top">
-                            <div class="form-check me-auto">
-                                <input type="checkbox" class="form-check-input" id="privacyCheckbox">
-                                <label class="form-check-label" for="privacyCheckbox">
-                                    Li e aceito a Política de Privacidade
-                                </label>
-                            </div>
-                            <button type="button" class="btn btn-primary" id="privacyConfirmBtn" disabled>
-                                <i class="fas fa-check me-2"></i>Confirmar
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- Aba Termos e Condições -->
-                    <div class="tab-pane fade" id="terms-content" role="tabpanel" aria-labelledby="terms-tab">
-                        <div class="modal-body" style="max-height: 400px; overflow-y: auto;" id="termsScroll">
-                            <h6 id="terms-title">Carregando...</h6>
-                            <div id="termsContent">
-                                <p>Carregando conteúdo...</p>
-                            </div>
-                        </div>
-                        <div class="modal-footer border-top">
-                            <div class="form-check me-auto">
-                                <input type="checkbox" class="form-check-input" id="termsCheckbox">
-                                <label class="form-check-label" for="termsCheckbox">
-                                    Li e aceito os Termos e Condições de Uso
-                                </label>
-                            </div>
-                            <button type="button" class="btn btn-primary" id="termsConfirmBtn" disabled>
-                                <i class="fas fa-check me-2"></i>Confirmar
-                            </button>
-                        </div>
+                <div class="modal-body" style="max-height: 500px; overflow-y: auto;" id="privacyScrollContent">
+                    <h6 id="privacy-title">Carregando...</h6>
+                    <div id="privacyContent">
+                        <p>Carregando conteúdo...</p>
                     </div>
                 </div>
-                
                 <div class="modal-footer">
+                    <div class="form-check me-auto">
+                        <input type="checkbox" class="form-check-input" id="privacyAcceptCheckbox">
+                        <label class="form-check-label" for="privacyAcceptCheckbox">
+                            Li e aceito a Política de Privacidade
+                        </label>
+                    </div>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-success" id="finalConfirmBtn" disabled>
-                        <i class="fas fa-check-double me-2"></i>Confirmar Aceitação Completa
+                    <button type="button" class="btn btn-primary" id="privacyConfirmBtn" disabled>
+                        <i class="fas fa-check me-2"></i>Confirmar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Termos e Condições -->
+    <div class="modal fade" id="termsModal" tabindex="-1" role="dialog" aria-labelledby="termsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="termsModalLabel">Termos e Condições de Uso</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="max-height: 500px; overflow-y: auto;" id="termsScrollContent">
+                    <h6 id="terms-title">Carregando...</h6>
+                    <div id="termsContent">
+                        <p>Carregando conteúdo...</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="form-check me-auto">
+                        <input type="checkbox" class="form-check-input" id="termsAcceptCheckbox">
+                        <label class="form-check-label" for="termsAcceptCheckbox">
+                            Li e aceito os Termos e Condições de Uso
+                        </label>
+                    </div>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="termsConfirmBtn" disabled>
+                        <i class="fas fa-check me-2"></i>Confirmar
                     </button>
                 </div>
             </div>
