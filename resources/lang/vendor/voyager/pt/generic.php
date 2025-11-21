@@ -110,6 +110,7 @@ return [
     "Events"                                          => "Eventos",
     "events"                                          => "Eventos",
     "Kit"                                             => "Kit",
+    "kit"                                             => "Kit",
     "Kits"                                            => "Kits",
     "kits"                                            => "Kits",
     "KitItem"                                         => "Item do Kit",
