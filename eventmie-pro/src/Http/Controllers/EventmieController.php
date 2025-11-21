@@ -41,12 +41,16 @@ class EventmieController extends Controller
         // detect package development mode
         // if in package development mode then base will be package else vendor
         $base = 'vendor'.DIRECTORY_SEPARATOR.'classiebit'.DIRECTORY_SEPARATOR;
-        if(config('voyager.pkg_dev_mode') || config('voyager.demo_mode'))
-            $base = '..'.DIRECTORY_SEPARATOR;
+        if(config('voyager.pkg_dev_mode') || config('voyager.demo_mode')) {
+            // Use realpath to resolve the path safely
+            $basePath = realpath(base_path('eventmie-pro'.DIRECTORY_SEPARATOR.'publishable'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.$path));
+        } else {
+            $basePath = realpath(base_path($base.'eventmie-pro'.DIRECTORY_SEPARATOR.'publishable'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.$path));
+        }
         
-        $path = base_path($base.'eventmie-pro'.DIRECTORY_SEPARATOR.'publishable'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.$path);
+        $path = $basePath;
 
-        if (File::exists($path)) {
+        if ($path && File::exists($path)) {
             $mime = '';
 
             if(class_exists('\Str'))
