@@ -44,7 +44,15 @@ class KitItemsController extends VoyagerBaseController
      */
     public function create(Request $request)
     {
-        return parent::create($request);
+        // Passar kit_id para a view
+        $response = parent::create($request);
+        
+        // Se for uma view, adicionar kit_id aos dados
+        if ($response instanceof \Illuminate\View\View) {
+            $response->with('kit_id', $request->get('kit_id'));
+        }
+        
+        return $response;
     }
 
     /**
