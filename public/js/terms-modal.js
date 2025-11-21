@@ -16,6 +16,19 @@
 
     function initTermsModal() {
         console.log('[TermsModal] Inicializando...');
+        console.log('[TermsModal] document.readyState:', document.readyState);
+        console.log('[TermsModal] Procurando elementos...');
+        
+        // Verificar se os elementos existem
+        const termsButton = document.querySelector('[data-terms-button]');
+        const termsModal = document.getElementById('termsModal');
+        const privacyScroll = document.getElementById('privacyScroll');
+        const termsScroll = document.getElementById('termsScroll');
+        
+        console.log('[TermsModal] Botão encontrado:', !!termsButton);
+        console.log('[TermsModal] Modal encontrado:', !!termsModal);
+        console.log('[TermsModal] privacyScroll encontrado:', !!privacyScroll);
+        console.log('[TermsModal] termsScroll encontrado:', !!termsScroll);
 
         // Carregar conteúdo do modal (Política de Privacidade - ID 2)
         fetch('/api/pages/2')
@@ -60,11 +73,11 @@
             });
 
         // Abrir modal ao clicar no botão
-        const termsButton = document.querySelector('[data-terms-button]');
-        console.log('[TermsModal] Botão encontrado:', termsButton);
+        const termsButtonElement = document.querySelector('[data-terms-button]');
+        console.log('[TermsModal] Botão clicável encontrado:', !!termsButtonElement);
         
-        if (termsButton) {
-            termsButton.addEventListener('click', function(e) {
+        if (termsButtonElement) {
+            termsButtonElement.addEventListener('click', function(e) {
                 e.preventDefault();
                 console.log('[TermsModal] Botão clicado');
                 
@@ -120,19 +133,25 @@
         }
 
         // Monitorar scroll da Política de Privacidade
-        const privacyScroll = document.getElementById('privacyScroll');
-        if (privacyScroll) {
-            privacyScroll.addEventListener('scroll', function() {
+        const privacyScrollElement = document.getElementById('privacyScroll');
+        if (privacyScrollElement) {
+            console.log('[TermsModal] Adicionando listener de scroll para Política');
+            privacyScrollElement.addEventListener('scroll', function() {
                 checkIfScrolledToBottom(this, 'privacy');
             });
+        } else {
+            console.warn('[TermsModal] privacyScroll não encontrado');
         }
 
         // Monitorar scroll dos Termos e Condições
-        const termsScroll = document.getElementById('termsScroll');
-        if (termsScroll) {
-            termsScroll.addEventListener('scroll', function() {
+        const termsScrollElement = document.getElementById('termsScroll');
+        if (termsScrollElement) {
+            console.log('[TermsModal] Adicionando listener de scroll para Termos');
+            termsScrollElement.addEventListener('scroll', function() {
                 checkIfScrolledToBottom(this, 'terms');
             });
+        } else {
+            console.warn('[TermsModal] termsScroll não encontrado');
         }
 
         function checkIfScrolledToBottom(element, type) {
