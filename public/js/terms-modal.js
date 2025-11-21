@@ -9,7 +9,9 @@
 
     const state = {
         privacyRead: false,
-        termsRead: false
+        termsRead: false,
+        privacyAccepted: false,
+        termsAccepted: false
     };
 
     function initTermsModal() {
@@ -179,46 +181,89 @@
         function updateConfirmButton() {
             const confirmBtn = document.getElementById('confirmTermsBtn');
             if (confirmBtn) {
-                confirmBtn.disabled = !state.termsRead;
-                console.log('[TermsModal] Botão confirmar:', state.termsRead ? 'habilitado' : 'desabilitado');
+                // Etapa 1: Habilitar quando política for lida
+                if (state.privacyRead && !state.privacyAccepted) {
+                    confirmBtn.disabled = false;
+                    console.log('[TermsModal] Etapa 1: Botão habilitado para aceitar Política');
+                }
+                // Etapa 2: Habilitar quando termos forem lidos
+                else if (state.termsRead && state.privacyAccepted && !state.termsAccepted) {
+                    confirmBtn.disabled = false;
+                    console.log('[TermsModal] Etapa 2: Botão habilitado para aceitar Termos');
+                }
+                // Desabilitar em outros casos
+                else {
+                    confirmBtn.disabled = true;
+                }
             }
         }
 
-        // Confirmar aceitação
+        // Confirmar aceitação (com dois estados)
         const confirmBtn = document.getElementById('confirmTermsBtn');
+        const confirmBtnText = document.getElementById('confirmBtnText');
+        
         if (confirmBtn) {
             confirmBtn.addEventListener('click', function() {
-                console.log('[TermsModal] Confirmando aceitação...');
+                console.log('[TermsModal] Botão clicado - Estado:', state);
                 
-                // Verificar se ambos foram lidos
-                if (!state.privacyRead || !state.termsRead) {
-                    console.log('[TermsModal] Não leu tudo');
-                    alert('Por favor, leia completamente ambos os documentos');
+                // Etapa 1: Aceitar Política de Privacidade
+                if (state.privacyRead && !state.privacyAccepted) {
+                    console.log('[TermsModal] Etapa 1: Aceitando Política de Privacidade');
+                    state.privacyAccepted = true;
+                    
+                    // Mudar texto do botão
+                    if (confirmBtnText) {
+                        confirmBtnText.textContent = 'Li e aceito os Termos e Condições de Uso';
+                    }
+                    
+                    // Desabilitar botão até ler termos
+                    confirmBtn.disabled = true;
+                    
+                    // Mudar para aba de termos
+                    setTimeout(() => {
+                        const termsTab = document.getElementById('terms-tab');
+                        if (termsTab) {
+                            termsTab.click();
+                            console.log('[TermsModal] Mudando para aba de Termos');
+                        }
+                    }, 300);
+                    
                     return;
                 }
                 
-                // Atualizar campos hidden
-                document.getElementById('privacy_policy_accepted').value = '1';
-                document.getElementById('terms_conditions_accepted').value = '1';
-                document.getElementById('privacy_policy_accepted_at').value = new Date().toISOString();
-                document.getElementById('terms_conditions_accepted_at').value = new Date().toISOString();
-                
-                // Habilitar o botão de submit
-                const submitButton = document.querySelector('button[type="submit"]');
-                if (submitButton) {
-                    submitButton.disabled = false;
-                    console.log('[TermsModal] Botão de submit habilitado');
+                // Etapa 2: Aceitar Termos e Condições
+                if (state.termsRead && !state.termsAccepted) {
+                    console.log('[TermsModal] Etapa 2: Aceitando Termos e Condições');
+                    state.termsAccepted = true;
+                    
+                    // Atualizar campos hidden
+                    document.getElementById('privacy_policy_accepted').value = '1';
+                    document.getElementById('terms_conditions_accepted').value = '1';
+                    document.getElementById('privacy_policy_accepted_at').value = new Date().toISOString();
+                    document.getElementById('terms_conditions_accepted_at').value = new Date().toISOString();
+                    
+                    // Habilitar o botão de submit
+                    const submitButton = document.querySelector('button[type="submit"]');
+                    if (submitButton) {
+                        submitButton.disabled = false;
+                        console.log('[TermsModal] Botão de submit habilitado');
+                    }
+                    
+                    // Esconder mensagem de aviso
+                    const warningMessage = document.getElementById('terms-warning');
+                    if (warningMessage) {
+                        warningMessage.style.display = 'none';
+                        console.log('[TermsModal] Mensagem de aviso escondida');
+                    }
+                    
+                    // Fechar modal
+                    closeModal();
+                    return;
                 }
                 
-                // Esconder mensagem de aviso
-                const warningMessage = document.getElementById('terms-warning');
-                if (warningMessage) {
-                    warningMessage.style.display = 'none';
-                    console.log('[TermsModal] Mensagem de aviso escondida');
-                }
-                
-                // Fechar modal
-                closeModal();
+                // Se chegou aqui, algo está errado
+                console.log('[TermsModal] Estado inválido');
+                alert('Por favor, leia completamente o documento atual');
             });
         }
 

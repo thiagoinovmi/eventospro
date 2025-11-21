@@ -186,7 +186,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
                     <button type="button" class="btn btn-primary" id="confirmTermsBtn" disabled>
-                        <i class="fas fa-check me-2"></i>Li e aceito os Termos e Condições
+                        <i class="fas fa-check me-2"></i><span id="confirmBtnText">Li e aceito a Política de Privacidade</span>
                     </button>
                 </div>
             </div>
