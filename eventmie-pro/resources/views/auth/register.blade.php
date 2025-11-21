@@ -6,8 +6,7 @@
 
 @section('authcontent')
 
-    <div id="register-app">
-        <div class="card border-0 shadow">
+    <div class="card border-0 shadow">
         @if ($errors->any())
             <div class="alert alert-danger">
                 <ul>
@@ -132,12 +131,34 @@
 
 
         </div>
+    </div>
 
-        <!-- Modal de Termos -->
-        <terms-modal 
-            ref="termsModal"
-            @terms-accepted="handleTermsAccepted"
-        ></terms-modal>
+    <!-- Modal de Termos e Condições -->
+    <div class="modal fade" id="termsModal" tabindex="-1" role="dialog" aria-labelledby="termsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="termsModalLabel">Política de Privacidade e Termos e Condições</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="termsContent" style="max-height: 500px; overflow-y: auto;">
+                    <p>Carregando...</p>
+                </div>
+                <div class="modal-footer">
+                    <div class="form-check mr-auto">
+                        <input type="checkbox" class="form-check-input" id="acceptTerms">
+                        <label class="form-check-label" for="acceptTerms">
+                            Aceito a Política de Privacidade e Termos e Condições
+                        </label>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="confirmTermsBtn" disabled>
+                        Confirmar
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
 @endsection
@@ -146,8 +167,37 @@
     @vite('eventmie-pro/resources/js/register/index.js')
 
     <script>
-        // Adicionar listeners para atualizar os campos hidden quando o formulário for submetido
         document.addEventListener('DOMContentLoaded', function() {
+            // Carregar conteúdo do modal
+            fetch('/api/pages/2')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('termsContent').innerHTML = data.body || 'Conteúdo não disponível';
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar termos:', error);
+                    document.getElementById('termsContent').innerHTML = 'Erro ao carregar conteúdo';
+                });
+
+            // Gerenciar checkbox de aceitação
+            const acceptCheckbox = document.getElementById('acceptTerms');
+            const confirmBtn = document.getElementById('confirmTermsBtn');
+            
+            acceptCheckbox.addEventListener('change', function() {
+                confirmBtn.disabled = !this.checked;
+            });
+
+            // Confirmar aceitação
+            confirmBtn.addEventListener('click', function() {
+                window.handleTermsAccepted({
+                    privacy_policy_accepted: true,
+                    terms_conditions_accepted: true,
+                    privacy_policy_accepted_at: new Date().toISOString(),
+                    terms_conditions_accepted_at: new Date().toISOString()
+                });
+            });
+
+            // Adicionar listeners para atualizar os campos hidden quando o formulário for submetido
             const form = document.querySelector('form');
             if (form) {
                 form.addEventListener('submit', function(e) {
