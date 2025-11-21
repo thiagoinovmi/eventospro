@@ -234,13 +234,28 @@ class KitItemsController extends VoyagerBaseController
         // Garanta que o Voyager enxergue o kit_id ANTES de validar
         $request->merge(['kit_id' => $kitId]);
 
+        // Debug: Log imagem antes da atualização
+        $oldData = app($dataType->model_name)->findOrFail($id);
+        \Log::info('KitItemsController::update - Antes', [
+            'id' => $id,
+            'old_image' => $oldData->image,
+            'request_image' => $request->get('image'),
+            'has_image_file' => $request->hasFile('image'),
+        ]);
+
         // Check permission
         $this->authorize('edit', app($dataType->model_name));
 
         // Validate fields with ajax
         $val = $this->validateBread($request->all(), $dataType->editRows, $id)->validate();
 
-        $data = $this->insertUpdateData($request, $slug, $dataType->editRows, app($dataType->model_name)->findOrFail($id));
+        $data = $this->insertUpdateData($request, $slug, $dataType->editRows, $oldData);
+
+        // Debug: Log imagem após a atualização
+        \Log::info('KitItemsController::update - Depois', [
+            'id' => $id,
+            'new_image' => $data->image,
+        ]);
 
         // Corrigir nome da imagem se necessário
         $this->fixImagePath($data);
