@@ -46,12 +46,6 @@ class KitItemsController extends VoyagerBaseController
     {
         $kitId = $request->get('kit_id');
         
-        \Log::info('KitItemsController::create() - Debug', [
-            'kit_id_from_request' => $kitId,
-            'all_query_params' => $request->query(),
-            'full_url' => $request->fullUrl(),
-        ]);
-        
         // Chamar parent para obter a response
         $response = parent::create($request);
         
@@ -63,11 +57,6 @@ class KitItemsController extends VoyagerBaseController
             if ($dataTypeContent && $kitId) {
                 // Definir kit_id no dataTypeContent para que o Voyager renderize corretamente
                 $dataTypeContent->kit_id = $kitId;
-                
-                \Log::info('KitItemsController::create() - Definindo kit_id no dataTypeContent', [
-                    'kit_id' => $kitId,
-                    'dataTypeContent_kit_id' => $dataTypeContent->kit_id,
-                ]);
             }
         }
         
@@ -87,41 +76,17 @@ class KitItemsController extends VoyagerBaseController
 
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
 
-        // DEBUG: Log all request data
-        $kitIdFromGet = $request->get('kit_id');
-        $kitIdFromRoute = $request->route('kit_id');
-        $hasKitId = $request->has('kit_id');
-        
-        \Log::info('KitItemsController::store() - Request Debug Completo', [
-            'all_data' => $request->all(),
-            'kit_id_from_get' => $kitIdFromGet,
-            'kit_id_from_route' => $kitIdFromRoute,
-            'has_kit_id' => $hasKitId,
-            'kit_id_is_null' => $kitIdFromGet === null,
-            'kit_id_is_empty_string' => $kitIdFromGet === '',
-            'kit_id_type' => gettype($kitIdFromGet),
-        ]);
-
-        // Pegando kit_id da rota ou do request (query string ou POST)
-        $kitId = $kitIdFromRoute ?? $kitIdFromGet;
+        // Pegando kit_id do request (POST ou query string)
+        $kitId = $request->get('kit_id');
 
         if (!$kitId) {
-            \Log::warning('KitItemsController::store() - Kit ID Obrigatório', [
-                'kit_id' => $kitId,
-                'request_all' => $request->all(),
-            ]);
-            
             // Trate o erro de maneira explícita
             return back()
                 ->withInput()
                 ->withErrors(['kit_id' => 'O kit é obrigatório.']);
         }
-        
-        \Log::info('KitItemsController::store() - Kit ID Encontrado', [
-            'kit_id' => $kitId,
-        ]);
 
-        // Garante que o Voyager enxergue o kit_id ANTES de validar
+        // Garanta que o Voyager enxergue o kit_id ANTES de validar
         $request->merge(['kit_id' => $kitId]);
 
         // Check permission
