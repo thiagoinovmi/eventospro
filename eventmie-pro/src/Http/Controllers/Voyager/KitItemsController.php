@@ -90,14 +90,14 @@ class KitItemsController extends VoyagerBaseController
         // Garanta que o Voyager enxergue o kit_id ANTES de validar
         $request->merge(['kit_id' => $kitId]);
 
+        // Processar imagem ANTES de validar (para que Voyager use o caminho correto)
+        $this->processImage($request);
+
         // Check permission
         $this->authorize('add', app($dataType->model_name));
 
         // Validate fields with ajax
         $val = $this->validateBread($request->all(), $dataType->addRows)->validate();
-
-        // Processar imagem antes de inserir
-        $this->processImage($request);
 
         // Agora o insertUpdateData já recebe kit_id e imagem preenchidos
         $data = $this->insertUpdateData($request, $slug, $dataType->addRows, new $dataType->model_name());
@@ -204,11 +204,11 @@ class KitItemsController extends VoyagerBaseController
         // Check permission
         $this->authorize('edit', app($dataType->model_name));
 
+        // Processar imagem ANTES de validar (para que Voyager use o caminho correto)
+        $this->processImage($request);
+
         // Validate fields with ajax
         $val = $this->validateBread($request->all(), $dataType->editRows, $id)->validate();
-
-        // Processar imagem antes de atualizar
-        $this->processImage($request);
 
         $data = $this->insertUpdateData($request, $slug, $dataType->editRows, $oldData);
 
