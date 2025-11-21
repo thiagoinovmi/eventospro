@@ -120,6 +120,7 @@ return [
     "KitItem"                                         => "Item do Kit",
     "KitItems"                                        => "Itens do Kit",
     "kit_items"                                       => "Itens do Kit",
+    "kit-items"                                       => "Itens do Kit",
     "Category"                                        => "Categoria",
     "Categories"                                      => "Categorias",
     "categories"                                      => "Categorias",
