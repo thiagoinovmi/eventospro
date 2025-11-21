@@ -128,36 +128,65 @@ class KitItemsController extends VoyagerBaseController
     {
         $storageDisk = getDisk();
 
+        \Log::info('KitItemsController::processImage - Iniciando', [
+            'has_file' => $request->hasFile('image'),
+            'disk' => $storageDisk,
+        ]);
+
         // Apenas processar se houver arquivo de imagem
         if (!$request->hasFile('image')) {
+            \Log::info('KitItemsController::processImage - Sem arquivo de imagem');
             return;
         }
 
-        $path = 'kit-items/' . \Carbon\Carbon::now()->format('FY') . '/';
-        $imageName = time() . rand(1, 999) . '.jpg';
+        try {
+            $path = 'kit-items/' . \Carbon\Carbon::now()->format('FY') . '/';
+            $imageName = time() . rand(1, 999) . '.jpg';
 
-        // Processar a imagem
-        $image = \Intervention\Image\Facades\Image::make($request->file('image'))
-            ->encode('jpg', 90);
+            \Log::info('KitItemsController::processImage - Processando', [
+                'path' => $path,
+                'image_name' => $imageName,
+            ]);
 
-        if ($storageDisk === 's3') {
-            // Salvar no S3
-            \Illuminate\Support\Facades\Storage::disk('s3')->put($path . $imageName, (string) $image);
-            $imageUrl = $path . $imageName;
-        } else {
-            // Salvar localmente usando Storage
-            \Illuminate\Support\Facades\Storage::disk('public')->put($path . $imageName, (string) $image);
-            $imageUrl = $path . $imageName;
+            // Processar a imagem
+            $image = \Intervention\Image\Facades\Image::make($request->file('image'))
+                ->encode('jpg', 90);
+
+            \Log::info('KitItemsController::processImage - Imagem codificada', [
+                'size' => strlen((string) $image),
+            ]);
+
+            if ($storageDisk === 's3') {
+                // Salvar no S3
+                \Illuminate\Support\Facades\Storage::disk('s3')->put($path . $imageName, (string) $image);
+                $imageUrl = $path . $imageName;
+            } else {
+                // Salvar localmente usando Storage
+                \Illuminate\Support\Facades\Storage::disk('public')->put($path . $imageName, (string) $image);
+                $imageUrl = $path . $imageName;
+            }
+
+            \Log::info('KitItemsController::processImage - Arquivo salvo', [
+                'image_url' => $imageUrl,
+                'full_path' => storage_path('app/public/' . $imageUrl),
+                'exists' => \File::exists(storage_path('app/public/' . $imageUrl)),
+            ]);
+
+            // Fazer merge no request com o caminho correto
+            $request->merge(['image' => $imageUrl]);
+
+            \Log::info('KitItemsController::processImage - Sucesso', [
+                'image_name' => $imageName,
+                'image_url' => $imageUrl,
+                'disk' => $storageDisk,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('KitItemsController::processImage - Erro', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            throw $e;
         }
-
-        // Fazer merge no request com o caminho correto
-        $request->merge(['image' => $imageUrl]);
-
-        \Log::info('KitItemsController - Imagem processada', [
-            'image_name' => $imageName,
-            'image_url' => $imageUrl,
-            'disk' => $storageDisk,
-        ]);
     }
 
     /**
