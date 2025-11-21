@@ -1,6 +1,6 @@
 // Script para gerenciar o modal de termos de registro
 // Este arquivo é carregado inline e não é processado pelo Vite
-// Usa Bootstrap 5 nativo (sem jQuery)
+// Usa CSS puro do Bootstrap (sem JavaScript)
 
 (function() {
     'use strict';
@@ -31,7 +31,7 @@
                 }
             });
 
-        // Abrir modal ao clicar no botão (Bootstrap 5)
+        // Abrir modal ao clicar no botão (usando data-bs-toggle do Bootstrap CSS)
         const termsButton = document.querySelector('[data-terms-button]');
         console.log('[TermsModal] Botão encontrado:', termsButton);
         
@@ -43,12 +43,47 @@
                 const modalElement = document.getElementById('termsModal');
                 if (modalElement) {
                     console.log('[TermsModal] Modal encontrado, abrindo...');
-                    const modal = new bootstrap.Modal(modalElement);
-                    modal.show();
+                    // Usar data-bs-toggle ao invés de JavaScript
+                    modalElement.classList.add('show');
+                    modalElement.style.display = 'block';
+                    document.body.classList.add('modal-open');
+                    
+                    // Criar backdrop
+                    let backdrop = document.querySelector('.modal-backdrop');
+                    if (!backdrop) {
+                        backdrop = document.createElement('div');
+                        backdrop.className = 'modal-backdrop fade show';
+                        document.body.appendChild(backdrop);
+                    }
                 } else {
                     console.error('[TermsModal] Modal não encontrado');
                 }
             });
+        }
+
+        // Fechar modal ao clicar no botão de fechar
+        const closeButtons = document.querySelectorAll('[data-dismiss="modal"]');
+        closeButtons.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                closeModal();
+            });
+        });
+
+        function closeModal() {
+            const modalElement = document.getElementById('termsModal');
+            if (modalElement) {
+                console.log('[TermsModal] Fechando modal...');
+                modalElement.classList.remove('show');
+                modalElement.style.display = 'none';
+                document.body.classList.remove('modal-open');
+                
+                // Remover backdrop
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) {
+                    backdrop.remove();
+                }
+            }
         }
 
         // Gerenciar checkbox de aceitação
@@ -87,15 +122,8 @@
                     console.log('[TermsModal] Mensagem de aviso escondida');
                 }
                 
-                // Fechar modal (Bootstrap 5)
-                const modalElement = document.getElementById('termsModal');
-                if (modalElement) {
-                    const modal = bootstrap.Modal.getInstance(modalElement);
-                    if (modal) {
-                        modal.hide();
-                        console.log('[TermsModal] Modal fechado');
-                    }
-                }
+                // Fechar modal
+                closeModal();
             });
         }
 
