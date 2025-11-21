@@ -38,9 +38,16 @@
                         {{ csrf_field() }}
 
                         <!-- Kit ID Hidden Field - Pass from URL to form -->
-                        <input type="hidden" name="kit_id" value="{{ old('kit_id', request('kit_id')) }}">
-                        <!-- DEBUG: Verificar se kit_id está sendo passado -->
-                        <!-- kit_id value: {{ old('kit_id', request('kit_id')) }} -->
+                        @php
+                            $kitIdValue = old('kit_id', request('kit_id'));
+                            \Log::info('KitItemsController - Formulário Render', [
+                                'kit_id_value' => $kitIdValue,
+                                'request_kit_id' => request('kit_id'),
+                                'old_kit_id' => old('kit_id'),
+                            ]);
+                        @endphp
+                        <input type="hidden" name="kit_id" value="{{ $kitIdValue }}">
+                        <!-- DEBUG: kit_id value = {{ $kitIdValue }} -->
 
                         <div class="panel-body">
 
