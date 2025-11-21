@@ -747,7 +747,11 @@ return [
     'scanner_dashboard'                 => 'Painel do Scanner',
     'scanner_dashboard_ie'              => 'Painel do Scanner',
     'checkins'                          => 'Check-ins',
-    'camera_ticket_scanner'             => 'Scanner de Câmera',
+    'ticket_scanner'                    => 'Scanner de Ingressos',
     'laser_ticket_scanner'              => 'Scanner a Laser',
+    'camera_ticket_scanner'             => 'Scanner de Câmera',
+    'laser_scanner_mode'                => 'Modo Scanner a Laser',
+    'camera_scanner_mode'               => 'Modo Scanner de Câmera',
+    'scan_ticket_on_laser'              => 'Escanear Ingresso no Laser',
 ];
 
