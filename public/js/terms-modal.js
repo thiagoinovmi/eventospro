@@ -102,6 +102,13 @@
             confirmBtn.addEventListener('click', function() {
                 console.log('[TermsModal] Confirmando aceitação...');
                 
+                // Verificar se o checkbox está marcado
+                if (!acceptCheckbox.checked) {
+                    console.log('[TermsModal] Checkbox não está marcado');
+                    alert('Por favor, marque o checkbox para confirmar que leu os termos');
+                    return;
+                }
+                
                 // Atualizar campos hidden
                 document.getElementById('privacy_policy_accepted').value = '1';
                 document.getElementById('terms_conditions_accepted').value = '1';
