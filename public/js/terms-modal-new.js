@@ -246,6 +246,9 @@
             }
         }
 
+        // Mensagem de aviso
+        const warningMessage = document.getElementById('terms-warning');
+
         // Habilitar botão de registro
         const submitButton = document.querySelector('button[type="submit"]');
         if (submitButton) {
@@ -260,12 +263,18 @@
                 document.getElementById('terms_conditions_accepted_at').value = new Date().toISOString();
 
                 // Esconder mensagem de aviso
-                const warningMessage = document.getElementById('terms-warning');
                 if (warningMessage) {
                     warningMessage.style.display = 'none';
+                    console.log('[TermsModal] ✓ Mensagem de aviso escondida');
                 }
             } else {
                 submitButton.disabled = true;
+                
+                // Mostrar mensagem de aviso
+                if (warningMessage) {
+                    warningMessage.style.display = 'block';
+                    console.log('[TermsModal] ⚠ Mensagem de aviso exibida');
+                }
             }
         }
     }
