@@ -149,13 +149,14 @@ class KitItemsController extends VoyagerBaseController
             ]);
 
             // Processar a imagem
-            $image = \Intervention\Image\Facades\Image::make($request->file('image'))
-                ->encode('jpg', 90);
-
-            $imageContent = (string) $image;
+            $image = \Intervention\Image\Facades\Image::make($request->file('image'));
+            
+            // Obter conteúdo ANTES de codificar
+            $imageContent = $image->encode('jpg', 90)->getEncoded();
 
             \Log::info('KitItemsController::processImage - Imagem codificada', [
                 'size' => strlen($imageContent),
+                'type' => gettype($imageContent),
             ]);
 
             if ($storageDisk === 's3') {
@@ -176,8 +177,22 @@ class KitItemsController extends VoyagerBaseController
                 
                 // Salvar conteúdo da imagem como arquivo
                 $filePath = $fullPath . $imageName;
-                file_put_contents($filePath, $imageContent);
+                
+                \Log::info('KitItemsController::processImage - Antes de salvar', [
+                    'file_path' => $filePath,
+                    'content_size' => strlen($imageContent),
+                    'dir_exists' => is_dir($fullPath),
+                    'dir_writable' => is_writable($fullPath),
+                ]);
+                
+                $bytesWritten = file_put_contents($filePath, $imageContent);
                 chmod($filePath, 0644);
+                
+                \Log::info('KitItemsController::processImage - Após salvar', [
+                    'bytes_written' => $bytesWritten,
+                    'file_exists' => file_exists($filePath),
+                    'file_size' => file_exists($filePath) ? filesize($filePath) : 0,
+                ]);
                 
                 $imageUrl = $path . $imageName;
             }
