@@ -63,20 +63,8 @@ class KitItemsController extends VoyagerBaseController
         // Check permission
         $this->authorize('add', app($dataType->model_name));
         
-        // Se houver kit_id na URL, validar e adicionar ao request ANTES de validar
-        $kit_id = null;
-        if ($request->has('kit_id') && $request->kit_id) {
-            $kit = Kit::findOrFail($request->kit_id);
-            $kit_id = $kit->id;
-        }
-        
         // Validate fields with ajax
         $val = $this->validateBread($request->all(), $dataType->addRows)->validate();
-
-        // Adicionar kit_id ao request para que insertUpdateData capture
-        if ($kit_id) {
-            $request->merge(['kit_id' => $kit_id]);
-        }
 
         // Use insertUpdateData para processar corretamente
         $data = $this->insertUpdateData($request, $slug, $dataType->addRows, new $dataType->model_name());
@@ -84,6 +72,7 @@ class KitItemsController extends VoyagerBaseController
         event(new BreadDataAdded($dataType, $data));
 
         if (!$request->has('_tagging')) {
+            $kit_id = $request->get('kit_id');
             if (auth()->user()->can('browse', $data)) {
                 if ($kit_id) {
                     $redirect = redirect()->route("voyager.{$dataType->slug}.index", ['kit_id' => $kit_id]);
