@@ -48,38 +48,49 @@ class KitItemsController extends VoyagerBaseController
     }
 
     /**
-     * Store - Save new kit item
+     * POST BRE(A)D - Store data.
+     *
+     * @param \Illuminate\Http\Request $request
+     *
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
     {
         $slug = $this->getSlug($request);
+
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
         
         // Check permission
         $this->authorize('add', app($dataType->model_name));
         
-        // Validate fields
+        // Validate fields with ajax
         $val = $this->validateBread($request->all(), $dataType->addRows)->validate();
-        
-        // Se houver kit_id, validar e adicionar
+
+        // Se houver kit_id, validar e adicionar ao request ANTES de insertUpdateData
+        $kit_id = null;
         if ($request->has('kit_id') && $request->kit_id) {
             $kit = Kit::findOrFail($request->kit_id);
-            $request->merge(['kit_id' => $kit->id]);
+            $kit_id = $kit->id;
+            // Merge kit_id para que insertUpdateData capture
+            $request->merge(['kit_id' => $kit_id]);
         }
-        
+
         // Use insertUpdateData para processar corretamente
         $data = $this->insertUpdateData($request, $slug, $dataType->addRows, new $dataType->model_name());
-        
+
         event(new BreadDataAdded($dataType, $data));
-        
+
         if (!$request->has('_tagging')) {
             if (auth()->user()->can('browse', $data)) {
-                $kit_id = $request->get('kit_id');
-                $redirect = redirect()->route("voyager.{$dataType->slug}.index", ['kit_id' => $kit_id]);
+                if ($kit_id) {
+                    $redirect = redirect()->route("voyager.{$dataType->slug}.index", ['kit_id' => $kit_id]);
+                } else {
+                    $redirect = redirect()->route("voyager.{$dataType->slug}.index");
+                }
             } else {
                 $redirect = redirect()->back();
             }
-            
+
             return $redirect->with([
                 'message'    => __('voyager::generic.successfully_added_new')." {$dataType->getTranslatedAttribute('display_name_singular')}",
                 'alert-type' => 'success',
