@@ -254,6 +254,9 @@ export default {
                     this.$set(this.kitImages, key, null);
                 });
                 
+                // Force Vue to update the DOM
+                this.$forceUpdate();
+                
                 // Then clear all file inputs
                 setTimeout(() => {
                     this.selectedKit.items.forEach(item => {

@@ -194,16 +194,16 @@ from {
 }
 }
 
-.image-preview[data-v-000520f3] {
+.image-preview[data-v-865adf50] {
     min-height: 150px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
-.card[data-v-000520f3] {
+.card[data-v-865adf50] {
     border: 1px solid #e3e6f0;
     box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
 }
-.card-header[data-v-000520f3] {
+.card-header[data-v-865adf50] {
     border-bottom: 1px solid #e3e6f0;
 }

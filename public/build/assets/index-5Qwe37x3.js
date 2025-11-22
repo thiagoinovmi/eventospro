@@ -2619,6 +2619,7 @@ const _sfc_main = {
     clearItemImage(kitId, itemId) {
       const key = kitId + "_" + itemId;
       this.$set(this.kitImages, key, null);
+      this.$forceUpdate();
       setTimeout(() => {
         const refName = `fileInput_${kitId}_${itemId}`;
         if (this.$refs[refName] && this.$refs[refName][0]) {
@@ -2795,7 +2796,7 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "000520f3"
+  "865adf50"
 );
 const Kits = __component__.exports;
 window.Vuex = index;
@@ -2997,4 +2998,4 @@ window.app = new Vue({
     TabsComponent
   }
 });
-//# sourceMappingURL=index-BPVsKenB.js.map
+//# sourceMappingURL=index-5Qwe37x3.js.map
