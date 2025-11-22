@@ -2616,6 +2616,7 @@ const _sfc_main = {
     clearItemImage(kitId, itemId) {
       const key = kitId + "_" + itemId;
       this.$delete(this.kitImages, key);
+      Vue.helpers.showToast("success", trans("em.image_deleted"));
     },
     /**
      * Clear all images for the selected kit
@@ -2627,6 +2628,7 @@ const _sfc_main = {
           const key = this.selectedKitId + "_" + item.id;
           this.$delete(this.kitImages, key);
         });
+        Vue.helpers.showToast("success", trans("em.all_images_deleted"));
       }
     },
     /**
@@ -2766,7 +2768,7 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "c57b7972"
+  "8c04bedd"
 );
 const Kits = __component__.exports;
 window.Vuex = index;
@@ -2968,4 +2970,4 @@ window.app = new Vue({
     TabsComponent
   }
 });
-//# sourceMappingURL=index-BE-2xPLC.js.map
+//# sourceMappingURL=index-DmF-pcx1.js.map

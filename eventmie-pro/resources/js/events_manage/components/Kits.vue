@@ -166,7 +166,11 @@ export default {
             const key = kitId + '_' + itemId;
             
             // Check if there's a local upload
-            if(this.kitImages[key]) {
+            if(this.kitImages[key] !== undefined) {
+                // If explicitly set to null, it means user deleted it
+                if(this.kitImages[key] === null) {
+                    return null;
+                }
                 return this.kitImages[key];
             }
 
@@ -218,8 +222,9 @@ export default {
          */
         clearItemImage(kitId, itemId) {
             const key = kitId + '_' + itemId;
-            this.$delete(this.kitImages, key);
-            Vue.helpers.showToast('success', trans('em.image_deleted'));
+            // Set to null to trigger Vue reactivity and show default image
+            this.$set(this.kitImages, key, null);
+            Vue.helpers.showToast('warning', trans('em.image_deleted_need_save'));
         },
 
         /**
@@ -231,9 +236,10 @@ export default {
             if(confirm(trans('em.confirm_clear_all_images'))) {
                 this.selectedKit.items.forEach(item => {
                     const key = this.selectedKitId + '_' + item.id;
-                    this.$delete(this.kitImages, key);
+                    // Set to null to trigger Vue reactivity and show default image
+                    this.$set(this.kitImages, key, null);
                 });
-                Vue.helpers.showToast('success', trans('em.all_images_deleted'));
+                Vue.helpers.showToast('warning', trans('em.all_images_deleted_need_save'));
             }
         },
 
