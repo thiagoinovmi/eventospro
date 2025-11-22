@@ -226,13 +226,13 @@ export default {
             // Set to null to trigger Vue reactivity and show default image
             this.$set(this.kitImages, key, null);
             
-            // Clear the file input
-            const refName = `fileInput_${kitId}_${itemId}`;
-            this.$nextTick(() => {
+            // Clear the file input - use setTimeout to ensure DOM is updated
+            setTimeout(() => {
+                const refName = `fileInput_${kitId}_${itemId}`;
                 if(this.$refs[refName] && this.$refs[refName][0]) {
                     this.$refs[refName][0].value = '';
                 }
-            });
+            }, 0);
             
             Vue.helpers.showToast('warning', trans('em.image_deleted_need_save'));
         },
@@ -244,19 +244,22 @@ export default {
             if(!this.selectedKit) return;
             
             if(confirm(trans('em.confirm_clear_all_images'))) {
+                // First, set all images to null to trigger Vue reactivity
                 this.selectedKit.items.forEach(item => {
                     const key = this.selectedKitId + '_' + item.id;
-                    // Set to null to trigger Vue reactivity and show default image
                     this.$set(this.kitImages, key, null);
-                    
-                    // Clear the file input
-                    const refName = `fileInput_${this.selectedKitId}_${item.id}`;
-                    this.$nextTick(() => {
+                });
+                
+                // Then clear all file inputs
+                setTimeout(() => {
+                    this.selectedKit.items.forEach(item => {
+                        const refName = `fileInput_${this.selectedKitId}_${item.id}`;
                         if(this.$refs[refName] && this.$refs[refName][0]) {
                             this.$refs[refName][0].value = '';
                         }
                     });
-                });
+                }, 0);
+                
                 Vue.helpers.showToast('warning', trans('em.all_images_deleted_need_save'));
             }
         },

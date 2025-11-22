@@ -2619,6 +2619,12 @@ const _sfc_main = {
     clearItemImage(kitId, itemId) {
       const key = kitId + "_" + itemId;
       this.$set(this.kitImages, key, null);
+      const refName = `fileInput_${kitId}_${itemId}`;
+      this.$nextTick(() => {
+        if (this.$refs[refName] && this.$refs[refName][0]) {
+          this.$refs[refName][0].value = "";
+        }
+      });
       Vue.helpers.showToast("warning", trans("em.image_deleted_need_save"));
     },
     /**
@@ -2630,6 +2636,12 @@ const _sfc_main = {
         this.selectedKit.items.forEach((item) => {
           const key = this.selectedKitId + "_" + item.id;
           this.$set(this.kitImages, key, null);
+          const refName = `fileInput_${this.selectedKitId}_${item.id}`;
+          this.$nextTick(() => {
+            if (this.$refs[refName] && this.$refs[refName][0]) {
+              this.$refs[refName][0].value = "";
+            }
+          });
         });
         Vue.helpers.showToast("warning", trans("em.all_images_deleted_need_save"));
       }
@@ -2670,6 +2682,16 @@ const _sfc_main = {
         );
         if (response.data.status) {
           Vue.helpers.showToast("success", trans("em.saved_successfully"));
+          this.$nextTick(() => {
+            if (this.selectedKit && this.selectedKit.items) {
+              this.selectedKit.items.forEach((item) => {
+                const refName = `fileInput_${this.selectedKitId}_${item.id}`;
+                if (this.$refs[refName] && this.$refs[refName][0]) {
+                  this.$refs[refName][0].value = "";
+                }
+              });
+            }
+          });
           this.loadEventKits();
         } else {
           Vue.helpers.showToast("error", trans("em.error_saving"));
@@ -2759,7 +2781,7 @@ var _sfc_render = function render13() {
   } } }, [_c("option", { attrs: { "disabled": "", "selected": "" }, domProps: { "value": null } }, [_vm._v(_vm._s(_vm.trans("em.select_kit_option")))]), _vm._l(_vm.kits, function(kit) {
     return _c("option", { key: kit.id, domProps: { "value": kit.id } }, [_vm._v(" " + _vm._s(kit.name) + " ")]);
   })], 2), _c("small", { staticClass: "form-text text-muted d-block mt-2" }, [_vm._v(" " + _vm._s(_vm.trans("em.choose_kit_message")) + " ")])]), _vm.selectedKit ? _c("div", { staticClass: "row" }, [_c("div", { staticClass: "col-md-12" }, [_c("div", { staticClass: "card mb-4" }, [_c("div", { staticClass: "card-header bg-light" }, [_c("h5", { staticClass: "mb-0" }, [_c("i", { staticClass: "fas fa-box" }), _vm._v(" " + _vm._s(_vm.selectedKit.name) + " ")]), _c("small", { staticClass: "text-muted" }, [_vm._v(_vm._s(_vm.selectedKit.description))])]), _c("div", { staticClass: "card-body" }, [_vm.selectedKit.items && _vm.selectedKit.items.length > 0 ? _c("div", { staticClass: "row" }, _vm._l(_vm.selectedKit.items, function(item) {
-    return _c("div", { key: item.id, staticClass: "col-md-6 mb-4" }, [_c("div", { staticClass: "border rounded p-3" }, [_c("h6", { staticClass: "mb-2" }, [_c("i", { staticClass: "fas fa-cube" }), _vm._v(" " + _vm._s(item.name) + " ")]), _c("small", { staticClass: "text-muted d-block mb-3" }, [_vm._v(_vm._s(item.description))]), _c("div", { staticClass: "mb-3" }, [_c("label", { staticClass: "form-label form-label-sm" }, [_vm._v(" " + _vm._s(_vm.trans("em.image")) + " ")]), _c("div", { staticClass: "image-preview mb-2" }, [_vm.getItemImage(_vm.selectedKit.id, item.id) ? _c("img", { staticClass: "img-fluid rounded", staticStyle: { "max-height": "150px", "object-fit": "cover" }, attrs: { "src": _vm.getImageUrl(_vm.getItemImage(_vm.selectedKit.id, item.id)) } }) : _c("div", { staticClass: "bg-light rounded p-3 text-center text-muted" }, [_c("i", { staticClass: "fas fa-image fa-2x" }), _c("p", { staticClass: "mb-0 mt-2" }, [_vm._v(_vm._s(_vm.trans("em.no_image")))])])]), _c("div", { staticClass: "d-flex gap-2" }, [_c("input", { staticClass: "form-control form-control-sm flex-grow-1", attrs: { "type": "file", "accept": "image/*" }, on: { "change": (e) => _vm.handleImageUpload(e, _vm.selectedKit.id, item.id) } }), _vm.getItemImage(_vm.selectedKit.id, item.id) ? _c("button", { staticClass: "btn btn-sm btn-danger", attrs: { "type": "button", "title": "Limpar imagem" }, on: { "click": function($event) {
+    return _c("div", { key: item.id, staticClass: "col-md-6 mb-4" }, [_c("div", { staticClass: "border rounded p-3" }, [_c("h6", { staticClass: "mb-2" }, [_c("i", { staticClass: "fas fa-cube" }), _vm._v(" " + _vm._s(item.name) + " ")]), _c("small", { staticClass: "text-muted d-block mb-3" }, [_vm._v(_vm._s(item.description))]), _c("div", { staticClass: "mb-3" }, [_c("label", { staticClass: "form-label form-label-sm" }, [_vm._v(" " + _vm._s(_vm.trans("em.image")) + " ")]), _c("div", { staticClass: "image-preview mb-2" }, [_vm.getItemImage(_vm.selectedKit.id, item.id) ? _c("img", { staticClass: "img-fluid rounded", staticStyle: { "max-height": "150px", "object-fit": "cover" }, attrs: { "src": _vm.getImageUrl(_vm.getItemImage(_vm.selectedKit.id, item.id)) } }) : _c("div", { staticClass: "bg-light rounded p-3 text-center text-muted" }, [_c("i", { staticClass: "fas fa-image fa-2x" }), _c("p", { staticClass: "mb-0 mt-2" }, [_vm._v(_vm._s(_vm.trans("em.no_image")))])])]), _c("div", { staticClass: "d-flex gap-2" }, [_c("input", { ref: `fileInput_${_vm.selectedKit.id}_${item.id}`, refInFor: true, staticClass: "form-control form-control-sm flex-grow-1", attrs: { "type": "file", "accept": "image/*" }, on: { "change": (e) => _vm.handleImageUpload(e, _vm.selectedKit.id, item.id) } }), _vm.getItemImage(_vm.selectedKit.id, item.id) ? _c("button", { staticClass: "btn btn-sm btn-danger", attrs: { "type": "button", "title": "Limpar imagem" }, on: { "click": function($event) {
       return _vm.clearItemImage(_vm.selectedKit.id, item.id);
     } } }, [_c("i", { staticClass: "fas fa-trash" })]) : _vm._e()])])])]);
   }), 0) : _c("div", { staticClass: "alert alert-warning" }, [_vm._v(" " + _vm._s(_vm.trans("em.no_items_in_kit")) + " ")])])])])]) : _c("div", { staticClass: "alert alert-info" }, [_vm._v(" " + _vm._s(_vm.trans("em.select_kit_to_edit")) + " ")]), _vm.selectedKit ? _c("div", { staticClass: "mb-3 d-flex gap-2" }, [_c("button", { staticClass: "btn btn-primary btn-lg flex-grow-1", attrs: { "type": "button", "disabled": _vm.saving }, on: { "click": _vm.saveKits } }, [_c("i", { staticClass: "fas fa-sd-card" }), _vm._v(" " + _vm._s(_vm.saving ? _vm.trans("em.saving") : _vm.trans("em.save")) + " ")]), _c("button", { staticClass: "btn btn-warning btn-lg", attrs: { "type": "button", "title": "Limpar todas as imagens" }, on: { "click": _vm.clearAllImages } }, [_c("i", { staticClass: "fas fa-broom" }), _vm._v(" " + _vm._s(_vm.trans("em.clear_all")) + " ")])]) : _vm._e()])])])])]);
@@ -2771,7 +2793,7 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "36ba2e5f"
+  "29c70c5b"
 );
 const Kits = __component__.exports;
 window.Vuex = index;
@@ -2973,4 +2995,4 @@ window.app = new Vue({
     TabsComponent
   }
 });
-//# sourceMappingURL=index-Ba5CrJvh.js.map
+//# sourceMappingURL=index-2kB_jtm0.js.map
