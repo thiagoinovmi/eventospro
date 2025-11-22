@@ -203,13 +203,18 @@ export default {
                     Vue.helpers.showToast('error', trans('em.error_saving'));
                 }
             } catch(error) {
-                console.error(error);
+                console.error('Full error:', error);
+                console.error('Error response:', error.response?.data);
                 
                 let errorMsg = trans('em.error_saving');
                 if(error.response?.data?.message) {
                     errorMsg = error.response.data.message;
                 } else if(error.response?.data?.errors) {
                     errorMsg = Object.values(error.response.data.errors).flat().join(', ');
+                } else if(error.response?.data) {
+                    // Se for um objeto, tenta extrair a mensagem
+                    console.error('Error data:', JSON.stringify(error.response.data));
+                    errorMsg = error.response.data.message || error.response.data.error || JSON.stringify(error.response.data);
                 }
                 
                 Vue.helpers.showToast('error', errorMsg);
