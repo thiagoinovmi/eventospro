@@ -2410,6 +2410,39 @@ class MyEventsController extends Controller
         }
     }
 
+    /**
+     * Delete event kit
+     */
+    public function delete_event_kit(Request $request)
+    {
+        $request->validate([
+            'event_id' => 'required|numeric|min:1|regex:^[1-9][0-9]*$^',
+        ]);
+
+        // Get the event
+        $event = Event::find($request->event_id);
+        if(empty($event)) {
+            return error('event not found', Response::HTTP_BAD_REQUEST);
+        }
+
+        // Check if user has access to this event
+        if(!Auth::user()->hasRole('admin') && $event->user_id != Auth::id()) {
+            return error('access denied', Response::HTTP_BAD_REQUEST);
+        }
+
+        try {
+            // Delete event kit items
+            \App\Models\EventKitItem::where('event_id', $request->event_id)->delete();
+            
+            // Update event to remove kit_id
+            $event->update(['kit_id' => null]);
+
+            return response()->json(['status' => true]);
+        } catch(\Exception $e) {
+            return error($e->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+    }
+
 
 
 }

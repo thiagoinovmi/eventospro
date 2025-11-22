@@ -120,6 +120,15 @@
                                 <i class="fas fa-broom"></i> 
                                 {{ trans('em.clear_all') }}
                             </button>
+                            <button 
+                                type="button" 
+                                class="btn btn-danger btn-lg"
+                                @click="deleteKit"
+                                title="Excluir kit"
+                            >
+                                <i class="fas fa-trash"></i> 
+                                {{ trans('em.delete_kit') }}
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -268,6 +277,45 @@ export default {
                 }, 0);
                 
                 Vue.helpers.showToast('warning', trans('em.all_images_deleted_need_save'));
+            }
+        },
+
+        /**
+         * Delete kit from event
+         */
+        async deleteKit() {
+            if(confirm(trans('em.confirm_delete_kit'))) {
+                try {
+                    const response = await axios.post(
+                        route('eventmie.myevents_delete_event_kit'),
+                        {
+                            event_id: this.event_id,
+                        }
+                    );
+
+                    if(response.data.status) {
+                        // Reset selected kit
+                        this.selectedKitId = null;
+                        
+                        // Clear all images
+                        this.kitImages = {};
+                        
+                        // Show success message
+                        Vue.helpers.showToast('success', trans('em.kit_deleted'));
+                        
+                        // Reload to sync with database
+                        this.loadEventKits();
+                    } else {
+                        Vue.helpers.showToast('error', trans('em.error_saving'));
+                    }
+                } catch(error) {
+                    console.error('Error deleting kit:', error);
+                    let errorMsg = trans('em.error_saving');
+                    if(error.response?.data?.message) {
+                        errorMsg = error.response.data.message;
+                    }
+                    Vue.helpers.showToast('error', errorMsg);
+                }
             }
         },
 
