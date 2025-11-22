@@ -2251,7 +2251,8 @@ class MyEventsController extends Controller
      */
     public function get_event_kits(Request $request)
     {
-        \Log::info('get_event_kits called', ['event_id' => $request->event_id, 'organiser_id' => $this->organiser_id]);
+        // if logged in user is admin
+        $this->is_admin($request);
         
         $request->validate([
             'event_id' => 'required|numeric|min:1|regex:^[1-9][0-9]*$^',
