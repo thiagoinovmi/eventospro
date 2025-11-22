@@ -792,5 +792,9 @@ return [
     'confirm_clear_all_images'          => 'Tem certeza que deseja limpar todas as imagens?',
     'image_deleted_need_save'           => 'Imagem deletada. Clique em Salvar para confirmar',
     'all_images_deleted_need_save'      => 'Todas as imagens foram deletadas. Clique em Salvar para confirmar',
+    
+    // Early Check-in
+    'scan_on_event_day_only'            => 'Early Check-in',
+    'scan_on_event_day_only_ie'         => 'Permitir escaneamento e check-in de ingressos apenas no dia do evento. (Se habilitado, os ingressos só podem ser escaneados no dia do evento)',
 ];
 

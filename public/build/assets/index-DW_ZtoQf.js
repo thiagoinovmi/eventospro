@@ -2736,6 +2736,9 @@ const _sfc_main = {
         if (response.data.status) {
           this.kits = response.data.kits || [];
           this.eventKitItems = response.data.event_kit_items || {};
+          if (response.data.selected_kit_id) {
+            this.selectedKitId = response.data.selected_kit_id;
+          }
           Object.keys(this.eventKitItems).forEach((key) => {
             if (this.eventKitItems[key].image && !this.kitImages[key]) {
               this.kitImages[key] = this.eventKitItems[key].image;
@@ -2797,7 +2800,7 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "05a28968"
+  "fb12d57b"
 );
 const Kits = __component__.exports;
 window.Vuex = index;
@@ -2999,4 +3002,4 @@ window.app = new Vue({
     TabsComponent
   }
 });
-//# sourceMappingURL=index-BXdGqBiA.js.map
+//# sourceMappingURL=index-DW_ZtoQf.js.map
