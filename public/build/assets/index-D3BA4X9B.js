@@ -2613,10 +2613,14 @@ const _sfc_main = {
         formData.append("event_id", this.event_id);
         const kitsData = this.kits.map((kit) => ({
           kit_id: kit.id,
-          items: kit.items.map((item) => ({
-            kit_item_id: item.id,
-            image: this.kitImages[kit.id + "_" + item.id] || null
-          }))
+          items: kit.items.map((item) => {
+            const key = kit.id + "_" + item.id;
+            const image = this.kitImages[key] || null;
+            return {
+              kit_item_id: item.id,
+              image
+            };
+          })
         }));
         formData.append("kits", JSON.stringify(kitsData));
         const response = await axios.post(
@@ -2630,7 +2634,6 @@ const _sfc_main = {
         );
         if (response.data.status) {
           Vue.helpers.showToast("success", trans("em.saved_successfully"));
-          this.kitImages = {};
           this.loadEventKits();
         } else {
           Vue.helpers.showToast("error", trans("em.error_saving"));
@@ -2671,6 +2674,11 @@ const _sfc_main = {
         if (response.data.status) {
           this.kits = response.data.kits || [];
           this.eventKitItems = response.data.event_kit_items || {};
+          Object.keys(this.eventKitItems).forEach((key) => {
+            if (this.eventKitItems[key].image && !this.kitImages[key]) {
+              this.kitImages[key] = this.eventKitItems[key].image;
+            }
+          });
           if (this.kits.length === 0) {
             console.info("No kits available for this event");
           }
@@ -2717,7 +2725,7 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "34a3687c"
+  "a87c37f2"
 );
 const Kits = __component__.exports;
 window.Vuex = index;
@@ -2919,4 +2927,4 @@ window.app = new Vue({
     TabsComponent
   }
 });
-//# sourceMappingURL=index-Cw9uxGAR.js.map
+//# sourceMappingURL=index-D3BA4X9B.js.map

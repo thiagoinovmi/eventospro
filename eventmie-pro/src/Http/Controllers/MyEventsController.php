@@ -2356,21 +2356,27 @@ class MyEventsController extends Controller
                             'kit_item_id' => $itemData['kit_item_id'],
                         ];
 
-                        // Handle image upload if present
-                        if(!empty($itemData['image']) && is_string($itemData['image']) && strpos($itemData['image'], 'data:image') === 0) {
-                            // Base64 image
-                            $params = [
-                                'image' => $itemData['image'],
-                                'path' => $path . $kitData['kit_id'],
-                                'width' => 512,
-                                'height' => 512,
-                                'skip_date_folder' => true, // Don't add date folder for kits
-                            ];
-                            $imageName = $this->upload_base64_image($params, $storageDisk);
-                            if($imageName) {
-                                $eventKitItem['image'] = $path . $kitData['kit_id'] . '/' . $imageName;
+                        // Handle image - check if it's a new base64 image or existing path
+                        if(!empty($itemData['image']) && is_string($itemData['image'])) {
+                            if(strpos($itemData['image'], 'data:image') === 0) {
+                                // New base64 image - upload it
+                                $params = [
+                                    'image' => $itemData['image'],
+                                    'path' => $path . $kitData['kit_id'],
+                                    'width' => 512,
+                                    'height' => 512,
+                                    'skip_date_folder' => true, // Don't add date folder for kits
+                                ];
+                                $imageName = $this->upload_base64_image($params, $storageDisk);
+                                if($imageName) {
+                                    $eventKitItem['image'] = $path . $kitData['kit_id'] . '/' . $imageName;
+                                }
+                            } else {
+                                // Existing image path from database - preserve it
+                                $eventKitItem['image'] = $itemData['image'];
                             }
                         }
+                        // If image is null/empty, don't set it - will preserve existing value via updateOrCreate
 
                         // Create or update
                         \App\Models\EventKitItem::updateOrCreate(
