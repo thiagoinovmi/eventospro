@@ -148,6 +148,10 @@ export default {
             this.saving = true;
 
             try {
+                // Use FormData to handle large base64 images
+                const formData = new FormData();
+                formData.append('event_id', this.event_id);
+                
                 // Prepare kits data
                 const kitsData = this.kits.map(kit => ({
                     kit_id: kit.id,
@@ -157,11 +161,15 @@ export default {
                     })),
                 }));
 
+                formData.append('kits', JSON.stringify(kitsData));
+
                 const response = await axios.post(
                     route('eventmie.myevents_store_event_kits'),
+                    formData,
                     {
-                        event_id: this.event_id,
-                        kits: kitsData,
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                        }
                     }
                 );
 
@@ -176,7 +184,15 @@ export default {
                 }
             } catch(error) {
                 console.error(error);
-                Vue.helpers.showToast('error', error.response?.data?.message || trans('em.error_saving'));
+                
+                let errorMsg = trans('em.error_saving');
+                if(error.response?.data?.message) {
+                    errorMsg = error.response.data.message;
+                } else if(error.response?.data?.errors) {
+                    errorMsg = Object.values(error.response.data.errors).flat().join(', ');
+                }
+                
+                Vue.helpers.showToast('error', errorMsg);
             } finally {
                 this.saving = false;
             }

@@ -2297,7 +2297,7 @@ class MyEventsController extends Controller
     {
         $request->validate([
             'event_id' => 'required|numeric|min:1|regex:^[1-9][0-9]*$^',
-            'kits' => 'required|array',
+            'kits' => 'required',
         ]);
 
         // Get the event
@@ -2319,11 +2319,21 @@ class MyEventsController extends Controller
         $storageDisk = getDisk();
 
         try {
+            // Parse kits from JSON string if needed
+            $kits = $request->kits;
+            if(is_string($kits)) {
+                $kits = json_decode($kits, true);
+            }
+            
+            if(!is_array($kits)) {
+                return error('invalid kits format', Response::HTTP_BAD_REQUEST);
+            }
+
             // Delete existing event kit items
             \App\Models\EventKitItem::where('event_id', $request->event_id)->delete();
 
             // Process each kit
-            foreach($request->kits as $kitData) {
+            foreach($kits as $kitData) {
                 if(empty($kitData['kit_id'])) continue;
 
                 $kit = Kit::find($kitData['kit_id']);
