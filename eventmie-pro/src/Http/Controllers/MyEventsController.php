@@ -2251,23 +2251,24 @@ class MyEventsController extends Controller
      */
     public function get_event_kits(Request $request)
     {
-        // Set organiser_id from authenticated user
-        $this->organiser_id = Auth::id();
-        
-        // If admin is requesting, allow override from request
-        if(Auth::user()->hasRole('admin') && !empty($request->organiser_id)) {
-            $this->organiser_id = $request->organiser_id;
-        }
-        
         $request->validate([
             'event_id' => 'required|numeric|min:1|regex:^[1-9][0-9]*$^',
         ]);
 
-        // Check if user has access to this event
-        $event = $this->event->get_user_event($request->event_id, $this->organiser_id);
+        // Get the event
+        $event = Event::find($request->event_id);
         if(empty($event)) {
+            return error('event not found', Response::HTTP_BAD_REQUEST);
+        }
+
+        // Check if user has access to this event
+        // Admin can access any event, organizer can only access their own
+        if(!Auth::user()->hasRole('admin') && $event->user_id != Auth::id()) {
             return error('access denied', Response::HTTP_BAD_REQUEST);
         }
+        
+        // Set organiser_id for consistency
+        $this->organiser_id = $event->user_id;
 
         // Get all kits with their items
         $kits = Kit::with('items')->where('status', 1)->get();
@@ -2294,24 +2295,25 @@ class MyEventsController extends Controller
      */
     public function store_event_kits(Request $request)
     {
-        // Set organiser_id from authenticated user
-        $this->organiser_id = Auth::id();
-        
-        // If admin is requesting, allow override from request
-        if(Auth::user()->hasRole('admin') && !empty($request->organiser_id)) {
-            $this->organiser_id = $request->organiser_id;
-        }
-
         $request->validate([
             'event_id' => 'required|numeric|min:1|regex:^[1-9][0-9]*$^',
             'kits' => 'required|array',
         ]);
 
-        // Check if user has access to this event
-        $event = $this->event->get_user_event($request->event_id, $this->organiser_id);
+        // Get the event
+        $event = Event::find($request->event_id);
         if(empty($event)) {
+            return error('event not found', Response::HTTP_BAD_REQUEST);
+        }
+
+        // Check if user has access to this event
+        // Admin can access any event, organizer can only access their own
+        if(!Auth::user()->hasRole('admin') && $event->user_id != Auth::id()) {
             return error('access denied', Response::HTTP_BAD_REQUEST);
         }
+        
+        // Set organiser_id for consistency
+        $this->organiser_id = $event->user_id;
 
         $path = 'event-kits/' . $request->event_id . '/';
         $storageDisk = getDisk();
