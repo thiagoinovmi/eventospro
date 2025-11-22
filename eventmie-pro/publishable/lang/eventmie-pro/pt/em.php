@@ -591,8 +591,8 @@ return [
     'monthly_weekly'                  => 'Mensal / Semanal',
     'full_advance'                    => 'Avanço total',
     'please_login_signup'             => 'Por favor, registre-se ou faça login para continuar',
-    'excerpt'                         => 'Excerto',
-    'short_info'                      => 'Informação curta',
+    'excerpt'                         => 'Trecho',
+    'short_info'                      => 'informação breve',
     'customer_limit'                  => 'Limite de reserva por cliente',
     'customer_limit_info'             => 'Por quantas vezes o mesmo cliente pode comprar este bilhete. (deixe em branco para ilimitado) ',
     'already_booked'                  => 'Você atingiu o limite máximo de reserva!',
@@ -794,7 +794,7 @@ return [
     'all_images_deleted_need_save'      => 'Todas as imagens foram deletadas. Clique em Salvar para confirmar',
     
     // Early Check-in
-    'scan_on_event_day_only'            => 'Early Check-in',
+    'scan_on_event_day_only'            => 'Check-in antecipado',
     'scan_on_event_day_only_ie'         => 'Permitir escaneamento e check-in de ingressos apenas no dia do evento. (Se habilitado, os ingressos só podem ser escaneados no dia do evento)',
 ];
 
