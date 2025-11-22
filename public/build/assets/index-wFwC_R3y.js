@@ -2604,7 +2604,7 @@ const _sfc_main = {
           }))
         }));
         const response = await axios.post(
-          route("myevents_store_event_kits"),
+          route("eventmie.myevents_store_event_kits"),
           {
             event_id: this.event_id,
             kits: kitsData
@@ -2635,7 +2635,7 @@ const _sfc_main = {
       }
       try {
         const response = await axios.post(
-          route("myevents_get_event_kits"),
+          route("eventmie.myevents_get_event_kits"),
           {
             event_id: this.event_id
           }
@@ -2689,7 +2689,7 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "21591e03"
+  "eabc822e"
 );
 const Kits = __component__.exports;
 window.Vuex = index;
@@ -2891,4 +2891,4 @@ window.app = new Vue({
     TabsComponent
   }
 });
-//# sourceMappingURL=index-B1JCca2H.js.map
+//# sourceMappingURL=index-wFwC_R3y.js.map
