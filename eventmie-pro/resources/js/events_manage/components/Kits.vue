@@ -68,6 +68,7 @@
                                                         </div>
                                                         <div class="d-flex gap-2">
                                                             <input 
+                                                                :ref="`fileInput_${selectedKit.id}_${item.id}`"
                                                                 type="file" 
                                                                 class="form-control form-control-sm flex-grow-1"
                                                                 accept="image/*"
@@ -224,6 +225,15 @@ export default {
             const key = kitId + '_' + itemId;
             // Set to null to trigger Vue reactivity and show default image
             this.$set(this.kitImages, key, null);
+            
+            // Clear the file input
+            const refName = `fileInput_${kitId}_${itemId}`;
+            this.$nextTick(() => {
+                if(this.$refs[refName] && this.$refs[refName][0]) {
+                    this.$refs[refName][0].value = '';
+                }
+            });
+            
             Vue.helpers.showToast('warning', trans('em.image_deleted_need_save'));
         },
 
@@ -238,6 +248,14 @@ export default {
                     const key = this.selectedKitId + '_' + item.id;
                     // Set to null to trigger Vue reactivity and show default image
                     this.$set(this.kitImages, key, null);
+                    
+                    // Clear the file input
+                    const refName = `fileInput_${this.selectedKitId}_${item.id}`;
+                    this.$nextTick(() => {
+                        if(this.$refs[refName] && this.$refs[refName][0]) {
+                            this.$refs[refName][0].value = '';
+                        }
+                    });
                 });
                 Vue.helpers.showToast('warning', trans('em.all_images_deleted_need_save'));
             }
@@ -287,6 +305,19 @@ export default {
 
                 if(response.data.status) {
                     Vue.helpers.showToast('success', trans('em.saved_successfully'));
+                    
+                    // Clear all file inputs
+                    this.$nextTick(() => {
+                        if(this.selectedKit && this.selectedKit.items) {
+                            this.selectedKit.items.forEach(item => {
+                                const refName = `fileInput_${this.selectedKitId}_${item.id}`;
+                                if(this.$refs[refName] && this.$refs[refName][0]) {
+                                    this.$refs[refName][0].value = '';
+                                }
+                            });
+                        }
+                    });
+                    
                     // Don't clear kitImages - they are needed for display
                     // Just reload to sync with database
                     this.loadEventKits();
