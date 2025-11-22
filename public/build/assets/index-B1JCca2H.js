@@ -86,8 +86,8 @@ const Component = {
   beforeDestroy() {
   }
 };
-const _sfc_main$b = Component;
-var _sfc_render$b = function render() {
+const _sfc_main$c = Component;
+var _sfc_render$c = function render() {
   var _vm = this, _c = _vm._self._c;
   _vm._self._setupProxy;
   return _c("transition", { attrs: { "name": "fade" } }, [_vm.isShow ? _c("div", { staticClass: "vc-overlay", attrs: { "id": "vueConfirm" }, on: { "click": _vm.handleClickOverlay } }, [_c("transition", { attrs: { "name": "zoom" } }, [_vm.isShow ? _c("div", { ref: "vueConfirmDialog", staticClass: "vc-container" }, [_c("span", { staticClass: "vc-text-grid" }, [_vm.dialog.title ? _c("h4", { staticClass: "vc-title", domProps: { "innerHTML": _vm._s(_vm.dialog.title) } }) : _vm._e(), _vm.dialog.message ? _c("p", { staticClass: "vc-text", domProps: { "innerHTML": _vm._s(_vm.dialog.message) } }) : _vm._e(), _vm.dialog.auth ? _c("span", [_c("input", { directives: [{ name: "focus", rawName: "v-focus" }, { name: "model", rawName: "v-model", value: _vm.password, expression: "password" }], staticClass: "vc-input", attrs: { "type": "password", "name": "vc-password", "placeholder": "Password", "autocomplete": "off" }, domProps: { "value": _vm.password }, on: { "keyup": function($event) {
@@ -104,16 +104,16 @@ var _sfc_render$b = function render() {
     return ((e) => _vm.handleClickButton(e, true)).apply(null, arguments);
   } } }, [_vm._v(" " + _vm._s(_vm.dialog.button.yes) + " ")]) : _vm._e()])]) : _vm._e()])], 1) : _vm._e()]);
 };
-var _sfc_staticRenderFns$b = [];
-var __component__$b = /* @__PURE__ */ normalizeComponent(
-  _sfc_main$b,
-  _sfc_render$b,
-  _sfc_staticRenderFns$b,
+var _sfc_staticRenderFns$c = [];
+var __component__$c = /* @__PURE__ */ normalizeComponent(
+  _sfc_main$c,
+  _sfc_render$c,
+  _sfc_staticRenderFns$c,
   false,
   null,
   null
 );
-const VueConfirmDialog$1 = __component__$b.exports;
+const VueConfirmDialog$1 = __component__$c.exports;
 const VueConfirmDialog = {
   install(Vue2, args = {}) {
     if (this.installed) return;
@@ -145,7 +145,7 @@ const VueConfirmDialog = {
     Vue2["$confirm"] = confirm;
   }
 };
-const _sfc_main$a = {
+const _sfc_main$b = {
   props: [
     "event_id",
     "organiser_id",
@@ -171,21 +171,21 @@ const _sfc_main$a = {
     this.updateEventId();
   }
 };
-var _sfc_render$a = function render2() {
+var _sfc_render$b = function render2() {
   var _vm = this, _c = _vm._self._c;
-  return _c("div", [_c("vue-confirm-dialog"), _c("ul", { staticClass: "nav nav-lb-tab text-center w-space" }, [_c("li", { staticClass: "nav-item" }, [_c("router-link", { staticClass: "nav-link", attrs: { "to": { name: "detail" } } }, [_vm._v(" " + _vm._s(_vm.trans("em.details")) + " "), !_vm.is_publishable.detail ? _c("i", { staticClass: "fas fa-exclamation-circle text-danger" }) : _c("i", { staticClass: "fas fa-check-circle text-success" })])], 1), _c("li", { staticClass: "nav-item" }, [_c("router-link", { staticClass: "nav-link", attrs: { "to": { name: "timing" } } }, [_vm._v(" " + _vm._s(_vm.trans("em.timings")) + " "), !_vm.is_publishable.timing ? _c("i", { staticClass: "fas fa-exclamation-circle text-danger" }) : _c("i", { staticClass: "fas fa-check-circle text-success" })])], 1), _c("li", { staticClass: "nav-item" }, [_c("router-link", { staticClass: "nav-link", attrs: { "to": { name: "tickets" } } }, [_vm._v(" " + _vm._s(_vm.trans("em.tickets")) + " "), !_vm.is_publishable.tickets ? _c("i", { staticClass: "fas fa-exclamation-circle text-danger" }) : _c("i", { staticClass: "fas fa-check-circle text-success" })])], 1), _c("li", { staticClass: "nav-item" }, [_c("router-link", { staticClass: "nav-link", attrs: { "to": { name: "location" } } }, [_vm._v(" " + _vm._s(_vm.trans("em.location")) + " "), !_vm.is_publishable.location ? _c("i", { staticClass: "fas fa-exclamation-circle text-danger" }) : _c("i", { staticClass: "fas fa-check-circle text-success" })])], 1), _c("li", { staticClass: "nav-item" }, [_c("router-link", { staticClass: "nav-link", attrs: { "to": { name: "media" } } }, [_vm._v(" " + _vm._s(_vm.trans("em.media")) + " "), !_vm.is_publishable.media ? _c("i", { staticClass: "fas fa-exclamation-circle text-danger" }) : _c("i", { staticClass: "fas fa-check-circle text-success" })])], 1), _c("li", { staticClass: "nav-item" }, [_c("router-link", { staticClass: "nav-link", attrs: { "to": { name: "seo" } } }, [_vm._v(" " + _vm._s(_vm.trans("em.seo")) + " "), _c("i", { staticClass: "fas fa-check-circle text-success" })])], 1), _c("li", { staticClass: "nav-item" }, [_c("router-link", { staticClass: "nav-link", attrs: { "to": { name: "publish" } } }, [_vm._v(" " + _vm._s(_vm.trans("em.publish")) + " "), !_vm.event_ck.publish ? _c("i", { staticClass: "fas fa-exclamation-circle text-danger" }) : _c("i", { staticClass: "fas fa-check-circle text-success" })])], 1)])], 1);
+  return _c("div", [_c("vue-confirm-dialog"), _c("ul", { staticClass: "nav nav-lb-tab text-center w-space" }, [_c("li", { staticClass: "nav-item" }, [_c("router-link", { staticClass: "nav-link", attrs: { "to": { name: "detail" } } }, [_vm._v(" " + _vm._s(_vm.trans("em.details")) + " "), !_vm.is_publishable.detail ? _c("i", { staticClass: "fas fa-exclamation-circle text-danger" }) : _c("i", { staticClass: "fas fa-check-circle text-success" })])], 1), _c("li", { staticClass: "nav-item" }, [_c("router-link", { staticClass: "nav-link", attrs: { "to": { name: "timing" } } }, [_vm._v(" " + _vm._s(_vm.trans("em.timings")) + " "), !_vm.is_publishable.timing ? _c("i", { staticClass: "fas fa-exclamation-circle text-danger" }) : _c("i", { staticClass: "fas fa-check-circle text-success" })])], 1), _c("li", { staticClass: "nav-item" }, [_c("router-link", { staticClass: "nav-link", attrs: { "to": { name: "tickets" } } }, [_vm._v(" " + _vm._s(_vm.trans("em.tickets")) + " "), !_vm.is_publishable.tickets ? _c("i", { staticClass: "fas fa-exclamation-circle text-danger" }) : _c("i", { staticClass: "fas fa-check-circle text-success" })])], 1), _c("li", { staticClass: "nav-item" }, [_c("router-link", { staticClass: "nav-link", attrs: { "to": { name: "location" } } }, [_vm._v(" " + _vm._s(_vm.trans("em.location")) + " "), !_vm.is_publishable.location ? _c("i", { staticClass: "fas fa-exclamation-circle text-danger" }) : _c("i", { staticClass: "fas fa-check-circle text-success" })])], 1), _c("li", { staticClass: "nav-item" }, [_c("router-link", { staticClass: "nav-link", attrs: { "to": { name: "media" } } }, [_vm._v(" " + _vm._s(_vm.trans("em.media")) + " "), !_vm.is_publishable.media ? _c("i", { staticClass: "fas fa-exclamation-circle text-danger" }) : _c("i", { staticClass: "fas fa-check-circle text-success" })])], 1), _c("li", { staticClass: "nav-item" }, [_c("router-link", { staticClass: "nav-link", attrs: { "to": { name: "seo" } } }, [_vm._v(" " + _vm._s(_vm.trans("em.seo")) + " "), _c("i", { staticClass: "fas fa-check-circle text-success" })])], 1), _c("li", { staticClass: "nav-item" }, [_c("router-link", { staticClass: "nav-link", attrs: { "to": { name: "kits" } } }, [_vm._v(" " + _vm._s(_vm.trans("em.kits")) + " "), !_vm.is_publishable.kits ? _c("i", { staticClass: "fas fa-exclamation-circle text-danger" }) : _c("i", { staticClass: "fas fa-check-circle text-success" })])], 1), _c("li", { staticClass: "nav-item" }, [_c("router-link", { staticClass: "nav-link", attrs: { "to": { name: "publish" } } }, [_vm._v(" " + _vm._s(_vm.trans("em.publish")) + " "), !_vm.event_ck.publish ? _c("i", { staticClass: "fas fa-exclamation-circle text-danger" }) : _c("i", { staticClass: "fas fa-check-circle text-success" })])], 1)])], 1);
 };
-var _sfc_staticRenderFns$a = [];
-var __component__$a = /* @__PURE__ */ normalizeComponent(
-  _sfc_main$a,
-  _sfc_render$a,
-  _sfc_staticRenderFns$a,
+var _sfc_staticRenderFns$b = [];
+var __component__$b = /* @__PURE__ */ normalizeComponent(
+  _sfc_main$b,
+  _sfc_render$b,
+  _sfc_staticRenderFns$b,
   false,
   null,
   null
 );
-const TabsComponent = __component__$a.exports;
-const _sfc_main$9 = {
+const TabsComponent = __component__$b.exports;
+const _sfc_main$a = {
   props: ["event_id"],
   data() {
     return {
@@ -344,7 +344,7 @@ const _sfc_main$9 = {
     }
   }
 };
-var _sfc_render$9 = function render3() {
+var _sfc_render$a = function render3() {
   var _a, _b;
   var _vm = this, _c = _vm._self._c;
   return _c("div", [_c("div", { staticClass: "mb-4" }, [_c("button", { staticClass: "ai-trigger-btn", attrs: { "type": "button" }, on: { "click": function($event) {
@@ -356,23 +356,23 @@ var _sfc_render$9 = function render3() {
     _vm.aiPrompt = $event.target.value;
   } } }), _c("div", { staticClass: "ai-textarea-footer" }, [_c("div", { staticClass: "ai-char-count" }, [_vm._v(" " + _vm._s(_vm.aiPrompt.length) + " " + _vm._s(_vm.trans("em.characters")) + " ")])])]), _c("div", { staticClass: "ai-controls" }, [_c("div", { staticClass: "ai-voice-section" }, [_c("button", { staticClass: "ai-voice-btn", class: { "ai-voice-active": _vm.isListening }, attrs: { "disabled": !_vm.isSpeechSupported }, on: { "click": _vm.toggleSpeechRecognition } }, [_c("i", { staticClass: "fas", class: _vm.isListening ? "fa-stop" : "fa-microphone" }), _c("div", [_vm._v(_vm._s(_vm.isListening ? _vm.trans("em.stop") : _vm.trans("em.voice_input")))])]), _vm.isListening && _vm.speechStartTime ? _c("div", { staticClass: "ai-voice-timer" }, [_c("div", { staticClass: "ai-timer-dot" }), _vm._v(" " + _vm._s(_vm.timerDisplay) + "s ")]) : _vm._e()]), _c("button", { staticClass: "ai-clear-btn", attrs: { "disabled": !_vm.aiPrompt }, on: { "click": _vm.clearPrompt } }, [_c("i", { staticClass: "fas fa-eraser" }), _vm._v(" " + _vm._s(_vm.trans("em.clear")) + " ")])]), !_vm.isSpeechSupported ? _c("div", { staticClass: "ai-warning" }, [_c("i", { staticClass: "fas fa-exclamation-triangle" }), _vm._v(" " + _vm._s(_vm.trans("em.voice_not_supported")) + " ")]) : _vm._e()]), _c("div", { staticClass: "ai-generate-section" }, [_c("button", { staticClass: "ai-generate-btn", attrs: { "disabled": _vm.generating || !_vm.aiPrompt.trim() }, on: { "click": _vm.generateAIContent } }, [_c("div", { staticClass: "ai-generate-content" }, [_vm.generating ? _c("div", { staticClass: "ai-loading-spinner" }, [_c("div", { staticClass: "ai-spinner" })]) : _c("i", { staticClass: "fa-solid fa-wand-magic-sparkles" }), _c("div", [_vm._v(_vm._s(_vm.generating ? _vm.trans("em.generating") : _vm.trans("em.generate_event_content")))])])]), _c("p", { staticClass: "ai-generate-hint" }, [_vm._v(" " + _vm._s(_vm.trans("em.ai_generate_hint")) + " ")])])]) : _vm._e()])])]) : _vm._e()]);
 };
-var _sfc_staticRenderFns$9 = [function() {
+var _sfc_staticRenderFns$a = [function() {
   var _vm = this, _c = _vm._self._c;
   return _c("div", { staticClass: "ai-icon-wrapper" }, [_c("i", { staticClass: "fa-solid fa-wand-magic-sparkles" })]);
 }, function() {
   var _vm = this, _c = _vm._self._c;
   return _c("div", { staticClass: "ai-title-icon" }, [_c("i", { staticClass: "fa-solid fa-wand-magic-sparkles" })]);
 }];
-var __component__$9 = /* @__PURE__ */ normalizeComponent(
-  _sfc_main$9,
-  _sfc_render$9,
-  _sfc_staticRenderFns$9,
+var __component__$a = /* @__PURE__ */ normalizeComponent(
+  _sfc_main$a,
+  _sfc_render$a,
+  _sfc_staticRenderFns$a,
   false,
   null,
   null
 );
-const AISuggetion = __component__$9.exports;
-const _sfc_main$8 = {
+const AISuggetion = __component__$a.exports;
+const _sfc_main$9 = {
   props: [
     "organisers",
     "is_admin",
@@ -571,7 +571,7 @@ const _sfc_main$8 = {
     }
   }
 };
-var _sfc_render$8 = function render4() {
+var _sfc_render$9 = function render4() {
   var _vm = this, _c = _vm._self._c;
   return _c("div", [_vm.openai_api_key != null && _vm.openai_api_key != "" ? _c("AISuggetion", { attrs: { "event_id": _vm.event_id } }) : _vm._e(), _c("form", { ref: "form", staticClass: "lgx-contactform", attrs: { "method": "POST", "enctype": "multipart/form-data" }, on: { "submit": function($event) {
     $event.preventDefault();
@@ -664,17 +664,17 @@ var _sfc_render$8 = function render4() {
     return _vm.isDirty();
   }] } }), _c("label", { staticClass: "form-check-label", attrs: { "for": "scan_on_event_day_only" } })])])])]), _c("button", { staticClass: "btn btn-primary btn-lg mt-2", attrs: { "type": "submit" } }, [_c("i", { staticClass: "fas fa-sd-card" }), _vm._v(" " + _vm._s(_vm.trans("em.save")))])])], 1);
 };
-var _sfc_staticRenderFns$8 = [];
-var __component__$8 = /* @__PURE__ */ normalizeComponent(
-  _sfc_main$8,
-  _sfc_render$8,
-  _sfc_staticRenderFns$8,
+var _sfc_staticRenderFns$9 = [];
+var __component__$9 = /* @__PURE__ */ normalizeComponent(
+  _sfc_main$9,
+  _sfc_render$9,
+  _sfc_staticRenderFns$9,
   false,
   null,
   null
 );
-const Detail = __component__$8.exports;
-const _sfc_main$7 = {
+const Detail = __component__$9.exports;
+const _sfc_main$8 = {
   mixins: [
     mixinsFilters
   ],
@@ -798,7 +798,7 @@ const _sfc_main$7 = {
     }
   }
 };
-var _sfc_render$7 = function render5() {
+var _sfc_render$8 = function render5() {
   var _vm = this, _c = _vm._self._c;
   return _c("div", { staticClass: "tab-pane active" }, [_c("div", { staticClass: "panel-group" }, [_c("div", { staticClass: "panel panel-default" }, [_c("div", { staticClass: "panel-heading" }, [_c("form", { ref: "form", attrs: { "method": "POST", "enctype": "multipart/form-data" }, on: { "submit": function($event) {
     $event.preventDefault();
@@ -829,17 +829,17 @@ var _sfc_render$7 = function render5() {
     _vm.video_link = $event.target.value;
   } } }), _c("span", { staticClass: "text-muted" }, [_vm._v(_vm._s(_vm.trans("em.enter_video_id_only")))])])]), _c("div", { staticClass: "mb-3" }, [_c("div", { staticClass: "col-sm-12" }, [_c("button", { staticClass: "btn btn-primary btn-lg", attrs: { "type": "submit" } }, [_c("i", { staticClass: "fas fa-sd-card" }), _vm._v(" " + _vm._s(_vm.trans("em.save")))])])])])])])])]);
 };
-var _sfc_staticRenderFns$7 = [];
-var __component__$7 = /* @__PURE__ */ normalizeComponent(
-  _sfc_main$7,
-  _sfc_render$7,
-  _sfc_staticRenderFns$7,
+var _sfc_staticRenderFns$8 = [];
+var __component__$8 = /* @__PURE__ */ normalizeComponent(
+  _sfc_main$8,
+  _sfc_render$8,
+  _sfc_staticRenderFns$8,
   false,
   null,
   null
 );
-const Media = __component__$7.exports;
-const _sfc_main$6 = {
+const Media = __component__$8.exports;
+const _sfc_main$7 = {
   name: "GoogleMap",
   props: [
     "event_prop",
@@ -1042,7 +1042,7 @@ const _sfc_main$6 = {
     }
   }
 };
-var _sfc_render$6 = function render6() {
+var _sfc_render$7 = function render6() {
   var _vm = this, _c = _vm._self._c;
   return _c("div", { staticClass: "tab-pane active" }, [_c("div", { staticClass: "panel-group" }, [_c("div", { staticClass: "panel panel-default lgx-panel" }, [_c("div", { staticClass: "panel-heading" }, [_c("form", { ref: "form", staticClass: "lgx-contactform", attrs: { "method": "POST", "enctype": "multipart/form-data" }, on: { "submit": function($event) {
     $event.preventDefault();
@@ -1079,17 +1079,17 @@ var _sfc_render$6 = function render6() {
     _vm.tmp_venues_ids = $$v;
   }, expression: "tmp_venues_ids" } }, [_c("span", { attrs: { "slot": "noResult" }, slot: "noResult" }, [_vm._v(" " + _vm._s(_vm.trans("em.venues_not_found")))])])], 1), _c("div", { staticClass: "mb-3" }, [_c("venue-component", { attrs: { "organiser_id": _vm.organiser_id } })], 1), _c("button", { staticClass: "btn btn-primary btn-lg", attrs: { "type": "submit" } }, [_c("i", { staticClass: "fas fa-sd-card" }), _vm._v(" " + _vm._s(_vm.trans("em.save")))])])])])])]);
 };
-var _sfc_staticRenderFns$6 = [];
-var __component__$6 = /* @__PURE__ */ normalizeComponent(
-  _sfc_main$6,
-  _sfc_render$6,
-  _sfc_staticRenderFns$6,
+var _sfc_staticRenderFns$7 = [];
+var __component__$7 = /* @__PURE__ */ normalizeComponent(
+  _sfc_main$7,
+  _sfc_render$7,
+  _sfc_staticRenderFns$7,
   false,
   null,
   null
 );
-const Location = __component__$6.exports;
-const _sfc_main$5 = {
+const Location = __component__$7.exports;
+const _sfc_main$6 = {
   props: [
     "sch_index",
     "sch_r_type",
@@ -1549,7 +1549,7 @@ const _sfc_main$5 = {
     this.editSchedule();
   }
 };
-var _sfc_render$5 = function render7() {
+var _sfc_render$6 = function render7() {
   var _vm = this, _c = _vm._self._c;
   return _c("div", { staticClass: "schedule-row mb-3" }, [_c("div", { staticClass: "row mb-2" }, [_c("div", { staticClass: "col-md-12" }, [_c("div", { staticClass: "badge bg-primary d-flex p-2 fs-6" }, [_vm._v(" #" + _vm._s(_vm.sch_index + 1) + "  "), _c("span", [_vm._v(_vm._s(_vm.moment(_vm.month, "YYYY-MM").format("MMMM")) + " " + _vm._s(_vm.trans("em.schedule")) + " ")])])])]), _c("div", { staticClass: "row" }, [_vm.sch_r_type == 2 ? _c("div", { staticClass: "col-md-12" }, [_c("div", { staticClass: "form-group mb-2" }, [_c("label", { staticClass: "form-label" }, [_vm._v(_vm._s(_vm.trans("em.repetitive_days")))]), _c("multiselect", { class: "form-control px-0 py-0 border-0", attrs: { "options": _vm.repetitive_days_options, "placeholder": _vm.trans("em.select_days"), "label": "text", "track-by": "value", "multiple": true, "close-on-select": false, "clear-on-select": false, "hide-selected": false, "preserve-search": true, "preselect-first": _vm.schedules ? false : true, "allow-empty": true, "disabled": _vm.sch_r_type == 3 || _vm.sch_r_type == 1 ? true : false }, on: { "input": function($event) {
     _vm.schedules ? _vm.schedules.repetitive_type = null : "";
@@ -1573,17 +1573,17 @@ var _sfc_render$5 = function render7() {
     _vm.to_time = $$v;
   }, expression: "to_time" } }), _c("span", { directives: [{ name: "show", rawName: "v-show", value: _vm.errors.has("to_time"), expression: "errors.has('to_time')" }], staticClass: "help text-danger" }, [_vm._v(_vm._s(_vm.errors.first("to_time")))])], 1)])]), _c("div", { staticClass: "row mt-3" }, [_vm.sch_r_type && Object.keys(_vm.schedules).length > 0 ? _c("div", { staticClass: "col-md-12" }, [_c("div", { staticClass: "alert alert-primary" }, [_c("p", { staticClass: "text-primary fw-bold" }, [_vm._v(" " + _vm._s(_vm.trans("em.start")) + ": " + _vm._s(_vm.moment(_vm.months[0], "YYYY-MM").isSame(_vm.moment(_vm.month, "YYYY-MM")) ? _vm.changeDateFormat(_vm.convert_date_to_local(_vm.local_start_date), "YYYY-MM-DD") : _vm.changeDateFormat(_vm.moment(_vm.month, "YYYY-MM").startOf("month").format("YYYY-MM-DD hh:mm"), "YYYY-MM-DD")) + "  |  " + _vm._s(_vm.trans("em.end")) + ": " + _vm._s(_vm.moment(_vm.months[_vm.months.length - 1], "YYYY-MM").isSame(_vm.moment(_vm.month, "YYYY-MM")) ? _vm.changeDateFormat(_vm.convert_date_to_local(_vm.local_end_date), "YYYY-MM-DD") : _vm.changeDateFormat(_vm.moment(_vm.month, "YYYY-MM").endOf("month").format("YYYY-MM-DD hh:mm"), "YYYY-MM-DD")) + " ")]), _c("hr"), (_vm.schedules_p != void 0 ? _vm.schedules_p.from_time != null && _vm.schedules_p.to_time != null || _vm.from_time != "Invalid Date" && _vm.to_time != "Invalid Date" && _vm.from_time != null && _vm.to_time != null : true) && (_vm.from_time != "Invalid Date" && _vm.to_time != "Invalid Date" && _vm.from_time != null && _vm.to_time != null) ? _c("p", { staticClass: "mb-0" }, [_c("strong", [_vm._v(_vm._s(_vm.trans("em.duration")) + " ")]), _vm._v(" " + _vm._s(_vm.schedule_total_days() + (_vm.schedule_total_days() > 1 ? " " + _vm.trans("em.days") : " " + _vm.trans("em.day"))) + "  |  " + _vm._s(_vm.counthours(_vm.from_time, _vm.to_time, true) + (_vm.counthours(_vm.from_time, _vm.to_time, true) > 1 ? " " + _vm.trans("em.hours") : " " + _vm.trans("em.hour"))) + " " + _vm._s(_vm.trans("em.each_day")) + " ")]) : _c("p", { staticClass: "mb-0" }, [_c("strong", [_vm._v(_vm._s(_vm.trans("em.duration")) + " ")]), _vm._v(" " + _vm._s("0 " + _vm.trans("em.day")) + "  |  " + _vm._s("0 " + _vm.trans("em.hour")) + " " + _vm._s(_vm.trans("em.each_day")) + " ")])])]) : _vm._e(), Object.keys(_vm.schedules).length <= 0 && _vm.check_date(_vm.start_date) && _vm.check_date(_vm.end_date) && _vm.check_time(_vm.start_time) && _vm.check_time(_vm.end_time) ? _c("div", { staticClass: "col-md-12" }, [_c("div", { staticClass: "alert alert-primary" }, [_c("p", { staticClass: "text-primary fw-bold" }, [_vm._v(" " + _vm._s(_vm.trans("em.start")) + ": " + _vm._s(_vm.moment(_vm.months[0], "YYYY-MM").isSame(_vm.moment(_vm.month, "YYYY-MM")) ? _vm.changeDateFormat(_vm.convert_date_to_local(_vm.local_start_date), "YYYY-MM-DD") : _vm.changeDateFormat(_vm.moment(_vm.month, "YYYY-MM").startOf("month").format("YYYY-MM-DD hh:mm"), "YYYY-MM-DD")) + "  |  " + _vm._s(_vm.trans("em.end")) + " " + _vm._s(_vm.moment(_vm.months[_vm.months.length - 1], "YYYY-MM").isSame(_vm.moment(_vm.month, "YYYY-MM")) ? _vm.changeDateFormat(_vm.convert_date_to_local(_vm.local_end_date), "YYYY-MM-DD") : _vm.changeDateFormat(_vm.moment(_vm.month, "YYYY-MM").endOf("month").format("YYYY-MM-DD hh:mm"), "YYYY-MM-DD")) + " ")]), _c("hr"), (_vm.schedules_p != void 0 ? _vm.schedules_p.from_time != null && _vm.schedules_p.to_time != null || _vm.from_time != "Invalid Date" && _vm.to_time != "Invalid Date" && _vm.from_time != null && _vm.to_time != null : true) && (_vm.from_time != "Invalid Date" && _vm.to_time != "Invalid Date" && _vm.from_time != null && _vm.to_time != null) ? _c("p", { staticClass: "mb-0" }, [_c("strong", [_vm._v(_vm._s(_vm.trans("em.duration")) + " ")]), _vm._v(" " + _vm._s(_vm.schedule_total_days() + (_vm.schedule_total_days() > 1 ? " " + _vm.trans("em.days") : " " + _vm.trans("em.day"))) + "   |   " + _vm._s(_vm.counthours(_vm.from_time, _vm.to_time, true) + (_vm.counthours(_vm.from_time, _vm.to_time, true) > 1 ? " " + _vm.trans("em.hours") : " " + _vm.trans("em.hour"))) + " " + _vm._s(_vm.trans("em.each_day")) + " ")]) : _c("p", { staticClass: "mb-0" }, [_c("strong", [_vm._v(_vm._s(_vm.trans("em.duration")) + " ")]), _vm._v(" " + _vm._s("0 " + _vm.trans("em.day")) + "   |   " + _vm._s("0 " + _vm.trans("em.hour")) + " " + _vm._s(_vm.trans("em.each_day")) + " ")])])]) : _vm._e()])]);
 };
-var _sfc_staticRenderFns$5 = [];
-var __component__$5 = /* @__PURE__ */ normalizeComponent(
-  _sfc_main$5,
-  _sfc_render$5,
-  _sfc_staticRenderFns$5,
+var _sfc_staticRenderFns$6 = [];
+var __component__$6 = /* @__PURE__ */ normalizeComponent(
+  _sfc_main$6,
+  _sfc_render$6,
+  _sfc_staticRenderFns$6,
   false,
   null,
   null
 );
-const ScheduleComponent = __component__$5.exports;
-const _sfc_main$4 = {
+const ScheduleComponent = __component__$6.exports;
+const _sfc_main$5 = {
   props: [
     "server_timezone"
   ],
@@ -1875,7 +1875,7 @@ const _sfc_main$4 = {
     }
   }
 };
-var _sfc_render$4 = function render8() {
+var _sfc_render$5 = function render8() {
   var _vm = this, _c = _vm._self._c;
   return _c("div", [_c("form", { ref: "form", staticClass: "lgx-contactform", attrs: { "method": "POST", "enctype": "multipart/form-data" }, on: { "submit": function($event) {
     $event.preventDefault();
@@ -1927,17 +1927,17 @@ var _sfc_render$4 = function render8() {
     return _c("div", { key: index2 }, [_c("schedule-component", { attrs: { "sch_index": index2, "sch_r_type": _vm.r_type, "start_time_p": _vm.start_time, "end_time_p": _vm.end_time, "start_date_p": _vm.start_date, "end_date_p": _vm.end_date, "schedules_p": _vm.schedules.length ? _vm.schedules[index2] : [], "month": _vm.calculate_months.length > 0 ? _vm.calculate_months[index2] : 0, "months": _vm.calculate_months.length > 0 ? _vm.calculate_months : 0 } })], 1);
   }), 0)]) : _vm._e(), _c("div", { staticClass: "row" }, [_c("div", { staticClass: "col-md-12" }, [_c("button", { staticClass: "btn btn-primary mt-2 btn-lg", attrs: { "type": "submit" } }, [_c("i", { staticClass: "fas fa-sd-card" }), _vm._v(" " + _vm._s(_vm.trans("em.save")))])])])])]);
 };
-var _sfc_staticRenderFns$4 = [];
-var __component__$4 = /* @__PURE__ */ normalizeComponent(
-  _sfc_main$4,
-  _sfc_render$4,
-  _sfc_staticRenderFns$4,
+var _sfc_staticRenderFns$5 = [];
+var __component__$5 = /* @__PURE__ */ normalizeComponent(
+  _sfc_main$5,
+  _sfc_render$5,
+  _sfc_staticRenderFns$5,
   false,
   null,
   null
 );
-const Timing = __component__$4.exports;
-const _sfc_main$3 = {
+const Timing = __component__$5.exports;
+const _sfc_main$4 = {
   props: ["edit_ticket", "taxes", "currency", "openModal_1", "openModal_2"],
   mixins: [
     mixinsFilters
@@ -2063,7 +2063,7 @@ const _sfc_main$3 = {
     }
   }
 };
-var _sfc_render$3 = function render9() {
+var _sfc_render$4 = function render9() {
   var _vm = this, _c = _vm._self._c;
   return _c("div", { staticClass: "custom_model" }, [_vm.openModal_1 || _vm.openModal_2 ? _c("div", { staticClass: "modal show" }, [_c("div", { staticClass: "modal-dialog modal-lg w-100" }, [_c("div", { staticClass: "modal-content" }, [_c("div", { staticClass: "modal-header" }, [_c("h1", { staticClass: "modal-title fs-3", attrs: { "id": "exampleModalLabel" } }, [_vm._v(_vm._s(_vm.edit_ticket ? _vm.trans("em.update") : _vm.trans("em.create")) + " " + _vm._s(_vm.trans("em.ticket")))]), _c("button", { staticClass: "btn btn-sm bg-danger text-white close", attrs: { "type": "button", "data-bs-dismiss": "modal", "aria-label": "Close" }, on: { "click": function($event) {
     return _vm.close();
@@ -2101,17 +2101,17 @@ var _sfc_render$3 = function render9() {
     _vm.tmp_taxes_ids = $$v;
   }, expression: "tmp_taxes_ids" } })], 1)]), _c("div", { staticClass: "modal-footer" }, [_c("button", { staticClass: "btn btn-primary btn-lg", attrs: { "type": "submit" } }, [_c("i", { staticClass: "fas fa-sd-card" }), _vm._v(" " + _vm._s(_vm.trans("em.save")))])])])])])])]) : _vm._e()]);
 };
-var _sfc_staticRenderFns$3 = [];
-var __component__$3 = /* @__PURE__ */ normalizeComponent(
-  _sfc_main$3,
-  _sfc_render$3,
-  _sfc_staticRenderFns$3,
+var _sfc_staticRenderFns$4 = [];
+var __component__$4 = /* @__PURE__ */ normalizeComponent(
+  _sfc_main$4,
+  _sfc_render$4,
+  _sfc_staticRenderFns$4,
   false,
   null,
   null
 );
-const TicketComponent = __component__$3.exports;
-const _sfc_main$2 = {
+const TicketComponent = __component__$4.exports;
+const _sfc_main$3 = {
   data() {
     return {
       edit_index: null,
@@ -2205,7 +2205,7 @@ const _sfc_main$2 = {
     }
   }
 };
-var _sfc_render$2 = function render10() {
+var _sfc_render$3 = function render10() {
   var _vm = this, _c = _vm._self._c;
   return _c("div", [_vm.edit_index == null ? _c("button", { staticClass: "btn btn-primary m-2", attrs: { "type": "button" }, on: { "click": function($event) {
     _vm.openModal_1 = true;
@@ -2218,17 +2218,17 @@ var _sfc_render$2 = function render10() {
     } } }, [_c("i", { staticClass: "fas fa-trash" }), _vm._v(" " + _vm._s(_vm.trans("em.delete")))])]), _vm.edit_index == index2 ? _c("ticket-component", { attrs: { "taxes": _vm.taxes, "edit_ticket": ticket, "currency": _vm.currency, "openModal_2": _vm.openModal_2 }, on: { "changeItem": _vm.updateItem } }) : _vm._e()], 1)]);
   }), 0)])])])], 1);
 };
-var _sfc_staticRenderFns$2 = [];
-var __component__$2 = /* @__PURE__ */ normalizeComponent(
-  _sfc_main$2,
-  _sfc_render$2,
-  _sfc_staticRenderFns$2,
+var _sfc_staticRenderFns$3 = [];
+var __component__$3 = /* @__PURE__ */ normalizeComponent(
+  _sfc_main$3,
+  _sfc_render$3,
+  _sfc_staticRenderFns$3,
   false,
   null,
   null
 );
-const Tickets = __component__$2.exports;
-const _sfc_main$1 = {
+const Tickets = __component__$3.exports;
+const _sfc_main$2 = {
   props: [
     "organisers"
   ],
@@ -2398,7 +2398,7 @@ const _sfc_main$1 = {
     }
   }
 };
-var _sfc_render$1 = function render11() {
+var _sfc_render$2 = function render11() {
   var _vm = this, _c = _vm._self._c;
   return _c("div", [_c("form", { ref: "form", staticClass: "lgx-contactform", attrs: { "method": "POST", "enctype": "multipart/form-data" }, on: { "submit": function($event) {
     $event.preventDefault();
@@ -2421,17 +2421,17 @@ var _sfc_render$1 = function render11() {
     return _vm.publishEvent();
   } } }, [!_vm.event.publish ? _c("i", { staticClass: "fas fa-eye" }) : _vm._e(), _vm.event.publish ? _c("i", { staticClass: "fas fa-eye-slash" }) : _vm._e(), _vm._v(" " + _vm._s(_vm.event.publish == 1 ? _vm.trans("em.unpublish_event") : _vm.trans("em.publish_event")) + " ")])])])]);
 };
-var _sfc_staticRenderFns$1 = [];
-var __component__$1 = /* @__PURE__ */ normalizeComponent(
-  _sfc_main$1,
-  _sfc_render$1,
-  _sfc_staticRenderFns$1,
+var _sfc_staticRenderFns$2 = [];
+var __component__$2 = /* @__PURE__ */ normalizeComponent(
+  _sfc_main$2,
+  _sfc_render$2,
+  _sfc_staticRenderFns$2,
   false,
   null,
   null
 );
-const Poweredby = __component__$1.exports;
-const _sfc_main = {
+const Poweredby = __component__$2.exports;
+const _sfc_main$1 = {
   props: [
     "event_prop"
   ],
@@ -2509,7 +2509,7 @@ const _sfc_main = {
     }
   }
 };
-var _sfc_render = function render12() {
+var _sfc_render$1 = function render12() {
   var _vm = this, _c = _vm._self._c;
   return _c("div", [_c("form", { ref: "form", staticClass: "lgx-contactform", attrs: { "method": "POST", "enctype": "multipart/form-data" }, on: { "submit": function($event) {
     $event.preventDefault();
@@ -2537,6 +2537,151 @@ var _sfc_render = function render12() {
     _vm.meta_description = $event.target.value;
   } } }), _c("span", { directives: [{ name: "show", rawName: "v-show", value: _vm.errors.has("meta_description"), expression: "errors.has('meta_description')" }], staticClass: "help text-danger" }, [_vm._v(_vm._s(_vm.errors.first("meta_description")))])]), _c("button", { staticClass: "btn btn-primary btn-lg mt-2", attrs: { "type": "submit" } }, [_c("i", { staticClass: "fas fa-sd-card" }), _vm._v(" " + _vm._s(_vm.trans("em.save")))])])]);
 };
+var _sfc_staticRenderFns$1 = [];
+var __component__$1 = /* @__PURE__ */ normalizeComponent(
+  _sfc_main$1,
+  _sfc_render$1,
+  _sfc_staticRenderFns$1,
+  false,
+  null,
+  null
+);
+const Seo = __component__$1.exports;
+const _sfc_main = {
+  mixins: [mixinsFilters],
+  data() {
+    return {
+      kits: [],
+      eventKitItems: {},
+      kitImages: {},
+      // { kit_id_item_id: base64_image }
+      saving: false
+    };
+  },
+  computed: {
+    ...mapState(["event_id", "organiser_id", "event"])
+  },
+  methods: {
+    ...mapMutations(["add", "update"]),
+    /**
+     * Get item image from event kit items or local uploads
+     */
+    getItemImage(kitId, itemId) {
+      const key = kitId + "_" + itemId;
+      if (this.kitImages[key]) {
+        return this.kitImages[key];
+      }
+      if (this.eventKitItems[key]) {
+        return this.eventKitItems[key].image;
+      }
+      return null;
+    },
+    /**
+     * Handle image upload for kit item
+     */
+    handleImageUpload(event, kitId, itemId) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const key = kitId + "_" + itemId;
+        this.kitImages[key] = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    },
+    /**
+     * Save kits with images
+     */
+    async saveKits() {
+      var _a, _b;
+      this.saving = true;
+      try {
+        const kitsData = this.kits.map((kit) => ({
+          kit_id: kit.id,
+          items: kit.items.map((item) => ({
+            kit_item_id: item.id,
+            image: this.kitImages[kit.id + "_" + item.id] || null
+          }))
+        }));
+        const response = await axios.post(
+          route("myevents_store_event_kits"),
+          {
+            event_id: this.event_id,
+            kits: kitsData
+          }
+        );
+        if (response.data.status) {
+          Vue.helpers.showToast("success", trans("em.saved_successfully"));
+          this.kitImages = {};
+          this.loadEventKits();
+        } else {
+          Vue.helpers.showToast("error", trans("em.error_saving"));
+        }
+      } catch (error) {
+        console.error(error);
+        Vue.helpers.showToast("error", ((_b = (_a = error.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || trans("em.error_saving"));
+      } finally {
+        this.saving = false;
+      }
+    },
+    /**
+     * Load event kits
+     */
+    async loadEventKits() {
+      var _a, _b;
+      if (!this.event_id) {
+        console.warn("Event ID not available yet");
+        return;
+      }
+      try {
+        const response = await axios.post(
+          route("myevents_get_event_kits"),
+          {
+            event_id: this.event_id
+          }
+        );
+        if (response.data.status) {
+          this.kits = response.data.kits || [];
+          this.eventKitItems = response.data.event_kit_items || {};
+          if (this.kits.length === 0) {
+            console.info("No kits available for this event");
+          }
+        } else {
+          Vue.helpers.showToast("error", trans("em.error_loading_kits"));
+        }
+      } catch (error) {
+        console.error("Error loading kits:", error);
+        let errorMsg = trans("em.error_loading_kits");
+        if ((_b = (_a = error.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) {
+          errorMsg = error.response.data.message;
+        }
+        Vue.helpers.showToast("error", errorMsg);
+      }
+    }
+  },
+  mounted() {
+    this.$nextTick(() => {
+      if (this.event_id) {
+        this.loadEventKits();
+      }
+    });
+  },
+  watch: {
+    event_id(newVal) {
+      if (newVal) {
+        this.loadEventKits();
+      }
+    }
+  }
+};
+var _sfc_render = function render13() {
+  var _vm = this, _c = _vm._self._c;
+  return _c("div", { staticClass: "tab-pane active" }, [_c("div", { staticClass: "panel-group" }, [_c("div", { staticClass: "panel panel-default" }, [_c("div", { staticClass: "panel-heading" }, [_c("h4", { staticClass: "panel-title mb-3" }, [_vm._v(_vm._s(_vm.trans("em.kits")))]), _vm.kits.length === 0 ? _c("div", { staticClass: "alert alert-info" }, [_vm._v(" " + _vm._s(_vm.trans("em.no_kits_available")) + " ")]) : _c("div", [_c("div", { staticClass: "row" }, [_c("div", { staticClass: "col-md-12" }, _vm._l(_vm.kits, function(kit) {
+    return _c("div", { key: kit.id, staticClass: "card mb-4" }, [_c("div", { staticClass: "card-header bg-light" }, [_c("h5", { staticClass: "mb-0" }, [_c("i", { staticClass: "fas fa-box" }), _vm._v(" " + _vm._s(kit.name) + " ")]), _c("small", { staticClass: "text-muted" }, [_vm._v(_vm._s(kit.description))])]), _c("div", { staticClass: "card-body" }, [kit.items && kit.items.length > 0 ? _c("div", { staticClass: "row" }, _vm._l(kit.items, function(item) {
+      return _c("div", { key: item.id, staticClass: "col-md-6 mb-4" }, [_c("div", { staticClass: "border rounded p-3" }, [_c("h6", { staticClass: "mb-2" }, [_c("i", { staticClass: "fas fa-cube" }), _vm._v(" " + _vm._s(item.name) + " ")]), _c("small", { staticClass: "text-muted d-block mb-3" }, [_vm._v(_vm._s(item.description))]), _c("div", { staticClass: "mb-3" }, [_c("label", { staticClass: "form-label form-label-sm" }, [_vm._v(" " + _vm._s(_vm.trans("em.image")) + " ")]), _c("div", { staticClass: "image-preview mb-2" }, [_vm.getItemImage(kit.id, item.id) ? _c("img", { staticClass: "img-fluid rounded", staticStyle: { "max-height": "150px", "object-fit": "cover" }, attrs: { "src": _vm.getImageUrl(_vm.getItemImage(kit.id, item.id)) } }) : _c("div", { staticClass: "bg-light rounded p-3 text-center text-muted" }, [_c("i", { staticClass: "fas fa-image fa-2x" }), _c("p", { staticClass: "mb-0 mt-2" }, [_vm._v(_vm._s(_vm.trans("em.no_image")))])])]), _c("input", { staticClass: "form-control form-control-sm", attrs: { "type": "file", "accept": "image/*" }, on: { "change": (e) => _vm.handleImageUpload(e, kit.id, item.id) } })])])]);
+    }), 0) : _c("div", { staticClass: "alert alert-warning" }, [_vm._v(" " + _vm._s(_vm.trans("em.no_items_in_kit")) + " ")])])]);
+  }), 0)]), _c("div", { staticClass: "mb-3" }, [_c("button", { staticClass: "btn btn-primary btn-lg", attrs: { "type": "button", "disabled": _vm.saving }, on: { "click": _vm.saveKits } }, [_c("i", { staticClass: "fas fa-sd-card" }), _vm._v(" " + _vm._s(_vm.saving ? _vm.trans("em.saving") : _vm.trans("em.save")) + " ")])])])])])])]);
+};
 var _sfc_staticRenderFns = [];
 var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_main,
@@ -2544,9 +2689,9 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  null
+  "21591e03"
 );
-const Seo = __component__.exports;
+const Kits = __component__.exports;
 window.Vuex = index;
 Vue.use(index);
 Vue.component("v-select", vSelect);
@@ -2680,6 +2825,15 @@ const routes = new VueRouter({
       }
     },
     {
+      path: "/kits",
+      name: "kits",
+      component: Kits,
+      props: true,
+      beforeEnter(to, from, next) {
+        routeBeforeEnter(to, from, next);
+      }
+    },
+    {
       path: "/publish",
       name: "publish",
       component: Poweredby,
@@ -2737,4 +2891,4 @@ window.app = new Vue({
     TabsComponent
   }
 });
-//# sourceMappingURL=index-DrDKxbXH.js.map
+//# sourceMappingURL=index-B1JCca2H.js.map
