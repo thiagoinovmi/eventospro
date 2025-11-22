@@ -1063,27 +1063,22 @@ class MyEventsController extends Controller
             $addDateFolder = !isset($params['skip_date_folder']) || !$params['skip_date_folder'];
             $dateSuffix = $addDateFolder ? '/'.Carbon::now()->format('FY').'/' : '/';
             
-            $path            = '/storage/'.$params['path'].$dateSuffix;
-
+            // Use storage_path for local storage
+            $storagePath = storage_path('app/public/'.$params['path'].$dateSuffix);
+            $path = $params['path'].$dateSuffix;
 
             $image_resize    = Image::make(base64_decode($image))->encode('webp', 90)->resize($params['width'], $params['height']);
 
-
             if ($storageDisk == 's3') {
-
-                $path            = $params['path'].$dateSuffix;
-
                 // Store directly in S3
                 Storage::disk('s3')->put($path.$filename, $image_resize);
-
             } else {
-
                 // first check if directory exists or not
-                if (! File::exists(public_path().$path)) {
-                    File::makeDirectory(public_path().$path, 0775, true);
+                if (! File::exists($storagePath)) {
+                    File::makeDirectory($storagePath, 0775, true);
                 }
         
-                $image_resize->save(public_path($path . $filename));
+                $image_resize->save($storagePath . $filename);
             }
             
             return  $filename;
