@@ -2254,6 +2254,11 @@ class MyEventsController extends Controller
         // if logged in user is admin
         $this->is_admin($request);
         
+        // Fallback: if organiser_id is still null, use Auth::id()
+        if(empty($this->organiser_id)) {
+            $this->organiser_id = Auth::id();
+        }
+        
         $request->validate([
             'event_id' => 'required|numeric|min:1|regex:^[1-9][0-9]*$^',
         ]);
@@ -2291,6 +2296,11 @@ class MyEventsController extends Controller
     {
         // if logged in user is admin
         $this->is_admin($request);
+        
+        // Fallback: if organiser_id is still null, use Auth::id()
+        if(empty($this->organiser_id)) {
+            $this->organiser_id = Auth::id();
+        }
 
         $request->validate([
             'event_id' => 'required|numeric|min:1|regex:^[1-9][0-9]*$^',
