@@ -2251,12 +2251,12 @@ class MyEventsController extends Controller
      */
     public function get_event_kits(Request $request)
     {
-        // if logged in user is admin
-        $this->is_admin($request);
+        // Set organiser_id from authenticated user
+        $this->organiser_id = Auth::id();
         
-        // Fallback: if organiser_id is still null, use Auth::id()
-        if(empty($this->organiser_id)) {
-            $this->organiser_id = Auth::id();
+        // If admin is requesting, allow override from request
+        if(Auth::user()->hasRole('admin') && !empty($request->organiser_id)) {
+            $this->organiser_id = $request->organiser_id;
         }
         
         $request->validate([
@@ -2294,12 +2294,12 @@ class MyEventsController extends Controller
      */
     public function store_event_kits(Request $request)
     {
-        // if logged in user is admin
-        $this->is_admin($request);
+        // Set organiser_id from authenticated user
+        $this->organiser_id = Auth::id();
         
-        // Fallback: if organiser_id is still null, use Auth::id()
-        if(empty($this->organiser_id)) {
-            $this->organiser_id = Auth::id();
+        // If admin is requesting, allow override from request
+        if(Auth::user()->hasRole('admin') && !empty($request->organiser_id)) {
+            $this->organiser_id = $request->organiser_id;
         }
 
         $request->validate([
