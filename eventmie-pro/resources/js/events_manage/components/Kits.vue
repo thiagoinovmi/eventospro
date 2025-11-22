@@ -66,12 +66,23 @@
                                                                 <p class="mb-0 mt-2">{{ trans('em.no_image') }}</p>
                                                             </div>
                                                         </div>
-                                                        <input 
-                                                            type="file" 
-                                                            class="form-control form-control-sm"
-                                                            accept="image/*"
-                                                            @change="(e) => handleImageUpload(e, selectedKit.id, item.id)"
-                                                        >
+                                                        <div class="d-flex gap-2">
+                                                            <input 
+                                                                type="file" 
+                                                                class="form-control form-control-sm flex-grow-1"
+                                                                accept="image/*"
+                                                                @change="(e) => handleImageUpload(e, selectedKit.id, item.id)"
+                                                            >
+                                                            <button 
+                                                                v-if="getItemImage(selectedKit.id, item.id)"
+                                                                type="button"
+                                                                class="btn btn-sm btn-danger"
+                                                                @click="clearItemImage(selectedKit.id, item.id)"
+                                                                title="Limpar imagem"
+                                                            >
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -88,16 +99,25 @@
                             {{ trans('em.select_kit_to_edit') }}
                         </div>
 
-                        <!-- Save Button -->
-                        <div class="mb-3">
+                        <!-- Action Buttons -->
+                        <div v-if="selectedKit" class="mb-3 d-flex gap-2">
                             <button 
                                 type="button" 
-                                class="btn btn-primary btn-lg"
+                                class="btn btn-primary btn-lg flex-grow-1"
                                 @click="saveKits"
                                 :disabled="saving"
                             >
                                 <i class="fas fa-sd-card"></i> 
                                 {{ saving ? trans('em.saving') : trans('em.save') }}
+                            </button>
+                            <button 
+                                type="button" 
+                                class="btn btn-warning btn-lg"
+                                @click="clearAllImages"
+                                title="Limpar todas as imagens"
+                            >
+                                <i class="fas fa-broom"></i> 
+                                {{ trans('em.clear_all') }}
                             </button>
                         </div>
                     </div>
@@ -191,6 +211,28 @@ export default {
                 this.kitImages[key] = e.target.result; // Store base64
             };
             reader.readAsDataURL(file);
+        },
+
+        /**
+         * Clear image for a specific kit item
+         */
+        clearItemImage(kitId, itemId) {
+            const key = kitId + '_' + itemId;
+            this.$delete(this.kitImages, key);
+        },
+
+        /**
+         * Clear all images for the selected kit
+         */
+        clearAllImages() {
+            if(!this.selectedKit) return;
+            
+            if(confirm(trans('em.confirm_clear_all_images'))) {
+                this.selectedKit.items.forEach(item => {
+                    const key = this.selectedKitId + '_' + item.id;
+                    this.$delete(this.kitImages, key);
+                });
+            }
         },
 
         /**

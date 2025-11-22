@@ -2732,9 +2732,9 @@ var _sfc_render = function render13() {
       return val;
     });
     _vm.selectedKitId = $event.target.multiple ? $$selectedVal : $$selectedVal[0];
-  } } }, [_c("option", { domProps: { "value": null } }, [_vm._v(_vm._s(_vm.trans("em.choose_kit")))]), _vm._l(_vm.kits, function(kit) {
+  } } }, [_c("option", { attrs: { "disabled": "", "selected": "" }, domProps: { "value": null } }, [_vm._v(_vm._s(_vm.trans("em.select_kit_option")))]), _vm._l(_vm.kits, function(kit) {
     return _c("option", { key: kit.id, domProps: { "value": kit.id } }, [_vm._v(" " + _vm._s(kit.name) + " ")]);
-  })], 2), _c("small", { staticClass: "form-text text-muted" }, [_vm._v(" " + _vm._s(_vm.trans("em.one_kit_per_event")) + " ")])]), _vm.selectedKit ? _c("div", { staticClass: "row" }, [_c("div", { staticClass: "col-md-12" }, [_c("div", { staticClass: "card mb-4" }, [_c("div", { staticClass: "card-header bg-light" }, [_c("h5", { staticClass: "mb-0" }, [_c("i", { staticClass: "fas fa-box" }), _vm._v(" " + _vm._s(_vm.selectedKit.name) + " ")]), _c("small", { staticClass: "text-muted" }, [_vm._v(_vm._s(_vm.selectedKit.description))])]), _c("div", { staticClass: "card-body" }, [_vm.selectedKit.items && _vm.selectedKit.items.length > 0 ? _c("div", { staticClass: "row" }, _vm._l(_vm.selectedKit.items, function(item) {
+  })], 2), _c("small", { staticClass: "form-text text-muted d-block mt-2" }, [_vm._v(" " + _vm._s(_vm.trans("em.choose_kit_message")) + " ")])]), _vm.selectedKit ? _c("div", { staticClass: "row" }, [_c("div", { staticClass: "col-md-12" }, [_c("div", { staticClass: "card mb-4" }, [_c("div", { staticClass: "card-header bg-light" }, [_c("h5", { staticClass: "mb-0" }, [_c("i", { staticClass: "fas fa-box" }), _vm._v(" " + _vm._s(_vm.selectedKit.name) + " ")]), _c("small", { staticClass: "text-muted" }, [_vm._v(_vm._s(_vm.selectedKit.description))])]), _c("div", { staticClass: "card-body" }, [_vm.selectedKit.items && _vm.selectedKit.items.length > 0 ? _c("div", { staticClass: "row" }, _vm._l(_vm.selectedKit.items, function(item) {
     return _c("div", { key: item.id, staticClass: "col-md-6 mb-4" }, [_c("div", { staticClass: "border rounded p-3" }, [_c("h6", { staticClass: "mb-2" }, [_c("i", { staticClass: "fas fa-cube" }), _vm._v(" " + _vm._s(item.name) + " ")]), _c("small", { staticClass: "text-muted d-block mb-3" }, [_vm._v(_vm._s(item.description))]), _c("div", { staticClass: "mb-3" }, [_c("label", { staticClass: "form-label form-label-sm" }, [_vm._v(" " + _vm._s(_vm.trans("em.image")) + " ")]), _c("div", { staticClass: "image-preview mb-2" }, [_vm.getItemImage(_vm.selectedKit.id, item.id) ? _c("img", { staticClass: "img-fluid rounded", staticStyle: { "max-height": "150px", "object-fit": "cover" }, attrs: { "src": _vm.getImageUrl(_vm.getItemImage(_vm.selectedKit.id, item.id)) } }) : _c("div", { staticClass: "bg-light rounded p-3 text-center text-muted" }, [_c("i", { staticClass: "fas fa-image fa-2x" }), _c("p", { staticClass: "mb-0 mt-2" }, [_vm._v(_vm._s(_vm.trans("em.no_image")))])])]), _c("input", { staticClass: "form-control form-control-sm", attrs: { "type": "file", "accept": "image/*" }, on: { "change": (e) => _vm.handleImageUpload(e, _vm.selectedKit.id, item.id) } })])])]);
   }), 0) : _c("div", { staticClass: "alert alert-warning" }, [_vm._v(" " + _vm._s(_vm.trans("em.no_items_in_kit")) + " ")])])])])]) : _c("div", { staticClass: "alert alert-info" }, [_vm._v(" " + _vm._s(_vm.trans("em.select_kit_to_edit")) + " ")]), _c("div", { staticClass: "mb-3" }, [_c("button", { staticClass: "btn btn-primary btn-lg", attrs: { "type": "button", "disabled": _vm.saving }, on: { "click": _vm.saveKits } }, [_c("i", { staticClass: "fas fa-sd-card" }), _vm._v(" " + _vm._s(_vm.saving ? _vm.trans("em.saving") : _vm.trans("em.save")) + " ")])])])])])])]);
 };
@@ -2745,7 +2745,7 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "4c36085f"
+  "4c25afec"
 );
 const Kits = __component__.exports;
 window.Vuex = index;
@@ -2947,4 +2947,4 @@ window.app = new Vue({
     TabsComponent
   }
 });
-//# sourceMappingURL=index-BuoRBzVY.js.map
+//# sourceMappingURL=index-CV6KKzgG.js.map

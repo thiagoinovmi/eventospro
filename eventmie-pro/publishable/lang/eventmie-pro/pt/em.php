@@ -788,5 +788,7 @@ return [
     'one_kit_per_event'                 => 'Um evento pode ter apenas 1 kit',
     'select_kit_to_edit'                => 'Selecione um kit para editar as imagens',
     'select_kit_first'                  => 'Selecione um kit antes de salvar',
+    'clear_all'                         => 'Limpar Tudo',
+    'confirm_clear_all_images'          => 'Tem certeza que deseja limpar todas as imagens?',
 ];
 
