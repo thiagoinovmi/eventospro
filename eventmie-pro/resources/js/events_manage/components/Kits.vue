@@ -226,7 +226,7 @@ export default {
             // Set to null to trigger Vue reactivity and show default image
             this.$set(this.kitImages, key, null);
             
-            // Clear the file input - use setTimeout to ensure DOM is updated
+            // Then clear the file input
             setTimeout(() => {
                 const refName = `fileInput_${kitId}_${itemId}`;
                 if(this.$refs[refName] && this.$refs[refName][0]) {

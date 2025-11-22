@@ -2619,12 +2619,12 @@ const _sfc_main = {
     clearItemImage(kitId, itemId) {
       const key = kitId + "_" + itemId;
       this.$set(this.kitImages, key, null);
-      const refName = `fileInput_${kitId}_${itemId}`;
-      this.$nextTick(() => {
+      setTimeout(() => {
+        const refName = `fileInput_${kitId}_${itemId}`;
         if (this.$refs[refName] && this.$refs[refName][0]) {
           this.$refs[refName][0].value = "";
         }
-      });
+      }, 0);
       Vue.helpers.showToast("warning", trans("em.image_deleted_need_save"));
     },
     /**
@@ -2636,13 +2636,15 @@ const _sfc_main = {
         this.selectedKit.items.forEach((item) => {
           const key = this.selectedKitId + "_" + item.id;
           this.$set(this.kitImages, key, null);
-          const refName = `fileInput_${this.selectedKitId}_${item.id}`;
-          this.$nextTick(() => {
+        });
+        setTimeout(() => {
+          this.selectedKit.items.forEach((item) => {
+            const refName = `fileInput_${this.selectedKitId}_${item.id}`;
             if (this.$refs[refName] && this.$refs[refName][0]) {
               this.$refs[refName][0].value = "";
             }
           });
-        });
+        }, 0);
         Vue.helpers.showToast("warning", trans("em.all_images_deleted_need_save"));
       }
     },
@@ -2793,7 +2795,7 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "29c70c5b"
+  "0ad62652"
 );
 const Kits = __component__.exports;
 window.Vuex = index;
@@ -2995,4 +2997,4 @@ window.app = new Vue({
     TabsComponent
   }
 });
-//# sourceMappingURL=index-2kB_jtm0.js.map
+//# sourceMappingURL=index-CZ8dtUzf.js.map
