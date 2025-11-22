@@ -223,8 +223,12 @@ export default {
          */
         clearItemImage(kitId, itemId) {
             const key = kitId + '_' + itemId;
-            // Set to null to trigger Vue reactivity and show default image
+            
+            // First, set to null to trigger Vue reactivity and show default image
             this.$set(this.kitImages, key, null);
+            
+            // Force Vue to update the DOM
+            this.$forceUpdate();
             
             // Then clear the file input
             setTimeout(() => {
