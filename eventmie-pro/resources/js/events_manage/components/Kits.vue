@@ -186,6 +186,11 @@ export default {
          * Load event kits
          */
         async loadEventKits() {
+            if(!this.event_id) {
+                console.warn('Event ID not available yet');
+                return;
+            }
+
             try {
                 const response = await axios.post(
                     route('myevents_get_event_kits'),
@@ -195,18 +200,44 @@ export default {
                 );
 
                 if(response.data.status) {
-                    this.kits = response.data.kits;
-                    this.eventKitItems = response.data.event_kit_items;
+                    this.kits = response.data.kits || [];
+                    this.eventKitItems = response.data.event_kit_items || {};
+                    
+                    if(this.kits.length === 0) {
+                        console.info('No kits available for this event');
+                    }
+                } else {
+                    Vue.helpers.showToast('error', trans('em.error_loading_kits'));
                 }
             } catch(error) {
-                console.error(error);
-                Vue.helpers.showToast('error', trans('em.error_loading_kits'));
+                console.error('Error loading kits:', error);
+                
+                // Mostrar mensagem de erro mais detalhada
+                let errorMsg = trans('em.error_loading_kits');
+                if(error.response?.data?.message) {
+                    errorMsg = error.response.data.message;
+                }
+                
+                Vue.helpers.showToast('error', errorMsg);
             }
         },
     },
 
     mounted() {
-        this.loadEventKits();
+        // Aguardar um pouco para garantir que event_id está disponível
+        this.$nextTick(() => {
+            if(this.event_id) {
+                this.loadEventKits();
+            }
+        });
+    },
+    
+    watch: {
+        event_id(newVal) {
+            if(newVal) {
+                this.loadEventKits();
+            }
+        }
     },
 }
 </script>

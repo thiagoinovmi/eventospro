@@ -23,6 +23,8 @@ use Classiebit\Eventmie\Models\Schedule;
 use Classiebit\Eventmie\Models\Tag;
 
 use Classiebit\Eventmie\Models\Tax;
+use Classiebit\Eventmie\Models\Kit;
+use Classiebit\Eventmie\Models\KitItem;
 use Classiebit\Eventmie\Notifications\MailNotification;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -2263,16 +2265,19 @@ class MyEventsController extends Controller
         $kits = Kit::with('items')->where('status', 1)->get();
 
         // Get event kit items
-        $eventKitItems = \App\Models\EventKitItem::where('event_id', $request->event_id)
-            ->get()
-            ->keyBy(function($item) {
-                return $item->kit_id . '_' . $item->kit_item_id;
-            });
+        $eventKitItems = \App\Models\EventKitItem::where('event_id', $request->event_id)->get();
+        
+        // Convert to array keyed by kit_id_item_id
+        $eventKitItemsArray = [];
+        foreach($eventKitItems as $item) {
+            $key = $item->kit_id . '_' . $item->kit_item_id;
+            $eventKitItemsArray[$key] = $item;
+        }
 
         return response()->json([
             'status' => true,
             'kits' => $kits,
-            'event_kit_items' => $eventKitItems,
+            'event_kit_items' => $eventKitItemsArray,
         ]);
     }
 
