@@ -46,6 +46,7 @@ import Timing from './components/Timing.vue';
 import Tickets from './components/Tickets.vue';
 import Poweredby from './components/Poweredby.vue';
 import Seo from './components/Seo.vue';
+import Kits from './components/Kits.vue';
 
 
 /**
@@ -194,6 +195,15 @@ const routes = new VueRouter({
             path: '/tickets',
             name: 'tickets',
             component: Tickets,
+            props: true,
+            beforeEnter(to, from, next) {
+                routeBeforeEnter(to, from, next);
+            },
+        },
+        {
+            path: '/kits',
+            name: 'kits',
+            component: Kits,
             props: true,
             beforeEnter(to, from, next) {
                 routeBeforeEnter(to, from, next);

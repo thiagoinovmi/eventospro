@@ -44,6 +44,13 @@
                 </router-link>
             </li>
             <li class="nav-item">
+                <router-link :to="{ name: 'kits' }" class="nav-link">
+                    {{ trans('em.kits') }}
+                    <i class="fas fa-exclamation-circle text-danger" v-if="!is_publishable.kits"></i>
+                    <i class="fas fa-check-circle text-success" v-else></i>
+                </router-link>
+            </li>
+            <li class="nav-item">
                 <router-link :to="{ name: 'publish' }" class="nav-link">
                     {{ trans('em.publish') }}
                     <i class="fas fa-exclamation-circle text-danger" v-if="!event_ck.publish"></i>
