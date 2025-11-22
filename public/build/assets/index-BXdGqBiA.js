@@ -2638,6 +2638,7 @@ const _sfc_main = {
           const key = this.selectedKitId + "_" + item.id;
           this.$set(this.kitImages, key, null);
         });
+        this.$forceUpdate();
         setTimeout(() => {
           this.selectedKit.items.forEach((item) => {
             const refName = `fileInput_${this.selectedKitId}_${item.id}`;
@@ -2796,7 +2797,7 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "865adf50"
+  "05a28968"
 );
 const Kits = __component__.exports;
 window.Vuex = index;
@@ -2998,4 +2999,4 @@ window.app = new Vue({
     TabsComponent
   }
 });
-//# sourceMappingURL=index-5Qwe37x3.js.map
+//# sourceMappingURL=index-BXdGqBiA.js.map

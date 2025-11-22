@@ -2286,6 +2286,7 @@ class MyEventsController extends Controller
             'status' => true,
             'kits' => $kits,
             'event_kit_items' => $eventKitItemsArray,
+            'selected_kit_id' => $event->kit_id,
         ]);
     }
 
@@ -2339,11 +2340,15 @@ class MyEventsController extends Controller
             \App\Models\EventKitItem::where('event_id', $request->event_id)->delete();
 
             // Process each kit
+            $selectedKitId = null;
             foreach($kits as $kitData) {
                 if(empty($kitData['kit_id'])) continue;
 
                 $kit = Kit::find($kitData['kit_id']);
                 if(empty($kit)) continue;
+                
+                // Store the first (and only) kit_id for the event
+                $selectedKitId = $kitData['kit_id'];
 
                 // Process each kit item
                 if(!empty($kitData['items']) && is_array($kitData['items'])) {
@@ -2389,6 +2394,11 @@ class MyEventsController extends Controller
                         );
                     }
                 }
+            }
+            
+            // Update event with selected kit_id
+            if($selectedKitId) {
+                $event->update(['kit_id' => $selectedKitId]);
             }
 
             // set step complete

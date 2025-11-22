@@ -376,6 +376,11 @@ export default {
                     this.kits = response.data.kits || [];
                     this.eventKitItems = response.data.event_kit_items || {};
                     
+                    // Set the selected kit if one is already linked to the event
+                    if(response.data.selected_kit_id) {
+                        this.selectedKitId = response.data.selected_kit_id;
+                    }
+                    
                     // Load existing images from database into kitImages
                     // This ensures they are preserved when saving
                     Object.keys(this.eventKitItems).forEach(key => {
