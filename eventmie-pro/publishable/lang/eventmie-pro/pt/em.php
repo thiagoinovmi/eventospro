@@ -769,5 +769,17 @@ return [
     'laser_scanner_mode'                => 'Modo Scanner a Laser',
     'camera_scanner_mode'               => 'Modo Scanner de Câmera',
     'scan_ticket_on_laser'              => 'Escanear Ingresso no Laser',
+    
+    // Kits
+    'kits'                              => 'Kits',
+    'kit'                               => 'Kit',
+    'no_kits_available'                 => 'Nenhum kit disponível',
+    'no_items_in_kit'                   => 'Nenhum item neste kit',
+    'no_image'                          => 'Sem imagem',
+    'image'                             => 'Imagem',
+    'saving'                            => 'Salvando...',
+    'saved_successfully'                => 'Salvo com sucesso',
+    'error_saving'                      => 'Erro ao salvar',
+    'error_loading_kits'                => 'Erro ao carregar kits',
 ];
 
