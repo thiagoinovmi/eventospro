@@ -2244,6 +2244,119 @@ class MyEventsController extends Controller
         return response()->json(['status' => true]);
     }
 
+    /**
+     * Get event kits with their items
+     */
+    public function get_event_kits(Request $request)
+    {
+        $request->validate([
+            'event_id' => 'required|numeric|min:1|regex:^[1-9][0-9]*$^',
+        ]);
+
+        // Check if user has access to this event
+        $event = $this->event->get_user_event($request->event_id, $this->organiser_id);
+        if(empty($event)) {
+            return error('access denied', Response::HTTP_BAD_REQUEST);
+        }
+
+        // Get all kits with their items
+        $kits = Kit::with('items')->where('status', 1)->get();
+
+        // Get event kit items
+        $eventKitItems = \App\Models\EventKitItem::where('event_id', $request->event_id)
+            ->get()
+            ->keyBy(function($item) {
+                return $item->kit_id . '_' . $item->kit_item_id;
+            });
+
+        return response()->json([
+            'status' => true,
+            'kits' => $kits,
+            'event_kit_items' => $eventKitItems,
+        ]);
+    }
+
+    /**
+     * Store event kits with images
+     */
+    public function store_event_kits(Request $request)
+    {
+        // if logged in user is admin
+        $this->is_admin($request);
+
+        $request->validate([
+            'event_id' => 'required|numeric|min:1|regex:^[1-9][0-9]*$^',
+            'kits' => 'required|array',
+        ]);
+
+        // Check if user has access to this event
+        $event = $this->event->get_user_event($request->event_id, $this->organiser_id);
+        if(empty($event)) {
+            return error('access denied', Response::HTTP_BAD_REQUEST);
+        }
+
+        $path = 'event-kits/' . $request->event_id . '/';
+        $storageDisk = getDisk();
+
+        try {
+            // Delete existing event kit items
+            \App\Models\EventKitItem::where('event_id', $request->event_id)->delete();
+
+            // Process each kit
+            foreach($request->kits as $kitData) {
+                if(empty($kitData['kit_id'])) continue;
+
+                $kit = Kit::find($kitData['kit_id']);
+                if(empty($kit)) continue;
+
+                // Process each kit item
+                if(!empty($kitData['items']) && is_array($kitData['items'])) {
+                    foreach($kitData['items'] as $itemData) {
+                        if(empty($itemData['kit_item_id'])) continue;
+
+                        $eventKitItem = [
+                            'event_id' => $request->event_id,
+                            'kit_id' => $kitData['kit_id'],
+                            'kit_item_id' => $itemData['kit_item_id'],
+                        ];
+
+                        // Handle image upload if present
+                        if(!empty($itemData['image']) && is_string($itemData['image']) && strpos($itemData['image'], 'data:image') === 0) {
+                            // Base64 image
+                            $params = [
+                                'image' => $itemData['image'],
+                                'path' => $path . $kitData['kit_id'] . '/',
+                                'width' => 512,
+                                'height' => 512,
+                            ];
+                            $imageName = $this->upload_base64_image($params, $storageDisk);
+                            if($imageName) {
+                                $eventKitItem['image'] = $path . $kitData['kit_id'] . '/' . $imageName;
+                            }
+                        }
+
+                        // Create or update
+                        \App\Models\EventKitItem::updateOrCreate(
+                            [
+                                'event_id' => $request->event_id,
+                                'kit_id' => $kitData['kit_id'],
+                                'kit_item_id' => $itemData['kit_item_id'],
+                            ],
+                            $eventKitItem
+                        );
+                    }
+                }
+            }
+
+            // set step complete
+            $this->complete_step($event->is_publishable, 'kits', $request->event_id);
+
+            return response()->json(['status' => true]);
+        } catch(\Exception $e) {
+            return error($e->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+    }
+
 
 
 }

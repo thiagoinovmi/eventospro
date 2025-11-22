@@ -317,6 +317,8 @@ Route::group([
         Route::post('/api/store_timing', "$controller@store_timing")->name('myevents_store_timing');
         Route::post('/api/store_event_tags', "$controller@store_event_tags")->name('myevents_store_event_tags');
         Route::post('/api/store_seo', "$controller@store_seo")->name('myevents_store_seo');
+        Route::post('/api/store_event_kits', "$controller@store_event_kits")->name('myevents_store_event_kits');
+        Route::post('/api/get_event_kits', "$controller@get_event_kits")->name('myevents_get_event_kits');
         Route::get('/api/countries', "$controller@countries")->name('myevents_countries'); 
         Route::post('/api/get_myevent', "$controller@get_user_event")->name('get_myevent');
         Route::post('/api/publish_myevent', "$controller@event_publish")->name('publish_myevent');
