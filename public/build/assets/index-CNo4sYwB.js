@@ -2593,9 +2593,11 @@ const _sfc_main = {
      * Save kits with images
      */
     async saveKits() {
-      var _a, _b;
+      var _a, _b, _c, _d;
       this.saving = true;
       try {
+        const formData = new FormData();
+        formData.append("event_id", this.event_id);
         const kitsData = this.kits.map((kit) => ({
           kit_id: kit.id,
           items: kit.items.map((item) => ({
@@ -2603,11 +2605,14 @@ const _sfc_main = {
             image: this.kitImages[kit.id + "_" + item.id] || null
           }))
         }));
+        formData.append("kits", JSON.stringify(kitsData));
         const response = await axios.post(
           route("eventmie.myevents_store_event_kits"),
+          formData,
           {
-            event_id: this.event_id,
-            kits: kitsData
+            headers: {
+              "Content-Type": "multipart/form-data"
+            }
           }
         );
         if (response.data.status) {
@@ -2619,7 +2624,13 @@ const _sfc_main = {
         }
       } catch (error) {
         console.error(error);
-        Vue.helpers.showToast("error", ((_b = (_a = error.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || trans("em.error_saving"));
+        let errorMsg = trans("em.error_saving");
+        if ((_b = (_a = error.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) {
+          errorMsg = error.response.data.message;
+        } else if ((_d = (_c = error.response) == null ? void 0 : _c.data) == null ? void 0 : _d.errors) {
+          errorMsg = Object.values(error.response.data.errors).flat().join(", ");
+        }
+        Vue.helpers.showToast("error", errorMsg);
       } finally {
         this.saving = false;
       }
@@ -2689,7 +2700,7 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "eabc822e"
+  "7bed1d5e"
 );
 const Kits = __component__.exports;
 window.Vuex = index;
@@ -2891,4 +2902,4 @@ window.app = new Vue({
     TabsComponent
   }
 });
-//# sourceMappingURL=index-wFwC_R3y.js.map
+//# sourceMappingURL=index-CNo4sYwB.js.map

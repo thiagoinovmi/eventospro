@@ -127,6 +127,26 @@ export default {
         },
 
         /**
+         * Convert image path to full URL
+         */
+        getImageUrl(imagePath) {
+            if(!imagePath) return null;
+            
+            // If it's already a data URL (base64), return as is
+            if(imagePath.startsWith('data:')) {
+                return imagePath;
+            }
+            
+            // If it's a relative path, prepend /storage/
+            if(!imagePath.startsWith('http')) {
+                return `/storage/${imagePath}`;
+            }
+            
+            // If it's already a full URL, return as is
+            return imagePath;
+        },
+
+        /**
          * Handle image upload for kit item
          */
         handleImageUpload(event, kitId, itemId) {
