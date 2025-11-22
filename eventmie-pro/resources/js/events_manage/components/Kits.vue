@@ -158,7 +158,7 @@ export default {
                 }));
 
                 const response = await axios.post(
-                    route('myevents_store_event_kits'),
+                    route('eventmie.myevents_store_event_kits'),
                     {
                         event_id: this.event_id,
                         kits: kitsData,
@@ -193,7 +193,7 @@ export default {
 
             try {
                 const response = await axios.post(
-                    route('myevents_get_event_kits'),
+                    route('eventmie.myevents_get_event_kits'),
                     {
                         event_id: this.event_id,
                     }
