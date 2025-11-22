@@ -10,20 +10,39 @@
                     </div>
 
                     <div v-else>
-                        <!-- Kits List -->
-                        <div class="row">
+                        <!-- Kit Selection -->
+                        <div class="form-group mb-4">
+                            <label class="form-label">
+                                {{ trans('em.select_kit') }}
+                            </label>
+                            <select 
+                                v-model="selectedKitId" 
+                                class="form-control form-control-lg"
+                            >
+                                <option :value="null">{{ trans('em.choose_kit') }}</option>
+                                <option v-for="kit in kits" :key="kit.id" :value="kit.id">
+                                    {{ kit.name }}
+                                </option>
+                            </select>
+                            <small class="form-text text-muted">
+                                {{ trans('em.one_kit_per_event') }}
+                            </small>
+                        </div>
+
+                        <!-- Selected Kit Details -->
+                        <div v-if="selectedKit" class="row">
                             <div class="col-md-12">
-                                <div v-for="kit in kits" :key="kit.id" class="card mb-4">
+                                <div class="card mb-4">
                                     <div class="card-header bg-light">
                                         <h5 class="mb-0">
-                                            <i class="fas fa-box"></i> {{ kit.name }}
+                                            <i class="fas fa-box"></i> {{ selectedKit.name }}
                                         </h5>
-                                        <small class="text-muted">{{ kit.description }}</small>
+                                        <small class="text-muted">{{ selectedKit.description }}</small>
                                     </div>
                                     <div class="card-body">
                                         <!-- Kit Items -->
-                                        <div v-if="kit.items && kit.items.length > 0" class="row">
-                                            <div v-for="item in kit.items" :key="item.id" class="col-md-6 mb-4">
+                                        <div v-if="selectedKit.items && selectedKit.items.length > 0" class="row">
+                                            <div v-for="item in selectedKit.items" :key="item.id" class="col-md-6 mb-4">
                                                 <div class="border rounded p-3">
                                                     <h6 class="mb-2">
                                                         <i class="fas fa-cube"></i> {{ item.name }}
@@ -37,8 +56,8 @@
                                                         </label>
                                                         <div class="image-preview mb-2">
                                                             <img 
-                                                                v-if="getItemImage(kit.id, item.id)" 
-                                                                :src="getImageUrl(getItemImage(kit.id, item.id))" 
+                                                                v-if="getItemImage(selectedKit.id, item.id)" 
+                                                                :src="getImageUrl(getItemImage(selectedKit.id, item.id))" 
                                                                 class="img-fluid rounded"
                                                                 style="max-height: 150px; object-fit: cover;"
                                                             >
@@ -51,7 +70,7 @@
                                                             type="file" 
                                                             class="form-control form-control-sm"
                                                             accept="image/*"
-                                                            @change="(e) => handleImageUpload(e, kit.id, item.id)"
+                                                            @change="(e) => handleImageUpload(e, selectedKit.id, item.id)"
                                                         >
                                                     </div>
                                                 </div>
@@ -63,6 +82,10 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                        
+                        <div v-else class="alert alert-info">
+                            {{ trans('em.select_kit_to_edit') }}
                         </div>
 
                         <!-- Save Button -->
@@ -97,11 +120,20 @@ export default {
             eventKitItems: {},
             kitImages: {}, // { kit_id_item_id: base64_image }
             saving: false,
+            selectedKitId: null,
         }
     },
 
     computed: {
         ...mapState(['event_id', 'organiser_id', 'event']),
+        
+        /**
+         * Get the selected kit object
+         */
+        selectedKit() {
+            if(!this.selectedKitId) return null;
+            return this.kits.find(kit => kit.id === this.selectedKitId) || null;
+        },
     },
 
     methods: {
@@ -165,6 +197,11 @@ export default {
          * Save kits with images
          */
         async saveKits() {
+            if(!this.selectedKitId) {
+                Vue.helpers.showToast('error', trans('em.select_kit_first'));
+                return;
+            }
+            
             this.saving = true;
 
             try {
@@ -172,12 +209,11 @@ export default {
                 const formData = new FormData();
                 formData.append('event_id', this.event_id);
                 
-                // Prepare kits data
-                // Include both new images (from kitImages) and existing images from database
-                const kitsData = this.kits.map(kit => ({
-                    kit_id: kit.id,
-                    items: kit.items.map(item => {
-                        const key = kit.id + '_' + item.id;
+                // Prepare kits data - only send the selected kit
+                const kitsData = [{
+                    kit_id: this.selectedKitId,
+                    items: this.selectedKit.items.map(item => {
+                        const key = this.selectedKitId + '_' + item.id;
                         // Use image from kitImages (which includes both new uploads and DB images)
                         const image = this.kitImages[key] || null;
                         return {
@@ -185,7 +221,7 @@ export default {
                             image: image,
                         };
                     }),
-                }));
+                }];
 
                 formData.append('kits', JSON.stringify(kitsData));
 

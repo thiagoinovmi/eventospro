@@ -781,5 +781,10 @@ return [
     'saved_successfully'                => 'Salvo com sucesso',
     'error_saving'                      => 'Erro ao salvar',
     'error_loading_kits'                => 'Erro ao carregar kits',
+    'select_kit'                        => 'Selecione um Kit',
+    'choose_kit'                        => 'Escolha um kit',
+    'one_kit_per_event'                 => 'Um evento pode ter apenas 1 kit',
+    'select_kit_to_edit'                => 'Selecione um kit para editar as imagens',
+    'select_kit_first'                  => 'Selecione um kit antes de salvar',
 ];
 
