@@ -1059,7 +1059,11 @@ class MyEventsController extends Controller
             else
                 $filename        = time().str_random(10).'.'.'webp';
             
-            $path            = '/storage/'.$params['path'].'/'.Carbon::now()->format('FY').'/';
+            // Don't add date folder for event kit items
+            $addDateFolder = !isset($params['skip_date_folder']) || !$params['skip_date_folder'];
+            $dateSuffix = $addDateFolder ? '/'.Carbon::now()->format('FY').'/' : '/';
+            
+            $path            = '/storage/'.$params['path'].$dateSuffix;
 
 
             $image_resize    = Image::make(base64_decode($image))->encode('webp', 90)->resize($params['width'], $params['height']);
@@ -1067,7 +1071,7 @@ class MyEventsController extends Controller
 
             if ($storageDisk == 's3') {
 
-                $path            = $params['path'].'/'.Carbon::now()->format('FY').'/';
+                $path            = $params['path'].$dateSuffix;
 
                 // Store directly in S3
                 Storage::disk('s3')->put($path.$filename, $image_resize);
@@ -2355,9 +2359,10 @@ class MyEventsController extends Controller
                             // Base64 image
                             $params = [
                                 'image' => $itemData['image'],
-                                'path' => $path . $kitData['kit_id'] . '/',
+                                'path' => $path . $kitData['kit_id'],
                                 'width' => 512,
                                 'height' => 512,
+                                'skip_date_folder' => true, // Don't add date folder for kits
                             ];
                             $imageName = $this->upload_base64_image($params, $storageDisk);
                             if($imageName) {

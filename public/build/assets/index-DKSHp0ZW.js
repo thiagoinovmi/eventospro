@@ -2577,6 +2577,19 @@ const _sfc_main = {
       return null;
     },
     /**
+     * Convert image path to full URL
+     */
+    getImageUrl(imagePath) {
+      if (!imagePath) return null;
+      if (imagePath.startsWith("data:")) {
+        return imagePath;
+      }
+      if (!imagePath.startsWith("http")) {
+        return `/storage/${imagePath}`;
+      }
+      return imagePath;
+    },
+    /**
      * Handle image upload for kit item
      */
     handleImageUpload(event, kitId, itemId) {
@@ -2700,7 +2713,7 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "7bed1d5e"
+  "34ef9a61"
 );
 const Kits = __component__.exports;
 window.Vuex = index;
@@ -2902,4 +2915,4 @@ window.app = new Vue({
     TabsComponent
   }
 });
-//# sourceMappingURL=index-CNo4sYwB.js.map
+//# sourceMappingURL=index-DKSHp0ZW.js.map
