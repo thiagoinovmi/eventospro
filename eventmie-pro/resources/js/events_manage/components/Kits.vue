@@ -173,12 +173,18 @@ export default {
                 formData.append('event_id', this.event_id);
                 
                 // Prepare kits data
+                // Include both new images (from kitImages) and existing images from database
                 const kitsData = this.kits.map(kit => ({
                     kit_id: kit.id,
-                    items: kit.items.map(item => ({
-                        kit_item_id: item.id,
-                        image: this.kitImages[kit.id + '_' + item.id] || null,
-                    })),
+                    items: kit.items.map(item => {
+                        const key = kit.id + '_' + item.id;
+                        // Use image from kitImages (which includes both new uploads and DB images)
+                        const image = this.kitImages[key] || null;
+                        return {
+                            kit_item_id: item.id,
+                            image: image,
+                        };
+                    }),
                 }));
 
                 formData.append('kits', JSON.stringify(kitsData));
@@ -195,9 +201,8 @@ export default {
 
                 if(response.data.status) {
                     Vue.helpers.showToast('success', trans('em.saved_successfully'));
-                    // Clear local images after save
-                    this.kitImages = {};
-                    // Reload event kits
+                    // Don't clear kitImages - they are needed for display
+                    // Just reload to sync with database
                     this.loadEventKits();
                 } else {
                     Vue.helpers.showToast('error', trans('em.error_saving'));
@@ -243,6 +248,15 @@ export default {
                 if(response.data.status) {
                     this.kits = response.data.kits || [];
                     this.eventKitItems = response.data.event_kit_items || {};
+                    
+                    // Load existing images from database into kitImages
+                    // This ensures they are preserved when saving
+                    Object.keys(this.eventKitItems).forEach(key => {
+                        if(this.eventKitItems[key].image && !this.kitImages[key]) {
+                            // Only load from DB if not already in kitImages (user hasn't uploaded new one)
+                            this.kitImages[key] = this.eventKitItems[key].image;
+                        }
+                    });
                     
                     if(this.kits.length === 0) {
                         console.info('No kits available for this event');
