@@ -19,13 +19,13 @@
                                 v-model="selectedKitId" 
                                 class="form-control form-control-lg"
                             >
-                                <option :value="null">{{ trans('em.choose_kit') }}</option>
+                                <option :value="null" disabled selected>{{ trans('em.select_kit_option') }}</option>
                                 <option v-for="kit in kits" :key="kit.id" :value="kit.id">
                                     {{ kit.name }}
                                 </option>
                             </select>
-                            <small class="form-text text-muted">
-                                {{ trans('em.one_kit_per_event') }}
+                            <small class="form-text text-muted d-block mt-2">
+                                {{ trans('em.choose_kit_message') }}
                             </small>
                         </div>
 

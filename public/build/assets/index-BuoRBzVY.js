@@ -2555,11 +2555,19 @@ const _sfc_main = {
       eventKitItems: {},
       kitImages: {},
       // { kit_id_item_id: base64_image }
-      saving: false
+      saving: false,
+      selectedKitId: null
     };
   },
   computed: {
-    ...mapState(["event_id", "organiser_id", "event"])
+    ...mapState(["event_id", "organiser_id", "event"]),
+    /**
+     * Get the selected kit object
+     */
+    selectedKit() {
+      if (!this.selectedKitId) return null;
+      return this.kits.find((kit) => kit.id === this.selectedKitId) || null;
+    }
   },
   methods: {
     ...mapMutations(["add", "update"]),
@@ -2607,21 +2615,25 @@ const _sfc_main = {
      */
     async saveKits() {
       var _a, _b, _c, _d, _e, _f;
+      if (!this.selectedKitId) {
+        Vue.helpers.showToast("error", trans("em.select_kit_first"));
+        return;
+      }
       this.saving = true;
       try {
         const formData = new FormData();
         formData.append("event_id", this.event_id);
-        const kitsData = this.kits.map((kit) => ({
-          kit_id: kit.id,
-          items: kit.items.map((item) => {
-            const key = kit.id + "_" + item.id;
+        const kitsData = [{
+          kit_id: this.selectedKitId,
+          items: this.selectedKit.items.map((item) => {
+            const key = this.selectedKitId + "_" + item.id;
             const image = this.kitImages[key] || null;
             return {
               kit_item_id: item.id,
               image
             };
           })
-        }));
+        }];
         formData.append("kits", JSON.stringify(kitsData));
         const response = await axios.post(
           route("eventmie.myevents_store_event_kits"),
@@ -2712,11 +2724,19 @@ const _sfc_main = {
 };
 var _sfc_render = function render13() {
   var _vm = this, _c = _vm._self._c;
-  return _c("div", { staticClass: "tab-pane active" }, [_c("div", { staticClass: "panel-group" }, [_c("div", { staticClass: "panel panel-default" }, [_c("div", { staticClass: "panel-heading" }, [_c("h4", { staticClass: "panel-title mb-3" }, [_vm._v(_vm._s(_vm.trans("em.kits")))]), _vm.kits.length === 0 ? _c("div", { staticClass: "alert alert-info" }, [_vm._v(" " + _vm._s(_vm.trans("em.no_kits_available")) + " ")]) : _c("div", [_c("div", { staticClass: "row" }, [_c("div", { staticClass: "col-md-12" }, _vm._l(_vm.kits, function(kit) {
-    return _c("div", { key: kit.id, staticClass: "card mb-4" }, [_c("div", { staticClass: "card-header bg-light" }, [_c("h5", { staticClass: "mb-0" }, [_c("i", { staticClass: "fas fa-box" }), _vm._v(" " + _vm._s(kit.name) + " ")]), _c("small", { staticClass: "text-muted" }, [_vm._v(_vm._s(kit.description))])]), _c("div", { staticClass: "card-body" }, [kit.items && kit.items.length > 0 ? _c("div", { staticClass: "row" }, _vm._l(kit.items, function(item) {
-      return _c("div", { key: item.id, staticClass: "col-md-6 mb-4" }, [_c("div", { staticClass: "border rounded p-3" }, [_c("h6", { staticClass: "mb-2" }, [_c("i", { staticClass: "fas fa-cube" }), _vm._v(" " + _vm._s(item.name) + " ")]), _c("small", { staticClass: "text-muted d-block mb-3" }, [_vm._v(_vm._s(item.description))]), _c("div", { staticClass: "mb-3" }, [_c("label", { staticClass: "form-label form-label-sm" }, [_vm._v(" " + _vm._s(_vm.trans("em.image")) + " ")]), _c("div", { staticClass: "image-preview mb-2" }, [_vm.getItemImage(kit.id, item.id) ? _c("img", { staticClass: "img-fluid rounded", staticStyle: { "max-height": "150px", "object-fit": "cover" }, attrs: { "src": _vm.getImageUrl(_vm.getItemImage(kit.id, item.id)) } }) : _c("div", { staticClass: "bg-light rounded p-3 text-center text-muted" }, [_c("i", { staticClass: "fas fa-image fa-2x" }), _c("p", { staticClass: "mb-0 mt-2" }, [_vm._v(_vm._s(_vm.trans("em.no_image")))])])]), _c("input", { staticClass: "form-control form-control-sm", attrs: { "type": "file", "accept": "image/*" }, on: { "change": (e) => _vm.handleImageUpload(e, kit.id, item.id) } })])])]);
-    }), 0) : _c("div", { staticClass: "alert alert-warning" }, [_vm._v(" " + _vm._s(_vm.trans("em.no_items_in_kit")) + " ")])])]);
-  }), 0)]), _c("div", { staticClass: "mb-3" }, [_c("button", { staticClass: "btn btn-primary btn-lg", attrs: { "type": "button", "disabled": _vm.saving }, on: { "click": _vm.saveKits } }, [_c("i", { staticClass: "fas fa-sd-card" }), _vm._v(" " + _vm._s(_vm.saving ? _vm.trans("em.saving") : _vm.trans("em.save")) + " ")])])])])])])]);
+  return _c("div", { staticClass: "tab-pane active" }, [_c("div", { staticClass: "panel-group" }, [_c("div", { staticClass: "panel panel-default" }, [_c("div", { staticClass: "panel-heading" }, [_c("h4", { staticClass: "panel-title mb-3" }, [_vm._v(_vm._s(_vm.trans("em.kits")))]), _vm.kits.length === 0 ? _c("div", { staticClass: "alert alert-info" }, [_vm._v(" " + _vm._s(_vm.trans("em.no_kits_available")) + " ")]) : _c("div", [_c("div", { staticClass: "form-group mb-4" }, [_c("label", { staticClass: "form-label" }, [_vm._v(" " + _vm._s(_vm.trans("em.select_kit")) + " ")]), _c("select", { directives: [{ name: "model", rawName: "v-model", value: _vm.selectedKitId, expression: "selectedKitId" }], staticClass: "form-control form-control-lg", on: { "change": function($event) {
+    var $$selectedVal = Array.prototype.filter.call($event.target.options, function(o) {
+      return o.selected;
+    }).map(function(o) {
+      var val = "_value" in o ? o._value : o.value;
+      return val;
+    });
+    _vm.selectedKitId = $event.target.multiple ? $$selectedVal : $$selectedVal[0];
+  } } }, [_c("option", { domProps: { "value": null } }, [_vm._v(_vm._s(_vm.trans("em.choose_kit")))]), _vm._l(_vm.kits, function(kit) {
+    return _c("option", { key: kit.id, domProps: { "value": kit.id } }, [_vm._v(" " + _vm._s(kit.name) + " ")]);
+  })], 2), _c("small", { staticClass: "form-text text-muted" }, [_vm._v(" " + _vm._s(_vm.trans("em.one_kit_per_event")) + " ")])]), _vm.selectedKit ? _c("div", { staticClass: "row" }, [_c("div", { staticClass: "col-md-12" }, [_c("div", { staticClass: "card mb-4" }, [_c("div", { staticClass: "card-header bg-light" }, [_c("h5", { staticClass: "mb-0" }, [_c("i", { staticClass: "fas fa-box" }), _vm._v(" " + _vm._s(_vm.selectedKit.name) + " ")]), _c("small", { staticClass: "text-muted" }, [_vm._v(_vm._s(_vm.selectedKit.description))])]), _c("div", { staticClass: "card-body" }, [_vm.selectedKit.items && _vm.selectedKit.items.length > 0 ? _c("div", { staticClass: "row" }, _vm._l(_vm.selectedKit.items, function(item) {
+    return _c("div", { key: item.id, staticClass: "col-md-6 mb-4" }, [_c("div", { staticClass: "border rounded p-3" }, [_c("h6", { staticClass: "mb-2" }, [_c("i", { staticClass: "fas fa-cube" }), _vm._v(" " + _vm._s(item.name) + " ")]), _c("small", { staticClass: "text-muted d-block mb-3" }, [_vm._v(_vm._s(item.description))]), _c("div", { staticClass: "mb-3" }, [_c("label", { staticClass: "form-label form-label-sm" }, [_vm._v(" " + _vm._s(_vm.trans("em.image")) + " ")]), _c("div", { staticClass: "image-preview mb-2" }, [_vm.getItemImage(_vm.selectedKit.id, item.id) ? _c("img", { staticClass: "img-fluid rounded", staticStyle: { "max-height": "150px", "object-fit": "cover" }, attrs: { "src": _vm.getImageUrl(_vm.getItemImage(_vm.selectedKit.id, item.id)) } }) : _c("div", { staticClass: "bg-light rounded p-3 text-center text-muted" }, [_c("i", { staticClass: "fas fa-image fa-2x" }), _c("p", { staticClass: "mb-0 mt-2" }, [_vm._v(_vm._s(_vm.trans("em.no_image")))])])]), _c("input", { staticClass: "form-control form-control-sm", attrs: { "type": "file", "accept": "image/*" }, on: { "change": (e) => _vm.handleImageUpload(e, _vm.selectedKit.id, item.id) } })])])]);
+  }), 0) : _c("div", { staticClass: "alert alert-warning" }, [_vm._v(" " + _vm._s(_vm.trans("em.no_items_in_kit")) + " ")])])])])]) : _c("div", { staticClass: "alert alert-info" }, [_vm._v(" " + _vm._s(_vm.trans("em.select_kit_to_edit")) + " ")]), _c("div", { staticClass: "mb-3" }, [_c("button", { staticClass: "btn btn-primary btn-lg", attrs: { "type": "button", "disabled": _vm.saving }, on: { "click": _vm.saveKits } }, [_c("i", { staticClass: "fas fa-sd-card" }), _vm._v(" " + _vm._s(_vm.saving ? _vm.trans("em.saving") : _vm.trans("em.save")) + " ")])])])])])])]);
 };
 var _sfc_staticRenderFns = [];
 var __component__ = /* @__PURE__ */ normalizeComponent(
@@ -2725,7 +2745,7 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "a87c37f2"
+  "4c36085f"
 );
 const Kits = __component__.exports;
 window.Vuex = index;
@@ -2927,4 +2947,4 @@ window.app = new Vue({
     TabsComponent
   }
 });
-//# sourceMappingURL=index-D3BA4X9B.js.map
+//# sourceMappingURL=index-BuoRBzVY.js.map
