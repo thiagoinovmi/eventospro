@@ -2299,6 +2299,12 @@ class MyEventsController extends Controller
      */
     public function store_event_kits(Request $request)
     {
+        \Log::info('store_event_kits called', [
+            'event_id' => $request->event_id,
+            'kits_type' => gettype($request->kits),
+            'kits_length' => strlen((string)$request->kits),
+        ]);
+
         $request->validate([
             'event_id' => 'required|numeric|min:1|regex:^[1-9][0-9]*$^',
             'kits' => 'required',
@@ -2330,6 +2336,7 @@ class MyEventsController extends Controller
             }
             
             if(!is_array($kits)) {
+                \Log::error('Invalid kits format', ['kits' => $kits]);
                 return error('invalid kits format', Response::HTTP_BAD_REQUEST);
             }
 

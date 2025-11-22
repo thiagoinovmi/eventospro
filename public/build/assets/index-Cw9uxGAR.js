@@ -2606,7 +2606,7 @@ const _sfc_main = {
      * Save kits with images
      */
     async saveKits() {
-      var _a, _b, _c, _d;
+      var _a, _b, _c, _d, _e, _f;
       this.saving = true;
       try {
         const formData = new FormData();
@@ -2636,12 +2636,16 @@ const _sfc_main = {
           Vue.helpers.showToast("error", trans("em.error_saving"));
         }
       } catch (error) {
-        console.error(error);
+        console.error("Full error:", error);
+        console.error("Error response:", (_a = error.response) == null ? void 0 : _a.data);
         let errorMsg = trans("em.error_saving");
-        if ((_b = (_a = error.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) {
+        if ((_c = (_b = error.response) == null ? void 0 : _b.data) == null ? void 0 : _c.message) {
           errorMsg = error.response.data.message;
-        } else if ((_d = (_c = error.response) == null ? void 0 : _c.data) == null ? void 0 : _d.errors) {
+        } else if ((_e = (_d = error.response) == null ? void 0 : _d.data) == null ? void 0 : _e.errors) {
           errorMsg = Object.values(error.response.data.errors).flat().join(", ");
+        } else if ((_f = error.response) == null ? void 0 : _f.data) {
+          console.error("Error data:", JSON.stringify(error.response.data));
+          errorMsg = error.response.data.message || error.response.data.error || JSON.stringify(error.response.data);
         }
         Vue.helpers.showToast("error", errorMsg);
       } finally {
@@ -2713,7 +2717,7 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "34ef9a61"
+  "34a3687c"
 );
 const Kits = __component__.exports;
 window.Vuex = index;
@@ -2915,4 +2919,4 @@ window.app = new Vue({
     TabsComponent
   }
 });
-//# sourceMappingURL=index-DKSHp0ZW.js.map
+//# sourceMappingURL=index-Cw9uxGAR.js.map
