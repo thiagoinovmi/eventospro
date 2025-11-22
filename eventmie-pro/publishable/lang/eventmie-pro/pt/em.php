@@ -790,5 +790,7 @@ return [
     'select_kit_first'                  => 'Selecione um kit antes de salvar',
     'clear_all'                         => 'Limpar Tudo',
     'confirm_clear_all_images'          => 'Tem certeza que deseja limpar todas as imagens?',
+    'image_deleted'                     => 'Imagem deletada com sucesso',
+    'all_images_deleted'                => 'Todas as imagens foram deletadas',
 ];
 

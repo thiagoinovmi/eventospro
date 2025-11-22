@@ -219,6 +219,7 @@ export default {
         clearItemImage(kitId, itemId) {
             const key = kitId + '_' + itemId;
             this.$delete(this.kitImages, key);
+            Vue.helpers.showToast('success', trans('em.image_deleted'));
         },
 
         /**
@@ -232,6 +233,7 @@ export default {
                     const key = this.selectedKitId + '_' + item.id;
                     this.$delete(this.kitImages, key);
                 });
+                Vue.helpers.showToast('success', trans('em.all_images_deleted'));
             }
         },
 

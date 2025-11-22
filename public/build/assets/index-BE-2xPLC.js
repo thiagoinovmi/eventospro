@@ -41,12 +41,12 @@ const Component = {
         }
       };
     },
-    handleClickButton({ target }, confirm) {
+    handleClickButton({ target }, confirm2) {
       if (target.id == "vueConfirm") return;
-      if (confirm && this.dialog.auth && !this.password) return;
+      if (confirm2 && this.dialog.auth && !this.password) return;
       this.isShow = false;
       if (this.params.callback) {
-        this.params.callback(confirm, this.password);
+        this.params.callback(confirm2, this.password);
       }
     },
     handleClickOverlay({ target }) {
@@ -120,7 +120,7 @@ const VueConfirmDialog = {
     this.installed = true;
     this.params = args;
     Vue2.component(args.componentName || "vue-confirm-dialog", VueConfirmDialog$1);
-    const confirm = (params) => {
+    const confirm2 = (params) => {
       if (typeof params != "object" || Array.isArray(params)) {
         let caughtType = typeof params;
         if (Array.isArray(params)) caughtType = "array";
@@ -138,11 +138,11 @@ const VueConfirmDialog = {
         events.$emit("open", params);
       }
     };
-    confirm.close = () => {
+    confirm2.close = () => {
       events.$emit("close");
     };
-    Vue2.prototype.$confirm = confirm;
-    Vue2["$confirm"] = confirm;
+    Vue2.prototype.$confirm = confirm2;
+    Vue2["$confirm"] = confirm2;
   }
 };
 const _sfc_main$b = {
@@ -2611,6 +2611,25 @@ const _sfc_main = {
       reader.readAsDataURL(file);
     },
     /**
+     * Clear image for a specific kit item
+     */
+    clearItemImage(kitId, itemId) {
+      const key = kitId + "_" + itemId;
+      this.$delete(this.kitImages, key);
+    },
+    /**
+     * Clear all images for the selected kit
+     */
+    clearAllImages() {
+      if (!this.selectedKit) return;
+      if (confirm(trans("em.confirm_clear_all_images"))) {
+        this.selectedKit.items.forEach((item) => {
+          const key = this.selectedKitId + "_" + item.id;
+          this.$delete(this.kitImages, key);
+        });
+      }
+    },
+    /**
      * Save kits with images
      */
     async saveKits() {
@@ -2735,8 +2754,10 @@ var _sfc_render = function render13() {
   } } }, [_c("option", { attrs: { "disabled": "", "selected": "" }, domProps: { "value": null } }, [_vm._v(_vm._s(_vm.trans("em.select_kit_option")))]), _vm._l(_vm.kits, function(kit) {
     return _c("option", { key: kit.id, domProps: { "value": kit.id } }, [_vm._v(" " + _vm._s(kit.name) + " ")]);
   })], 2), _c("small", { staticClass: "form-text text-muted d-block mt-2" }, [_vm._v(" " + _vm._s(_vm.trans("em.choose_kit_message")) + " ")])]), _vm.selectedKit ? _c("div", { staticClass: "row" }, [_c("div", { staticClass: "col-md-12" }, [_c("div", { staticClass: "card mb-4" }, [_c("div", { staticClass: "card-header bg-light" }, [_c("h5", { staticClass: "mb-0" }, [_c("i", { staticClass: "fas fa-box" }), _vm._v(" " + _vm._s(_vm.selectedKit.name) + " ")]), _c("small", { staticClass: "text-muted" }, [_vm._v(_vm._s(_vm.selectedKit.description))])]), _c("div", { staticClass: "card-body" }, [_vm.selectedKit.items && _vm.selectedKit.items.length > 0 ? _c("div", { staticClass: "row" }, _vm._l(_vm.selectedKit.items, function(item) {
-    return _c("div", { key: item.id, staticClass: "col-md-6 mb-4" }, [_c("div", { staticClass: "border rounded p-3" }, [_c("h6", { staticClass: "mb-2" }, [_c("i", { staticClass: "fas fa-cube" }), _vm._v(" " + _vm._s(item.name) + " ")]), _c("small", { staticClass: "text-muted d-block mb-3" }, [_vm._v(_vm._s(item.description))]), _c("div", { staticClass: "mb-3" }, [_c("label", { staticClass: "form-label form-label-sm" }, [_vm._v(" " + _vm._s(_vm.trans("em.image")) + " ")]), _c("div", { staticClass: "image-preview mb-2" }, [_vm.getItemImage(_vm.selectedKit.id, item.id) ? _c("img", { staticClass: "img-fluid rounded", staticStyle: { "max-height": "150px", "object-fit": "cover" }, attrs: { "src": _vm.getImageUrl(_vm.getItemImage(_vm.selectedKit.id, item.id)) } }) : _c("div", { staticClass: "bg-light rounded p-3 text-center text-muted" }, [_c("i", { staticClass: "fas fa-image fa-2x" }), _c("p", { staticClass: "mb-0 mt-2" }, [_vm._v(_vm._s(_vm.trans("em.no_image")))])])]), _c("input", { staticClass: "form-control form-control-sm", attrs: { "type": "file", "accept": "image/*" }, on: { "change": (e) => _vm.handleImageUpload(e, _vm.selectedKit.id, item.id) } })])])]);
-  }), 0) : _c("div", { staticClass: "alert alert-warning" }, [_vm._v(" " + _vm._s(_vm.trans("em.no_items_in_kit")) + " ")])])])])]) : _c("div", { staticClass: "alert alert-info" }, [_vm._v(" " + _vm._s(_vm.trans("em.select_kit_to_edit")) + " ")]), _c("div", { staticClass: "mb-3" }, [_c("button", { staticClass: "btn btn-primary btn-lg", attrs: { "type": "button", "disabled": _vm.saving }, on: { "click": _vm.saveKits } }, [_c("i", { staticClass: "fas fa-sd-card" }), _vm._v(" " + _vm._s(_vm.saving ? _vm.trans("em.saving") : _vm.trans("em.save")) + " ")])])])])])])]);
+    return _c("div", { key: item.id, staticClass: "col-md-6 mb-4" }, [_c("div", { staticClass: "border rounded p-3" }, [_c("h6", { staticClass: "mb-2" }, [_c("i", { staticClass: "fas fa-cube" }), _vm._v(" " + _vm._s(item.name) + " ")]), _c("small", { staticClass: "text-muted d-block mb-3" }, [_vm._v(_vm._s(item.description))]), _c("div", { staticClass: "mb-3" }, [_c("label", { staticClass: "form-label form-label-sm" }, [_vm._v(" " + _vm._s(_vm.trans("em.image")) + " ")]), _c("div", { staticClass: "image-preview mb-2" }, [_vm.getItemImage(_vm.selectedKit.id, item.id) ? _c("img", { staticClass: "img-fluid rounded", staticStyle: { "max-height": "150px", "object-fit": "cover" }, attrs: { "src": _vm.getImageUrl(_vm.getItemImage(_vm.selectedKit.id, item.id)) } }) : _c("div", { staticClass: "bg-light rounded p-3 text-center text-muted" }, [_c("i", { staticClass: "fas fa-image fa-2x" }), _c("p", { staticClass: "mb-0 mt-2" }, [_vm._v(_vm._s(_vm.trans("em.no_image")))])])]), _c("div", { staticClass: "d-flex gap-2" }, [_c("input", { staticClass: "form-control form-control-sm flex-grow-1", attrs: { "type": "file", "accept": "image/*" }, on: { "change": (e) => _vm.handleImageUpload(e, _vm.selectedKit.id, item.id) } }), _vm.getItemImage(_vm.selectedKit.id, item.id) ? _c("button", { staticClass: "btn btn-sm btn-danger", attrs: { "type": "button", "title": "Limpar imagem" }, on: { "click": function($event) {
+      return _vm.clearItemImage(_vm.selectedKit.id, item.id);
+    } } }, [_c("i", { staticClass: "fas fa-trash" })]) : _vm._e()])])])]);
+  }), 0) : _c("div", { staticClass: "alert alert-warning" }, [_vm._v(" " + _vm._s(_vm.trans("em.no_items_in_kit")) + " ")])])])])]) : _c("div", { staticClass: "alert alert-info" }, [_vm._v(" " + _vm._s(_vm.trans("em.select_kit_to_edit")) + " ")]), _vm.selectedKit ? _c("div", { staticClass: "mb-3 d-flex gap-2" }, [_c("button", { staticClass: "btn btn-primary btn-lg flex-grow-1", attrs: { "type": "button", "disabled": _vm.saving }, on: { "click": _vm.saveKits } }, [_c("i", { staticClass: "fas fa-sd-card" }), _vm._v(" " + _vm._s(_vm.saving ? _vm.trans("em.saving") : _vm.trans("em.save")) + " ")]), _c("button", { staticClass: "btn btn-warning btn-lg", attrs: { "type": "button", "title": "Limpar todas as imagens" }, on: { "click": _vm.clearAllImages } }, [_c("i", { staticClass: "fas fa-broom" }), _vm._v(" " + _vm._s(_vm.trans("em.clear_all")) + " ")])]) : _vm._e()])])])])]);
 };
 var _sfc_staticRenderFns = [];
 var __component__ = /* @__PURE__ */ normalizeComponent(
@@ -2745,7 +2766,7 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "4c25afec"
+  "c57b7972"
 );
 const Kits = __component__.exports;
 window.Vuex = index;
@@ -2909,7 +2930,7 @@ function routeBeforeEnter(to, from, next) {
         button: {
           yes: trans("em.cancel")
         },
-        callback: (confirm) => {
+        callback: (confirm2) => {
           next(false);
         }
       });
@@ -2926,8 +2947,8 @@ function routeBeforeEnter(to, from, next) {
             yes: trans("em.switch_tab"),
             no: trans("em.stay_here")
           },
-          callback: (confirm) => {
-            if (confirm) next();
+          callback: (confirm2) => {
+            if (confirm2) next();
             else next(false);
           }
         });
@@ -2947,4 +2968,4 @@ window.app = new Vue({
     TabsComponent
   }
 });
-//# sourceMappingURL=index-CV6KKzgG.js.map
+//# sourceMappingURL=index-BE-2xPLC.js.map
