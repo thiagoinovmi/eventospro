@@ -1272,29 +1272,37 @@ class BookingsController extends Controller
 
             // Create payment with Mercado Pago SDK
             try {
-                \MercadoPago\SDK::setAccessToken($accessToken);
+                // Configure Mercado Pago SDK
+                \MercadoPago\MercadoPagoConfig::setAccessToken($accessToken);
+                \MercadoPago\MercadoPagoConfig::setRuntimeMode(\MercadoPago\MercadoPagoConfig::RUNTIME_MODE_PRODUCTION);
                 
-                $payment = new \MercadoPago\Payment();
-                $payment->transaction_amount = (float) $validated['total'];
-                $payment->token = $this->tokenizeCard($cardData);
-                $payment->description = "Compra de ingressos - Evento ID: {$validated['event_id']}";
-                $payment->installments = $cardData['installments'] ?? 1;
-                $payment->payment_method_id = "credit_card";
-                $payment->payer = new \MercadoPago\Payer();
-                $payment->payer->email = Auth::user()->email;
+                // Create payment request
+                $request = new \MercadoPago\Request\PaymentCreateRequest();
+                $request->transaction_amount = (float) $validated['total'];
+                $request->token = $this->tokenizeCard($cardData);
+                $request->description = "Compra de ingressos - Evento ID: {$validated['event_id']}";
+                $request->installments = $cardData['installments'] ?? 1;
+                $request->payment_method_id = "credit_card";
+                
+                // Payer info
+                $payer = new \MercadoPago\Request\PayerRequest();
+                $payer->email = Auth::user()->email;
+                $request->payer = $payer;
                 
                 \Log::info('Enviando pagamento para Mercado Pago:', [
-                    'amount' => $payment->transaction_amount,
-                    'installments' => $payment->installments,
-                    'email' => $payment->payer->email
+                    'amount' => $request->transaction_amount,
+                    'installments' => $request->installments,
+                    'email' => $request->payer->email
                 ]);
                 
-                $payment->save();
+                // Create payment client and send request
+                $client = new \MercadoPago\Client\PaymentClient();
+                $payment = $client->create($request);
                 
                 \Log::info('Resposta do Mercado Pago:', [
                     'id' => $payment->id,
                     'status' => $payment->status,
-                    'status_detail' => $payment->status_detail
+                    'status_detail' => $payment->status_detail ?? 'N/A'
                 ]);
 
                 // Check if payment was approved
