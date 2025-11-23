@@ -263,7 +263,8 @@ export default {
 
     computed: {
         subtotal() {
-            return this.total.toFixed(2);
+            const total = parseFloat(this.total) || 0;
+            return total.toFixed(2);
         },
         tax() {
             return (0).toFixed(2);

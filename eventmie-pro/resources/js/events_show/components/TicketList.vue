@@ -345,6 +345,17 @@ export default {
         ...mapState( ['booking_date', 'start_time', 'end_time', 'booking_end_date', 'booked_date_server']),
     },
 
+    watch: {
+        payment_method(newValue) {
+            // Quando selecionar Mercado Pago, mostrar o formulário
+            if (newValue == 2) {
+                this.$nextTick(() => {
+                    this.scrollToMercadoPagoForm();
+                });
+            }
+        }
+    },
+
     mounted() {
         console.log('=== DEBUG TICKET LIST ===');
         console.log('is_admin:', this.is_admin);
@@ -390,7 +401,7 @@ export default {
                 Swal.hideLoading();
                 
                 // Mostrar formulário de Mercado Pago
-                this.showMercadoPagoCheckout();
+                this.scrollToMercadoPagoForm();
                 this.disable = false;
                 return;
             }
@@ -436,7 +447,7 @@ export default {
                     this.close();
                     
                     // Mostrar formulário de Mercado Pago
-                    this.showMercadoPagoCheckout();
+                    this.scrollToMercadoPagoForm();
                 }
 
                 if(res.data.url != '' && res.data.status  && typeof(res.data.url) != "undefined") {
@@ -472,14 +483,12 @@ export default {
             });
         },
 
-        showMercadoPagoCheckout() {
+        scrollToMercadoPagoForm() {
             // Scroll para o formulário
-            this.$nextTick(() => {
-                const element = document.querySelector('.mercadopago-checkout-container');
-                if (element) {
-                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            });
+            const element = document.querySelector('.mercadopago-checkout-container');
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         },
         
 
