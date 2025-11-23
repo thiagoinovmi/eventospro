@@ -181,29 +181,8 @@
             <button type="button" class="btn-close" @click="successMessage = ''" aria-label="Close"></button>
         </div>
 
-        <!-- Action Buttons -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <button 
-                    type="button" 
-                    class="btn btn-primary btn-lg w-100"
-                    @click="processPayment"
-                    :disabled="isProcessing"
-                >
-                    <span v-if="!isProcessing">
-                        <i class="fas fa-lock me-2"></i>
-                        {{ trans('em.pay_now') || 'Pagar Agora' }}
-                    </span>
-                    <span v-else>
-                        <i class="fas fa-spinner fa-spin me-2"></i>
-                        {{ trans('em.processing') || 'Processando...' }}
-                    </span>
-                </button>
-            </div>
-        </div>
-
         <!-- Security Info -->
-        <div class="mt-3 text-center">
+        <div class="mt-4 text-center">
             <small class="text-muted">
                 <i class="fas fa-shield-alt me-1"></i>
                 {{ trans('em.secure_payment') || 'Pagamento seguro com Mercado Pago' }}
@@ -249,8 +228,6 @@ export default {
                 cardCvv: ''
             },
             errorMessage: '',
-            successMessage: '',
-            isProcessing: false,
             installmentOptions: [
                 { value: 1, label: '1x sem juros' },
                 { value: 2, label: '2x sem juros' },
@@ -334,51 +311,6 @@ export default {
             return isValid;
         },
 
-        async processPayment() {
-            if (!this.validateForm()) {
-                this.errorMessage = 'Por favor, preencha todos os campos corretamente';
-                return;
-            }
-
-            this.isProcessing = true;
-            this.errorMessage = '';
-            this.successMessage = '';
-
-            try {
-                // Prepare payment data
-                const paymentData = {
-                    event_id: this.event.id,
-                    booking_date: this.bookingData.booking_date,
-                    booking_end_date: this.bookingData.booking_end_date,
-                    start_time: this.bookingData.start_time,
-                    end_time: this.bookingData.end_time,
-                    payment_method: 'mercadopago',
-                    selected_method: this.selectedMethod,
-                    card_data: this.selectedMethod !== 'pix' && this.selectedMethod !== 'boleto' ? this.cardData : null,
-                    tickets: this.tickets,
-                    total: this.total
-                };
-
-                // Send payment request
-                const response = await axios.post(route('eventmie.mercadopago_process'), paymentData);
-
-                if (response.data.status) {
-                    this.successMessage = response.data.message || 'Pagamento processado com sucesso!';
-                    
-                    // Redirect after success
-                    setTimeout(() => {
-                        window.location.href = route('eventmie.booking_confirmation', { id: response.data.booking_id });
-                    }, 2000);
-                } else {
-                    this.errorMessage = response.data.message || 'Erro ao processar pagamento';
-                }
-            } catch (error) {
-                console.error('Payment error:', error);
-                this.errorMessage = error.response?.data?.message || 'Erro ao processar pagamento. Tente novamente.';
-            } finally {
-                this.isProcessing = false;
-            }
-        }
     }
 }
 </script>
