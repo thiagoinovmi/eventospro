@@ -1305,14 +1305,17 @@ class BookingsController extends Controller
                 }
                 
                 // Create booking in database with correct event and ticket information
+                $transactionId = 'MP_' . time() . '_' . Auth::id();
                 $bookingData = [
                     'event_id' => $validated['event_id'],
                     'customer_id' => Auth::id(),
                     'ticket_id' => $ticket->id,
                     'quantity' => 1, // TODO: Get actual quantity from request
                     'price' => $validated['total'],
+                    'net_price' => $validated['total'], // Add net_price
+                    'order_number' => 'ORD-' . time() . '-' . Auth::id(), // Generate order number
                     'status' => 1, // Approved
-                    'transaction_id' => 'MP_' . time() . '_' . Auth::id(),
+                    'transaction_id' => $transactionId,
                     'customer_name' => Auth::user()->name,
                     'customer_email' => Auth::user()->email,
                     'event_title' => $event->title,
@@ -1324,7 +1327,8 @@ class BookingsController extends Controller
                     'ticket_price' => $ticket->price,
                     'event_category' => $event->category_id,
                     'currency' => 'BRL',
-                    'is_paid' => 1
+                    'is_paid' => 1,
+                    'payment_type' => 'online'
                 ];
                 
                 $newBooking = $this->booking->create($bookingData);

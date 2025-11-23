@@ -32,10 +32,10 @@
                                                 </h5>
                                                 <p class="text-mute">
                                                     <small class="text-muted" v-if="booking.event_start_date != booking.event_end_date">
-                                                        {{ moment(userTimezone(booking.event_start_date+' '+booking.event_start_time, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD')).format(date_format.vue_date_format) }}
+                                                        {{ userTimezone(booking.event_start_date+' '+booking.event_start_time, 'YYYY-MM-DD HH:mm:ss').format(date_format.vue_date_format) }}
                                                     </small>
                                                     <small class="text-muted" v-else>
-                                                        {{ moment(userTimezone(booking.event_start_date+' '+booking.event_start_time,'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD')).format(date_format.vue_date_format) }}
+                                                        {{ userTimezone(booking.event_start_date+' '+booking.event_start_time,'YYYY-MM-DD HH:mm:ss').format(date_format.vue_date_format) }}
                                                     </small>
                                                     
                                                     <small class="text-muted">
@@ -98,7 +98,7 @@
 
                                     <td class="align-middle text-nowrap" :data-title="trans('em.actions')" v-else>
                                         <div v-if="hide_ticket_download == null" class="mb-2">
-                                            <a v-if="booking.is_paid == 1 && booking.status == 1" class="btn btn-sm bg-danger text-white" :href="downloadURL(booking.id, booking.order_number)"><i class="fas fa-download"></i> {{trans('em.ticket')}}</a>
+                                            <a v-if="booking.is_paid == 1 && booking.status == 1 && booking.order_number" class="btn btn-sm bg-danger text-white" :href="downloadURL(booking.id, booking.order_number)"><i class="fas fa-download"></i> {{trans('em.ticket')}}</a>
                                             <span class="badge bg-danger text-white" v-else>
                                                 <small v-if="booking.is_paid == 0 && booking.status == 1" class="text-white">{{ trans('em.unpaid') }}</small>
                                                 <small v-else class="">{{ trans('em.disabled') }}</small>
