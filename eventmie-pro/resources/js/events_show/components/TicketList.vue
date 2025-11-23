@@ -849,38 +849,8 @@ export default {
     },
 }
 </script>
-<style scoped>
+<style>
     .preserve-whitespace {
         white-space: pre-line;
-    }
-    
-    /* Ticket info toggle button styling */
-    .ticket-info-toggle {
-        display: inline-block;
-        padding: 6px 12px;
-        background-color: #000;
-        color: #fff;
-        border-radius: 4px;
-        text-decoration: none;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-        font-weight: 500;
-    }
-    
-    .ticket-info-toggle:hover {
-        background-color: #333;
-        text-decoration: none;
-        color: #fff;
-    }
-    
-    .ticket-info-toggle small {
-        color: #fff;
-    }
-    
-    .ticket-info {
-        margin-top: 10px;
-        padding: 10px;
-        background-color: #f8f9fa;
-        border-left: 3px solid #000;
     }
 </style>
