@@ -232,7 +232,7 @@
     ]
   },
   "eventmie-pro/resources/js/ticket_scanner/index.js": {
-    "file": "assets/index-CIqp5iGS.js",
+    "file": "assets/index-CYnTpi2n.js",
     "name": "index",
     "src": "eventmie-pro/resources/js/ticket_scanner/index.js",
     "isEntry": true,
@@ -240,7 +240,7 @@
       "_mixins-DsimpN2H.js"
     ],
     "css": [
-      "assets/index-BEuOYI5e.css"
+      "assets/index-BokcMVhG.css"
     ]
   },
   "eventmie-pro/resources/js/venues_listing/index.js": {

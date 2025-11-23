@@ -7,6 +7,23 @@
 {{ $laser ? __('eventmie-pro::em.laser_ticket_scanner') : __('eventmie-pro::em.ticket_scanner') }}
 @endsection
 @section('o_dashboard')
+<style>
+    /* Disable Safari zoom on input focus */
+    input, textarea, select {
+        font-size: 16px !important;
+    }
+    
+    /* Disable pinch zoom on Safari */
+    body {
+        touch-action: manipulation;
+    }
+    
+    /* Prevent Safari from zooming on video element */
+    video {
+        -webkit-user-select: none;
+        user-select: none;
+    }
+</style>
 <section>
     <div class="bg-light ticket-scan-page">
         <div class="container-fluid">
@@ -74,11 +91,10 @@
             return;
         }
         
-        // Try with minimal constraints first - no zoom
+        // Try with minimal constraints first
         var constraints = {
             video: {
-                facingMode: { ideal: 'environment' },
-                zoom: { ideal: 1 },
+                facingMode: 'environment',
                 width: { ideal: 1280 },
                 height: { ideal: 720 }
             },

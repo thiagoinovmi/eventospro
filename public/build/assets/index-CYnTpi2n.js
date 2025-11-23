@@ -8842,8 +8842,7 @@ const _sfc_main = {
       // Camera constraints - no zoom
       cameraConstraints: {
         video: {
-          facingMode: { ideal: "environment" },
-          zoom: { ideal: 1, min: 1, max: 1 },
+          facingMode: "environment",
           width: { ideal: 1280 },
           height: { ideal: 720 }
         },
@@ -9058,7 +9057,7 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "42fe1c93"
+  "083ccf99"
 );
 const TicketScanner = __component__.exports;
 Vue.use(VueQrcodeReader);
@@ -9068,4 +9067,4 @@ window.app = new Vue({
     TicketScanner
   }
 });
-//# sourceMappingURL=index-CIqp5iGS.js.map
+//# sourceMappingURL=index-CYnTpi2n.js.map

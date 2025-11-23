@@ -143,8 +143,7 @@ export default {
             // Camera constraints - no zoom
             cameraConstraints: {
                 video: {
-                    facingMode: { ideal: 'environment' },
-                    zoom: { ideal: 1, min: 1, max: 1 },
+                    facingMode: 'environment',
                     width: { ideal: 1280 },
                     height: { ideal: 720 }
                 },
