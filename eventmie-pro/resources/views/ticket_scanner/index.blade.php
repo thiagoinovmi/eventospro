@@ -62,41 +62,63 @@
 
 <script>
 // Request camera permission on page load for iOS
-document.addEventListener('DOMContentLoaded', function() {
-    // Request camera permission with retry logic
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        var requestCamera = function() {
-            navigator.mediaDevices.getUserMedia({ 
-                video: { 
-                    facingMode: 'environment',
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 }
-                },
-                audio: false
-            }).then(function(stream) {
-                console.log('Camera permission granted');
-                // Keep stream alive for a moment to ensure permission is cached
-                setTimeout(function() {
-                    stream.getTracks().forEach(function(track) {
-                        track.stop();
-                    });
-                }, 500);
-            }).catch(function(error) {
-                console.error('Camera permission error:', error.name, error.message);
-                // Retry after a delay
-                if (error.name === 'NotAllowedError') {
-                    console.log('User denied camera access');
-                } else if (error.name === 'NotFoundError') {
-                    console.log('No camera found');
-                } else {
-                    setTimeout(requestCamera, 2000);
-                }
-            });
+(function() {
+    var cameraPermissionRequested = false;
+    
+    function requestCameraPermission() {
+        if (cameraPermissionRequested) return;
+        cameraPermissionRequested = true;
+        
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            console.warn('getUserMedia not supported');
+            return;
+        }
+        
+        // Try with minimal constraints first
+        var constraints = {
+            video: {
+                facingMode: { ideal: 'environment' }
+            },
+            audio: false
         };
         
-        // Start requesting camera with a small delay
-        setTimeout(requestCamera, 500);
+        navigator.mediaDevices.getUserMedia(constraints)
+            .then(function(stream) {
+                console.log('✓ Camera permission granted');
+                // Keep stream alive
+                var tracks = stream.getTracks();
+                setTimeout(function() {
+                    tracks.forEach(function(track) {
+                        track.stop();
+                    });
+                    console.log('✓ Camera stream stopped');
+                }, 1000);
+            })
+            .catch(function(error) {
+                console.error('✗ Camera error:', error.name, '-', error.message);
+                
+                // Log specific iOS errors
+                if (error.name === 'NotAllowedError') {
+                    console.warn('User denied camera access. Please enable in Settings > Safari > Camera');
+                } else if (error.name === 'NotFoundError') {
+                    console.error('No camera device found');
+                } else if (error.name === 'NotReadableError') {
+                    console.error('Camera is already in use');
+                } else if (error.name === 'SecurityError') {
+                    console.error('HTTPS required for camera access');
+                }
+            });
     }
-});
+    
+    // Request permission when page loads
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', requestCameraPermission);
+    } else {
+        requestCameraPermission();
+    }
+    
+    // Also request on user interaction for iOS
+    document.addEventListener('touchstart', requestCameraPermission, { once: true });
+})();
 </script>
 @stop
