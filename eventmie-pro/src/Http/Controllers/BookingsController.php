@@ -1274,7 +1274,6 @@ class BookingsController extends Controller
             try {
                 // Configure Mercado Pago SDK
                 \MercadoPago\MercadoPagoConfig::setAccessToken($accessToken);
-                \MercadoPago\MercadoPagoConfig::setRuntimeMode(\MercadoPago\MercadoPagoConfig::RUNTIME_MODE_PRODUCTION);
                 
                 // Create payment request
                 $request = new \MercadoPago\Request\PaymentCreateRequest();
