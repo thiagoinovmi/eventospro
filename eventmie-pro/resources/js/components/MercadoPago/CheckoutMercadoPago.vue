@@ -268,8 +268,15 @@ export default {
       this.loading = true
       this.loadingMessage = 'Carregando métodos de pagamento...'
       
-      // Load payment methods for this event
-      axios.get(`/api/mercadopago/payment-methods/event/${this.eventId}`)
+      // Load payment methods for this event with cache busting
+      const timestamp = new Date().getTime()
+      axios.get(`/api/mercadopago/payment-methods/event/${this.eventId}?t=${timestamp}`, {
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      })
         .then(response => {
           if (response.data.status) {
             this.availableMethods = response.data.data
