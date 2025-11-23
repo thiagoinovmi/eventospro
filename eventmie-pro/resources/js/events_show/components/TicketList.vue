@@ -233,19 +233,8 @@
                                         </div>    
                                     </div>
                                     
-                                    <div class="col-12 mt-2 pb-4">
-                                        <div class="d-grid">
-                                            <div class="btn-group btn-group-md btn-block  btn-group-justified">
-                                                <button :class="{ 'disabled' : disable }" :disabled="disable" type="button" class="btn btn-success btn-lg btn-block" @click="bookTickets()">
-                                                    <i :class="payment_method == 2 ? 'fas fa-lock' : 'fas fa-cash-register'"></i> 
-                                                    {{ trans('em.checkout') }}
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-
                                     <!-- Mercado Pago Checkout Form -->
-                                    <div class="col-12 mt-4" v-if="payment_method == 2">
+                                    <div class="col-12 mt-4" v-if="payment_method == 2 && total > 0">
                                         <mercadopago-checkout
                                             :event="event"
                                             :tickets="tickets"
@@ -258,6 +247,18 @@
                                                 end_time: end_time
                                             }"
                                         />
+                                    </div>
+
+                                    <!-- Checkout Button - Positioned Below Form -->
+                                    <div class="col-12 mt-2 pb-4">
+                                        <div class="d-grid">
+                                            <div class="btn-group btn-group-md btn-block  btn-group-justified">
+                                                <button :class="{ 'disabled' : disable }" :disabled="disable" type="button" class="btn btn-success btn-lg btn-block" @click="bookTickets()">
+                                                    <i :class="payment_method == 2 ? 'fas fa-lock' : 'fas fa-cash-register'"></i> 
+                                                    {{ trans('em.checkout') }}
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -398,6 +399,13 @@ export default {
             // prepare form data for post request
             this.disable = true;
 
+            // Se for ingresso gratuito, processar direto sem pagamento
+            if(this.total <= 0) {
+                // Processar como ingresso gratuito
+                this.processFreeTickets();
+                return;
+            }
+
             // Se for Mercado Pago, mostrar formulário em vez de redirecionar
             if(this.payment_method == 2) {
                 // hide loader
@@ -492,6 +500,45 @@ export default {
             if (element) {
                 element.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
+        },
+
+        processFreeTickets() {
+            // Processar ingressos gratuitos sem pagamento
+            let post_url = route('eventmie.bookings_book_tickets');
+            let post_data = new FormData(this.$refs.form);
+            
+            // Adicionar payment_method como 'free' ou 'offline'
+            post_data.set('payment_method', 'offline');
+            
+            axios.post(post_url, post_data)
+            .then(res => {
+                // hide loader
+                Swal.hideLoading();
+
+                if(res.data.status && res.data.message != '' && typeof(res.data.message) != "undefined") {
+                    // close popup
+                    this.close();
+                    this.showNotification('success', res.data.message);
+                    
+                    // Redirecionar se houver URL
+                    if(res.data.url != '' && typeof(res.data.url) != "undefined") {
+                        setTimeout(() => {
+                            window.location.href = res.data.url;    
+                        }, 1000);
+                    }
+                } else if(!res.data.status && res.data.message != '') {
+                    this.close();
+                    this.showNotification('error', res.data.message);
+                }
+            })
+            .catch(error => {
+                this.disable = false;
+                Swal.hideLoading();
+                let serrors = Vue.helpers.axiosErrors(error);
+                if (serrors.length) {
+                    this.serverValidate(serrors);
+                }
+            });
         },
         
 
