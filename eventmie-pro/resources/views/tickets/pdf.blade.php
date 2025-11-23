@@ -178,7 +178,7 @@
                                     <p class="value-data text-small">
                                         {{ \Carbon\Carbon::parse($booking['event_start_date'] . ' ' . $booking['event_start_time'])->format('D, M d Y, h:i A') }}
                                         - 
-                                        {{ \Carbon\Carbon::parse($booking['event_end_date'] . ' ' . $booking['event_end_time'])->format('h:i A') }} {{ showTimezone() }}
+                                        {{ \Carbon\Carbon::parse($booking['event_end_date'] . ' ' . $booking['event_end_time'])->format('h:i A') }} ({{ \Carbon\Carbon::now()->timezoneName }})
                                     </p>
                                     <p class="value-data text-smaller" style="color: #737373;">{{ ucfirst($event->venue) }} | {{ ucfirst($event->address) }}</p>
 

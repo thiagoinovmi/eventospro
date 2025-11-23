@@ -445,6 +445,7 @@ return [
     'all_event'                       => 'Todos os eventos',
     'booking_date'                    => 'Data da Reserva',
     'customer_email'                  => 'Email do cliente',
+    'buyer'                           => 'Comprador',
     'online_event'                    => 'Evento Online',
     'days_left'                       => 'Dias restantes',
     'repetitive_daily'                => 'Diário Repetitivo',
