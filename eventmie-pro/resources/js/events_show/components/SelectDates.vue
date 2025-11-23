@@ -353,6 +353,7 @@
             :is_organiser="is_organiser"
             :is_customer="is_customer"
             :is_paypal="is_paypal"
+            :is_mercadopago="is_mercadopago"
             :is_offline_payment_organizer="is_offline_payment_organizer"
             :is_offline_payment_customer="is_offline_payment_customer"
             :booked_tickets="booked_tickets"
@@ -379,6 +380,7 @@ export default {
         'is_organiser',
         'is_customer',
         'is_paypal',
+        'is_mercadopago',
         'is_offline_payment_organizer',
         'is_offline_payment_customer',
         'tickets',
