@@ -235,6 +235,7 @@
                                     <!-- Mercado Pago Checkout Form -->
                                     <div class="col-12 mt-4" v-if="payment_method == 2 && total > 0">
                                         <mercadopago-checkout
+                                            ref="mercadoPagoCheckout"
                                             :event="event"
                                             :tickets="tickets"
                                             :total="total"
@@ -431,17 +432,18 @@ export default {
                 return;
             }
 
-            // Se for Mercado Pago, mostrar formulário em vez de redirecionar
+            // Se for Mercado Pago, processar pagamento
             if(this.payment_method == 2) {
-                console.log('Mercado Pago selecionado - mostrando formulário');
+                console.log('Mercado Pago selecionado - processando pagamento');
                 // hide loader
                 Swal.hideLoading();
                 
-                // Fechar o modal
-                this.close();
-                
-                // Mostrar formulário de Mercado Pago
-                this.scrollToMercadoPagoForm();
+                // Chamar método de processamento do componente MercadoPagoCheckout
+                if(this.$refs.mercadoPagoCheckout) {
+                    this.$refs.mercadoPagoCheckout.processPayment();
+                } else {
+                    console.error('MercadoPagoCheckout ref não encontrado');
+                }
                 this.disable = false;
                 return;
             }

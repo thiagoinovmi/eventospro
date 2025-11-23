@@ -315,6 +315,57 @@ export default {
             }
 
             return isValid;
+        },
+
+        async processPayment() {
+            console.log('=== PROCESS PAYMENT INICIADO ===');
+            console.log('selectedMethod:', this.selectedMethod);
+            console.log('cardData:', this.cardData);
+            
+            if (!this.validateForm()) {
+                this.$emit('error', 'Por favor, preencha todos os campos corretamente');
+                return;
+            }
+
+            this.errorMessage = '';
+
+            try {
+                // Prepare payment data
+                const paymentData = {
+                    event_id: this.event.id,
+                    booking_date: this.bookingData.booking_date,
+                    booking_end_date: this.bookingData.booking_end_date,
+                    start_time: this.bookingData.start_time,
+                    end_time: this.bookingData.end_time,
+                    payment_method: 'mercadopago',
+                    selected_method: this.selectedMethod,
+                    card_data: ['credit_card', 'debit_card'].includes(this.selectedMethod) ? this.cardData : null,
+                    total: this.total
+                };
+
+                console.log('Enviando dados para:', route('eventmie.mercadopago_process'));
+                console.log('Dados:', paymentData);
+
+                // Send payment request
+                const response = await axios.post(route('eventmie.mercadopago_process'), paymentData);
+
+                console.log('Resposta recebida:', response.data);
+
+                if (response.data.status) {
+                    this.$emit('success', response.data.message || 'Pagamento processado com sucesso!');
+                    
+                    // Redirect after success
+                    setTimeout(() => {
+                        window.location.href = route('eventmie.booking_confirmation', { id: response.data.booking_id });
+                    }, 2000);
+                } else {
+                    this.$emit('error', response.data.message || 'Erro ao processar pagamento');
+                }
+            } catch (error) {
+                console.error('Payment error:', error);
+                console.error('Resposta de erro:', error.response);
+                this.$emit('error', error.response?.data?.message || 'Erro ao processar pagamento. Tente novamente.');
+            }
         }
 
     }
