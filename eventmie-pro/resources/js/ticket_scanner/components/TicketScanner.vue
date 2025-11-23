@@ -29,7 +29,7 @@
                 </div>
                 <div v-if="manualError" class="scanner-error-message">{{ manualError }}</div>
                 <div class="d-flex justify-content-center mt-3">
-                    <button class="btn btn-secondary px-4 py-2" @click="refreshPage">
+                    <button class="btn btn-dark px-4 py-2" @click="refreshPage">
                         <i class="fas fa-sync-alt me-2"></i>{{ trans('em.scan_another_ticket') }}
                     </button>
                 </div>
@@ -57,8 +57,8 @@
                         <div class="scanner-customer-name text-dark">{{ resultData.customer_name }}</div>
                         <div class="scanner-customer-email text-dark">{{ resultData.customer_email }}</div>
                     </div>
-                    <div v-if="resultType === 'warning'" class="d-flex justify-content-center mt-3">
-                        <button class="btn btn-secondary px-4 py-2" @click="refreshPage">
+                    <div class="d-flex justify-content-center mt-3">
+                        <button class="btn btn-dark px-4 py-2" @click="refreshPage">
                             <i class="fas fa-sync-alt me-2"></i>{{ trans('em.scan_another_ticket') }}
                         </button>
                     </div>
@@ -74,8 +74,8 @@
         </div>
 
         <!-- Camera/Scanner -->
-        <div class="row scanner-wrapper" v-else>
-            <div class="col-12" style="height: 90vh;">
+        <div class="scanner-wrapper" v-else>
+            <div class="scanner-container">
                 <div v-if="errorMessage" class="alert alert-danger m-3" role="alert">
                     <i class="fas fa-exclamation-circle me-2"></i>
                     <strong>{{ trans('em.error') }}:</strong> {{ errorMessage }}
@@ -319,15 +319,27 @@ export default {
 
 <style scoped>
 .scanner-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     width: 100%;
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
     background-color: #000;
+    z-index: 1000;
 }
 
-.scanner-wrapper .col-12 {
+.scanner-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -337,22 +349,25 @@ export default {
 
 /* QRCode Stream Styles */
 ::v-deep .qrcode-stream {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
 ::v-deep .qrcode-stream video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
 }
 
 ::v-deep .qrcode-stream__camera {
-    width: 100%;
-    height: 100%;
+    width: 100% !important;
+    height: 100% !important;
 }
 
 /* Scanner Result Overlay */
