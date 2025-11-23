@@ -4,8 +4,8 @@
 
 **Data Início:** 23 de Novembro de 2025  
 **Status:** EM PROGRESSO  
-**Fase Atual:** 5 - Backend - Webhooks  
-**Progresso Geral:** 4/12 (33%)  
+**Fase Atual:** 6 - Backend - Reembolsos  
+**Progresso Geral:** 5/12 (42%)  
 
 ---
 
@@ -75,14 +75,17 @@
 
 ---
 
-### **FASE 5: Backend - Webhooks** ⏳ PENDENTE
-- [ ] Criar `MercadoPagoWebhookController`
-- [ ] Implementar processamento de webhooks
-- [ ] Validar assinatura
-- [ ] Atualizar status de transações
-- [ ] Criar rotas
+### **FASE 5: Backend - Webhooks** ✅ CONCLUÍDA
+- [x] Verificar webhook methods no `MercadoPagoController` ✅
+- [x] Implementar processamento de webhooks ✅
+- [x] Validar assinatura de webhooks ✅
+- [x] Atualizar status de transações ✅
+- [x] Criar rotas ✅
+- [x] Documentar webhooks ✅
 
 **Tempo Estimado:** 2-3 horas  
+**Tempo Decorrido:** 0.5 horas  
+**Status:** ✅ CONCLUÍDA  
 
 ---
 
@@ -167,30 +170,30 @@
 | 2 | ✅ CONCLUÍDA | 100% |
 | 3 | ✅ CONCLUÍDA | 100% |
 | 4 | ✅ CONCLUÍDA | 100% |
-| 5 | ⏳ EM PROGRESSO | 0% |
-| 6 | ⏳ PENDENTE | 0% |
+| 5 | ✅ CONCLUÍDA | 100% |
+| 6 | ⏳ EM PROGRESSO | 0% |
 | 7 | ⏳ PENDENTE | 0% |
 | 8 | ⏳ PENDENTE | 0% |
 | 9 | ⏳ PENDENTE | 0% |
 | 10 | ⏳ PENDENTE | 0% |
 | 11 | ⏳ PENDENTE | 0% |
 | 12 | ⏳ PENDENTE | 0% |
-| **TOTAL** | | **33%** |
+| **TOTAL** | | **42%** |
 
 ---
 
 ## 🎯 PRÓXIMA AÇÃO
 
-**Iniciando FASE 5: Backend - Webhooks**
+**Iniciando FASE 6: Backend - Reembolsos**
 
 Vou criar:
-1. Verificar webhook methods no `MercadoPagoController`
-2. Implementar processamento de webhooks
-3. Validar assinatura de webhooks
-4. Atualizar status de transações
-5. Testar webhooks
+1. Verificar métodos de reembolso no `MercadoPagoController`
+2. Implementar lógica de reembolso
+3. Implementar validações
+4. Integrar com webhooks
+5. Testar reembolsos
 
 ---
 
-**Última Atualização:** 23 de Novembro de 2025 - 16:32  
+**Última Atualização:** 23 de Novembro de 2025 - 16:34  
 **Atualizado por:** Sistema de Progresso
