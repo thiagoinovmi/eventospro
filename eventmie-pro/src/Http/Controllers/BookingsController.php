@@ -1289,12 +1289,18 @@ class BookingsController extends Controller
                 // Create booking in database
                 $bookingData = [
                     'event_id' => $validated['event_id'],
-                    'user_id' => Auth::id(),
-                    'booking_date' => $validated['booking_date'],
-                    'total_amount' => $validated['total'],
-                    'payment_method' => 2, // Mercado Pago
-                    'payment_status' => 'pending',
-                    'transaction_id' => 'MP_' . time() . '_' . Auth::id()
+                    'customer_id' => Auth::id(),
+                    'ticket_id' => 1, // TODO: Get actual ticket ID from request
+                    'quantity' => 1, // TODO: Get actual quantity from request
+                    'price' => $validated['total'],
+                    'status' => 1, // Approved
+                    'transaction_id' => 'MP_' . time() . '_' . Auth::id(),
+                    'customer_name' => Auth::user()->name,
+                    'customer_email' => Auth::user()->email,
+                    'event_title' => 'Event', // TODO: Get from event
+                    'ticket_title' => 'Ticket', // TODO: Get from ticket
+                    'event_category' => 'Category', // TODO: Get from event
+                    'currency' => 'BRL'
                 ];
                 
                 $newBooking = $this->booking->create($bookingData);
