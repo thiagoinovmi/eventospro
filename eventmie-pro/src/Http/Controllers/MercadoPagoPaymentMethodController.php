@@ -140,7 +140,9 @@ class MercadoPagoPaymentMethodController extends \App\Http\Controllers\Controlle
             return response()->json([
                 'status' => true,
                 'data' => $formattedMethods
-            ]);
+            ])->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+              ->header('Pragma', 'no-cache')
+              ->header('Expires', '0');
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'status' => false,
