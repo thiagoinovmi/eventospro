@@ -240,6 +240,22 @@
                                             </div>
                                         </div>
                                     </div>
+
+                                    <!-- Mercado Pago Checkout Form -->
+                                    <div class="col-12 mt-4" v-if="payment_method == 2">
+                                        <mercadopago-checkout
+                                            :event="event"
+                                            :tickets="tickets"
+                                            :total="total"
+                                            :currency="currency"
+                                            :booking-data="{
+                                                booking_date: booking_date,
+                                                booking_end_date: booking_end_date,
+                                                start_time: start_time,
+                                                end_time: end_time
+                                            }"
+                                        />
+                                    </div>
                                 </div>
 
                                 <!-- Action -->
@@ -280,7 +296,7 @@ export default {
     ],
 
     components: {
-        
+        'mercadopago-checkout': () => import('./MercadoPagoCheckout.vue')
     },
     props : [
         'tickets', 
@@ -368,6 +384,17 @@ export default {
             // prepare form data for post request
             this.disable = true;
 
+            // Se for Mercado Pago, mostrar formulário em vez de redirecionar
+            if(this.payment_method == 2) {
+                // hide loader
+                Swal.hideLoading();
+                
+                // Mostrar formulário de Mercado Pago
+                this.showMercadoPagoCheckout();
+                this.disable = false;
+                return;
+            }
+
             let post_url = route('eventmie.bookings_book_tickets');
             let post_data = new FormData(this.$refs.form);
             
@@ -408,10 +435,8 @@ export default {
                     // close popup
                     this.close();
                     
-                    // Redirect to Mercado Pago checkout
-                    setTimeout(() => {
-                        window.location.href = route('eventmie.mercadopago_checkout');    
-                    }, 500);
+                    // Mostrar formulário de Mercado Pago
+                    this.showMercadoPagoCheckout();
                 }
 
                 if(res.data.url != '' && res.data.status  && typeof(res.data.url) != "undefined") {
@@ -443,6 +468,16 @@ export default {
                     
                     this.serverValidate(serrors);
                     
+                }
+            });
+        },
+
+        showMercadoPagoCheckout() {
+            // Scroll para o formulário
+            this.$nextTick(() => {
+                const element = document.querySelector('.mercadopago-checkout-container');
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
             });
         },
