@@ -344,15 +344,32 @@ class EventsController extends Controller
         // if have mercado pago keys and it's enabled then will show mercado pago payment option otherwise hide
         $is_mercadopago = 0;
         
+        $enabled = setting('mercadopago.enabled');
+        $token = setting('mercadopago.access_token');
+        $key = setting('mercadopago.public_key');
+        
+        \Log::info('=== MERCADO PAGO DEBUG ===');
+        \Log::info('enabled: ' . var_export($enabled, true));
+        \Log::info('token empty: ' . (empty($token) ? 'YES' : 'NO'));
+        \Log::info('key empty: ' . (empty($key) ? 'YES' : 'NO'));
+        
         // Check if Mercado Pago is enabled
-        if(!empty(setting('mercadopago.enabled')) && setting('mercadopago.enabled') == 1)
+        if(!empty($enabled) && $enabled == 1)
         {
+            \Log::info('Enabled check passed');
             // Check if access token and public key are configured
-            if(!empty(setting('mercadopago.access_token')) && !empty(setting('mercadopago.public_key')))
+            if(!empty($token) && !empty($key))
             {
+                \Log::info('Token and Key check passed - MERCADO PAGO ENABLED');
                 $is_mercadopago = 1;
+            } else {
+                \Log::info('Token or Key empty - MERCADO PAGO DISABLED');
             }
+        } else {
+            \Log::info('Enabled check failed - MERCADO PAGO DISABLED');
         }
+        
+        \Log::info('is_mercadopago result: ' . $is_mercadopago);
         
         return $is_mercadopago;
         
