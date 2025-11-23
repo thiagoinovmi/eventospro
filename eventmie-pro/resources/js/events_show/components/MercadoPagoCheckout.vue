@@ -181,6 +181,27 @@
             <button type="button" class="btn-close" @click="successMessage = ''" aria-label="Close"></button>
         </div>
 
+        <!-- Submit Button -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <button 
+                    type="button" 
+                    class="btn btn-success btn-lg w-100"
+                    @click="processPayment"
+                    :disabled="isProcessing"
+                >
+                    <span v-if="!isProcessing">
+                        <i class="fas fa-lock me-2"></i>
+                        {{ trans('em.checkout') || 'Confirmar pagamento' }}
+                    </span>
+                    <span v-else>
+                        <i class="fas fa-spinner fa-spin me-2"></i>
+                        {{ trans('em.processing') || 'Processando...' }}
+                    </span>
+                </button>
+            </div>
+        </div>
+
         <!-- Security Info -->
         <div class="mt-4 text-center">
             <small class="text-muted">
@@ -240,7 +261,9 @@ export default {
                 cardExpiry: '',
                 cardCvv: ''
             },
-            errorMessage: ''
+            errorMessage: '',
+            successMessage: '',
+            isProcessing: false
         }
     },
 
@@ -316,6 +339,61 @@ export default {
 
             return isValid;
         },
+
+        async processPayment() {
+            console.log('=== PROCESS PAYMENT INICIADO ===');
+            console.log('selectedMethod:', this.selectedMethod);
+            console.log('cardData:', this.cardData);
+            
+            if (!this.validateForm()) {
+                this.errorMessage = 'Por favor, preencha todos os campos corretamente';
+                return;
+            }
+
+            this.isProcessing = true;
+            this.errorMessage = '';
+            this.successMessage = '';
+
+            try {
+                // Prepare payment data
+                const paymentData = {
+                    event_id: this.event.id,
+                    booking_date: this.bookingData.booking_date,
+                    booking_end_date: this.bookingData.booking_end_date,
+                    start_time: this.bookingData.start_time,
+                    end_time: this.bookingData.end_time,
+                    payment_method: 'mercadopago',
+                    selected_method: this.selectedMethod,
+                    card_data: ['credit_card', 'debit_card'].includes(this.selectedMethod) ? this.cardData : null,
+                    total: this.total
+                };
+
+                console.log('Enviando dados para:', route('eventmie.mercadopago_process'));
+                console.log('Dados:', paymentData);
+
+                // Send payment request
+                const response = await axios.post(route('eventmie.mercadopago_process'), paymentData);
+
+                console.log('Resposta recebida:', response.data);
+
+                if (response.data.status) {
+                    this.successMessage = response.data.message || 'Pagamento processado com sucesso!';
+                    
+                    // Redirect after success
+                    setTimeout(() => {
+                        window.location.href = route('eventmie.booking_confirmation', { id: response.data.booking_id });
+                    }, 2000);
+                } else {
+                    this.errorMessage = response.data.message || 'Erro ao processar pagamento';
+                }
+            } catch (error) {
+                console.error('Payment error:', error);
+                console.error('Resposta de erro:', error.response);
+                this.errorMessage = error.response?.data?.message || 'Erro ao processar pagamento. Tente novamente.';
+            } finally {
+                this.isProcessing = false;
+            }
+        }
 
     }
 }
