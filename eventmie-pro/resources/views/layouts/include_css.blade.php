@@ -14,7 +14,7 @@
 @if (app()->environment('production'))
     @Vite('eventmie-pro/resources/sass/theme.scss')
 @else
-    <link rel="stylesheet" href="{{ asset('build/assets/theme-CchAsjqn.css') }}">
+    <link rel="stylesheet" href="{{ asset('build/assets/theme-oIv5yIpx.css') }}">
 @endif
 
 <!-- Custom CSS -->

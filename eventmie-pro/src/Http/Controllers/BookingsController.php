@@ -1133,13 +1133,33 @@ class BookingsController extends Controller
         
         $currency =  !empty($booking[key($booking)]['currency']) ? $booking[key($booking)]['currency'] : setting('regional.currency_default');
 
+        // PayPal payment method
         if($payment_method == 1)
         {
             if(empty(setting('apps.paypal_secret')) || empty(setting('apps.paypal_client_id')))
                 return response()->json(['status' => false, 'url'=>$url, 'message'=>$msg]); 
         
             return $this->paypal($order, $currency);
-        } 
+        }
+
+        // Mercado Pago payment method
+        if($payment_method == 2)
+        {
+            $mercadoPagoSetting = \App\Models\MercadoPagoSetting::first();
+            
+            if(!$mercadoPagoSetting || !$mercadoPagoSetting->enabled || empty($mercadoPagoSetting->access_token))
+                return response()->json(['status' => false, 'url'=>$url, 'message'=>$msg]);
+            
+            // Store booking data in session for later use
+            session(['mercadopago_booking' => $booking]);
+            session(['mercadopago_order' => $order]);
+            
+            return response()->json([
+                'status' => true,
+                'payment_method' => 'mercadopago',
+                'message' => 'Redirect to Mercado Pago checkout'
+            ]);
+        }
         
     }
 

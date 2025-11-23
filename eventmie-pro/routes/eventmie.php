@@ -353,6 +353,26 @@ Route::group([
         Route::put('/api/payment-methods/{id}', "$controller@updatePaymentMethod")->name('mercadopago_payment_methods_update');
         Route::post('/api/seed-payment-methods', "$controller@seedPaymentMethods")->name('mercadopago_seed_payment_methods');
     });
+
+    /* Mercado Pago Checkout & Payments */
+    Route::prefix('/api/mercadopago')->middleware('auth')->group(function () use ($namespace) {
+        $controller = $namespace.'\MercadoPagoController';
+        
+        // Checkout routes
+        Route::post('/checkout', "$controller@checkout")->name('mercadopago_checkout');
+        Route::post('/process-payment', "$controller@processPayment")->name('mercadopago_process_payment');
+        Route::post('/capture-payment', "$controller@capturePayment")->name('mercadopago_capture_payment');
+        
+        // Refund routes
+        Route::post('/refund', "$controller@refund")->name('mercadopago_refund');
+        
+        // Transaction routes
+        Route::get('/transaction/{transaction_id}', "$controller@getTransaction")->name('mercadopago_get_transaction');
+        Route::get('/transactions', "$controller@listTransactions")->name('mercadopago_list_transactions');
+    });
+
+    /* Mercado Pago Webhook */
+    Route::post('/webhooks/mercadopago', $namespace.'\MercadoPagoController@webhook')->name('mercadopago_webhook');
     
     /* Notification */
     Route::prefix('/notifications')->group(function () use ($namespace)  {

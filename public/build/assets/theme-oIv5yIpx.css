@@ -45255,7 +45255,6 @@ fieldset[disabled] .multiselect {
   position: absolute;
   width: 100%;
   height: 2px;
-  content: "";
   border-bottom: 2px dashed #000;
   top: 0;
   z-index: -1;
