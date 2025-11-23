@@ -503,8 +503,8 @@ return [
     'event_category'                  => 'Categoria de Evento',
     'hide_info'                       => 'Ocultar informações',
     'show_info'                       => 'Mostrar informações',
-    'total_tickets'                   => 'Total de ingressos',
-    'total_order'                     => 'Valor total do pedido',
+    'total_tickets'                   => 'Total de ingressos TESTE',
+    'total_order'                     => 'Valor total do pedido TESTE',
     'create_event'                    => 'Criar Evento',
     'add_tag'                         => 'Adicionar etiqueta',
     'profile_page'                    => 'Página de perfil',
@@ -603,7 +603,7 @@ return [
     'rsvp'                    => 'R.S.V.P',
     
     'accept_terms'            => 'Ao clicar em "Registrar", aceito os <a href="'.route('eventmie.page', ['page'=>'terms']).'" target="_blank">Termos de Serviço</a> e li a <a href="'.route('eventmie.page', ['page'=>'privacy']).'" target="_blank">Política de Privacidade</a>. Concordo que '.config('app.name').' pode compartilhar minhas informações com organizadores de eventos.',
-    'order_terms'             => 'Este pedido está sujeito aos <a href="'.route('eventmie.page', ['page'=>'terms']).'" target="_blank">Termos de Serviço</a> e à <a href="'.route('eventmie.page', ['page'=>'privacy']).'" target="_blank">Política de Privacidade</a> do '.config('app.name').'.',    
+    'order_terms'             => 'TESTE - Este pedido está sujeito aos <a href="'.route('eventmie.page', ['page'=>'terms']).'" target="_blank">Termos de Serviço</a> e à <a href="'.route('eventmie.page', ['page'=>'privacy']).'" target="_blank">Política de Privacidade</a> do '.config('app.name').'.',    
 
     'incorrect_email_password' => 'Senha ou email incorretos',
 
