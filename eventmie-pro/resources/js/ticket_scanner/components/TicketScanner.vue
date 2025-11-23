@@ -84,8 +84,12 @@
                     <i class="fas fa-exclamation-circle me-2"></i>
                     <strong>{{ trans('em.error') }}:</strong> {{ errorMessage }}
                 </div>
-                <qrcode-stream v-if="!is_laser && hide_scanner <= 0" @decode="getOrderNumberFromQRCode" @init="onInit" :constraints="{ facingMode: 'environment' }"></qrcode-stream>
-                <input v-if="is_laser" ref="laserInput" v-model="laser_scanner" @change="getOrderNumberFromLaserInput" @blur="focusLaserInput" class="form-control" :placeholder="trans('em.scan_ticket_on_laser')" autofocus/>
+                <template v-if="!is_laser && hide_scanner <= 0">
+                    <qrcode-stream @decode="getOrderNumberFromQRCode" @init="onInit" :constraints="{ facingMode: 'environment' }"></qrcode-stream>
+                </template>
+                <template v-if="is_laser">
+                    <input ref="laserInput" v-model="laser_scanner" @change="getOrderNumberFromLaserInput" @blur="focusLaserInput" class="form-control" :placeholder="trans('em.scan_ticket_on_laser')" autofocus/>
+                </template>
             </div>
         </div>
     </div>
