@@ -41,6 +41,9 @@
                         <i class="fas fa-check-circle" v-if="resultType === 'success'"></i> 
                         <i class="fas fa-exclamation-triangle" v-if="resultType === 'warning'"></i> 
                         {{ resultType === 'success' ? trans('em.checkin_successful') : trans('em.already_checked_in') }}
+                        <button class="btn btn-dark px-4 py-2 float-end">
+                            <i class="fas fa-sync-alt me-2"></i>{{ trans('em.scan_another_ticket') }}
+                        </button>
                     </div>
                     <div v-for="ticket in resultData.tickets" :key="ticket.ticket_id" class="scanner-ticket-block">
                         <div class="scanner-ticket-badge"><i class="fas fa-ticket"></i> {{ ticket.ticket_title }}</div><br>
@@ -58,7 +61,7 @@
                         <div class="scanner-customer-email text-dark">{{ resultData.customer_email }}</div>
                     </div>
                     <div class="d-flex justify-content-center mt-3">
-                        <button class="btn btn-dark px-4 py-2" @click="refreshPage">
+                        <button class="btn btn-secondary px-4 py-2" @click="refreshPage">
                             <i class="fas fa-sync-alt me-2"></i>{{ trans('em.scan_another_ticket') }}
                         </button>
                     </div>
