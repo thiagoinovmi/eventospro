@@ -255,6 +255,7 @@ class EventsController extends Controller
         }
         
         $is_paypal = $this->is_paypal();
+        $is_mercadopago = $this->is_mercadopago();
 
         // get tickets
         $tickets_data   = $this->get_tickets($event['id']);
@@ -265,7 +266,7 @@ class EventsController extends Controller
 
         return Eventmie::view($view, compact(
             'event', 'tag_groups', 'max_ticket_qty', 'free_tickets', 
-            'ended', 'category', 'country', 'google_map_key', 'is_paypal', 
+            'ended', 'category', 'country', 'google_map_key', 'is_paypal', 'is_mercadopago',
             'tickets', 'currency', 'booked_tickets', 'total_capacity', 'extra'));
     }
 
@@ -333,6 +334,27 @@ class EventsController extends Controller
             $is_paypal = 0;
         
         return $is_paypal;
+        
+    }
+
+    // is_mercadopago
+    
+    protected function is_mercadopago()
+    {
+        // if have mercado pago keys and it's enabled then will show mercado pago payment option otherwise hide
+        $is_mercadopago = 0;
+        
+        // Check if Mercado Pago is enabled
+        if(!empty(setting('mercadopago.enabled')) && setting('mercadopago.enabled') == 1)
+        {
+            // Check if access token and public key are configured
+            if(!empty(setting('mercadopago.access_token')) && !empty(setting('mercadopago.public_key')))
+            {
+                $is_mercadopago = 1;
+            }
+        }
+        
+        return $is_mercadopago;
         
     }
 
