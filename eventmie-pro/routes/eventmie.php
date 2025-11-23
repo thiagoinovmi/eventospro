@@ -354,6 +354,23 @@ Route::group([
         Route::post('/api/seed-payment-methods', "$controller@seedPaymentMethods")->name('mercadopago_seed_payment_methods');
     });
 
+    /* Mercado Pago Payment Methods */
+    Route::prefix('/api/mercadopago/payment-methods')->middleware('auth')->group(function () use ($namespace) {
+        $controller = $namespace.'\MercadoPagoPaymentMethodController';
+        
+        // Global payment methods routes
+        Route::get('/', "$controller@index")->name('mercadopago_payment_methods_index');
+        Route::get('/{id}', "$controller@show")->name('mercadopago_payment_methods_show');
+        Route::put('/{id}', "$controller@update")->name('mercadopago_payment_methods_update_global');
+        
+        // Event payment methods routes
+        Route::get('/event/{eventId}', "$controller@getEventMethods")->name('mercadopago_event_payment_methods_get');
+        Route::post('/event/{eventId}', "$controller@addEventMethod")->name('mercadopago_event_payment_methods_add');
+        Route::put('/event/{eventId}/{methodId}', "$controller@updateEventMethod")->name('mercadopago_event_payment_methods_update');
+        Route::delete('/event/{eventId}/{methodId}', "$controller@removeEventMethod")->name('mercadopago_event_payment_methods_remove');
+        Route::post('/event/{eventId}/initialize', "$controller@initializeEventMethods")->name('mercadopago_event_payment_methods_initialize');
+    });
+
     /* Mercado Pago Checkout & Payments */
     Route::prefix('/api/mercadopago')->middleware('auth')->group(function () use ($namespace) {
         $controller = $namespace.'\MercadoPagoController';

@@ -4,8 +4,8 @@
 
 **Data Início:** 23 de Novembro de 2025  
 **Status:** EM PROGRESSO  
-**Fase Atual:** 3 - Backend - Métodos de Pagamento  
-**Progresso Geral:** 2/12 (17%)  
+**Fase Atual:** 4 - Backend - Checkout  
+**Progresso Geral:** 3/12 (25%)  
 
 ---
 
@@ -47,14 +47,17 @@
 
 ---
 
-### **FASE 3: Backend - Métodos de Pagamento** ⏳ PENDENTE
-- [ ] Criar `MercadoPagoPaymentMethodController`
-- [ ] Implementar CRUD de métodos globais
-- [ ] Implementar CRUD de métodos por evento
-- [ ] Criar validações
-- [ ] Criar rotas
+### **FASE 3: Backend - Métodos de Pagamento** ✅ CONCLUÍDA
+- [x] Criar `MercadoPagoPaymentMethodController` ✅
+- [x] Implementar CRUD de métodos globais ✅
+- [x] Implementar CRUD de métodos por evento ✅
+- [x] Criar validações ✅
+- [x] Criar rotas ✅
+- [x] Testar modelos ✅
 
 **Tempo Estimado:** 2-3 horas  
+**Tempo Decorrido:** 0.5 horas  
+**Status:** ✅ CONCLUÍDA  
 
 ---
 
@@ -159,8 +162,8 @@
 |------|--------|-----------|
 | 1 | ✅ CONCLUÍDA | 100% |
 | 2 | ✅ CONCLUÍDA | 100% |
-| 3 | ⏳ EM PROGRESSO | 0% |
-| 4 | ⏳ PENDENTE | 0% |
+| 3 | ✅ CONCLUÍDA | 100% |
+| 4 | ⏳ EM PROGRESSO | 0% |
 | 5 | ⏳ PENDENTE | 0% |
 | 6 | ⏳ PENDENTE | 0% |
 | 7 | ⏳ PENDENTE | 0% |
@@ -169,22 +172,22 @@
 | 10 | ⏳ PENDENTE | 0% |
 | 11 | ⏳ PENDENTE | 0% |
 | 12 | ⏳ PENDENTE | 0% |
-| **TOTAL** | | **17%** |
+| **TOTAL** | | **25%** |
 
 ---
 
 ## 🎯 PRÓXIMA AÇÃO
 
-**Iniciando FASE 3: Backend - Métodos de Pagamento**
+**Iniciando FASE 4: Backend - Checkout**
 
 Vou criar:
-1. `MercadoPagoPaymentMethodController` com CRUD
-2. Implementar CRUD de métodos globais
-3. Implementar CRUD de métodos por evento
-4. Criar validações
-5. Criar rotas
+1. Verificar `MercadoPagoController` existente
+2. Implementar lógica de criação de pagamento
+3. Implementar validações de dados
+4. Integrar com `BookingsController`
+5. Testar rotas
 
 ---
 
-**Última Atualização:** 23 de Novembro de 2025 - 16:28  
+**Última Atualização:** 23 de Novembro de 2025 - 16:30  
 **Atualizado por:** Sistema de Progresso
