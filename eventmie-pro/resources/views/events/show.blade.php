@@ -173,6 +173,7 @@
                                                     :is_organiser="{{ Auth::id() ? (Auth::user()->hasRole('organiser') ? 1 : 0) : 0 }}"
                                                     :is_admin="{{ Auth::id() ? (Auth::user()->hasRole('admin') ? 1 : 0) : 0 }}"
                                                     :is_paypal="{{ $is_paypal }}"
+                                                    :is_mercadopago="{{ $is_mercadopago }}"
                                                     :is_offline_payment_organizer="{{ setting('booking.offline_payment_organizer') ? 1 : 0 }}"
                                                     :is_offline_payment_customer="{{ setting('booking.offline_payment_customer') ? 1 : 0 }}"
                                                     :tickets="{{ json_encode($tickets, JSON_HEX_APOS) }}"
