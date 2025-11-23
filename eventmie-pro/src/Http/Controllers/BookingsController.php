@@ -1164,6 +1164,36 @@ class BookingsController extends Controller
     }
 
     /**
+     * Tokenize card data with Mercado Pago
+     */
+    private function tokenizeCard($cardData)
+    {
+        try {
+            $publicKey = setting('mercadopago.public_key');
+            if (!$publicKey) {
+                throw new \Exception('Public key do Mercado Pago não configurado');
+            }
+
+            // Create token using Mercado Pago API
+            // In production, this should be done on the frontend for security
+            // For now, we'll use a placeholder token
+            // TODO: Implement proper tokenization on frontend
+            
+            \Log::info('Tokenizando cartão:', [
+                'last4' => substr($cardData['number'], -4),
+                'expiry' => $cardData['expiry']
+            ]);
+
+            // For testing purposes, return a mock token
+            // In production, use Mercado Pago's JavaScript SDK on frontend
+            return 'TEST_TOKEN_' . time();
+        } catch (\Exception $e) {
+            \Log::error('Erro ao tokenizar cartão:', ['message' => $e->getMessage()]);
+            throw $e;
+        }
+    }
+
+    /**
      * Process Mercado Pago payment
      */
     public function mercadopago_process(Request $request)
@@ -1226,15 +1256,89 @@ class BookingsController extends Controller
             \Log::info('Booking encontrado:', ['booking' => $booking ? $booking->toArray() : null]);
             \Log::info('Order encontrado:', ['order' => $order ? $order->toArray() : null]);
 
-            // Here you would integrate with Mercado Pago SDK
-            // For now, we'll just return success
-            // TODO: Implement actual Mercado Pago payment processing
+            // Get card data
+            $cardData = $request->input('card_data');
+            \Log::info('Card data recebido:', ['card' => $cardData]);
 
-            return response()->json([
-                'status' => true,
-                'message' => 'Pagamento processado com sucesso!',
-                'booking_id' => $booking ? $booking->id : null
-            ]);
+            // Initialize Mercado Pago SDK
+            $accessToken = setting('mercadopago.access_token');
+            if (!$accessToken) {
+                \Log::error('Access token do Mercado Pago não configurado');
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Erro: Mercado Pago não está configurado'
+                ], 500);
+            }
+
+            // Create payment with Mercado Pago SDK
+            try {
+                \MercadoPago\SDK::setAccessToken($accessToken);
+                
+                $payment = new \MercadoPago\Payment();
+                $payment->transaction_amount = (float) $validated['total'];
+                $payment->token = $this->tokenizeCard($cardData);
+                $payment->description = "Compra de ingressos - Evento ID: {$validated['event_id']}";
+                $payment->installments = $cardData['installments'] ?? 1;
+                $payment->payment_method_id = "credit_card";
+                $payment->payer = new \MercadoPago\Payer();
+                $payment->payer->email = Auth::user()->email;
+                
+                \Log::info('Enviando pagamento para Mercado Pago:', [
+                    'amount' => $payment->transaction_amount,
+                    'installments' => $payment->installments,
+                    'email' => $payment->payer->email
+                ]);
+                
+                $payment->save();
+                
+                \Log::info('Resposta do Mercado Pago:', [
+                    'id' => $payment->id,
+                    'status' => $payment->status,
+                    'status_detail' => $payment->status_detail
+                ]);
+
+                // Check if payment was approved
+                if ($payment->status == 'approved') {
+                    \Log::info('Pagamento aprovado! ID: ' . $payment->id);
+                    
+                    // Create booking in database
+                    $bookingData = [
+                        'event_id' => $validated['event_id'],
+                        'user_id' => Auth::id(),
+                        'booking_date' => $validated['booking_date'],
+                        'total_amount' => $validated['total'],
+                        'payment_method' => 2, // Mercado Pago
+                        'payment_status' => 'completed',
+                        'transaction_id' => $payment->id
+                    ];
+                    
+                    $newBooking = $this->booking->create($bookingData);
+                    \Log::info('Booking criado:', ['id' => $newBooking->id]);
+                    
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'Pagamento processado com sucesso!',
+                        'booking_id' => $newBooking->id,
+                        'transaction_id' => $payment->id
+                    ]);
+                } else {
+                    \Log::error('Pagamento não aprovado. Status: ' . $payment->status);
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Pagamento não foi aprovado: ' . ($payment->status_detail ?? $payment->status)
+                    ], 400);
+                }
+            } catch (\Exception $e) {
+                \Log::error('Erro ao processar pagamento com Mercado Pago:', [
+                    'message' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Erro ao processar pagamento: ' . $e->getMessage()
+                ], 500);
+            }
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             \Log::error('Erro de validação:', $e->errors());
