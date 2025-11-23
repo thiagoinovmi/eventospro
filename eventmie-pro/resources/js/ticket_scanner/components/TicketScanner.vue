@@ -415,7 +415,8 @@ export default {
 }
 
 .scanner-ticket-badge {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: #000;
+    color: #fff;
     padding: 8px 12px;
     border-radius: 4px;
     font-weight: bold;
