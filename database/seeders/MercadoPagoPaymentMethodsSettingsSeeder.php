@@ -15,7 +15,7 @@ class MercadoPagoPaymentMethodsSettingsSeeder extends Seeder
         // Mercado Pago Payment Methods Settings
         $settings = [
             [
-                'group' => 'Mercado Pago',
+                'group' => 'MercadoPago',
                 'key' => 'mercadopago.payment_methods.credit_card.enabled',
                 'display_name' => 'Cartão de Crédito - Habilitado',
                 'value' => 1,
@@ -28,7 +28,7 @@ class MercadoPagoPaymentMethodsSettingsSeeder extends Seeder
                 'order' => 10,
             ],
             [
-                'group' => 'Mercado Pago',
+                'group' => 'MercadoPago',
                 'key' => 'mercadopago.payment_methods.credit_card.installments_enabled',
                 'display_name' => 'Cartão de Crédito - Parcelamento',
                 'value' => 1,
@@ -41,7 +41,7 @@ class MercadoPagoPaymentMethodsSettingsSeeder extends Seeder
                 'order' => 11,
             ],
             [
-                'group' => 'Mercado Pago',
+                'group' => 'MercadoPago',
                 'key' => 'mercadopago.payment_methods.credit_card.max_installments',
                 'display_name' => 'Cartão de Crédito - Máx. Parcelas',
                 'value' => 12,
@@ -52,7 +52,7 @@ class MercadoPagoPaymentMethodsSettingsSeeder extends Seeder
                 'order' => 12,
             ],
             [
-                'group' => 'Mercado Pago',
+                'group' => 'MercadoPago',
                 'key' => 'mercadopago.payment_methods.debit_card.enabled',
                 'display_name' => 'Cartão de Débito - Habilitado',
                 'value' => 1,
@@ -65,7 +65,7 @@ class MercadoPagoPaymentMethodsSettingsSeeder extends Seeder
                 'order' => 13,
             ],
             [
-                'group' => 'Mercado Pago',
+                'group' => 'MercadoPago',
                 'key' => 'mercadopago.payment_methods.debit_card.installments_enabled',
                 'display_name' => 'Cartão de Débito - Parcelamento',
                 'value' => 0,
@@ -78,7 +78,7 @@ class MercadoPagoPaymentMethodsSettingsSeeder extends Seeder
                 'order' => 14,
             ],
             [
-                'group' => 'Mercado Pago',
+                'group' => 'MercadoPago',
                 'key' => 'mercadopago.payment_methods.debit_card.max_installments',
                 'display_name' => 'Cartão de Débito - Máx. Parcelas',
                 'value' => 1,
@@ -89,7 +89,7 @@ class MercadoPagoPaymentMethodsSettingsSeeder extends Seeder
                 'order' => 15,
             ],
             [
-                'group' => 'Mercado Pago',
+                'group' => 'MercadoPago',
                 'key' => 'mercadopago.payment_methods.boleto.enabled',
                 'display_name' => 'Boleto - Habilitado',
                 'value' => 1,
@@ -102,7 +102,7 @@ class MercadoPagoPaymentMethodsSettingsSeeder extends Seeder
                 'order' => 16,
             ],
             [
-                'group' => 'Mercado Pago',
+                'group' => 'MercadoPago',
                 'key' => 'mercadopago.payment_methods.boleto.installments_enabled',
                 'display_name' => 'Boleto - Parcelamento',
                 'value' => 0,
@@ -115,7 +115,7 @@ class MercadoPagoPaymentMethodsSettingsSeeder extends Seeder
                 'order' => 17,
             ],
             [
-                'group' => 'Mercado Pago',
+                'group' => 'MercadoPago',
                 'key' => 'mercadopago.payment_methods.boleto.max_installments',
                 'display_name' => 'Boleto - Máx. Parcelas',
                 'value' => 1,
@@ -126,7 +126,7 @@ class MercadoPagoPaymentMethodsSettingsSeeder extends Seeder
                 'order' => 18,
             ],
             [
-                'group' => 'Mercado Pago',
+                'group' => 'MercadoPago',
                 'key' => 'mercadopago.payment_methods.pix.enabled',
                 'display_name' => 'PIX - Habilitado',
                 'value' => 1,
@@ -139,7 +139,7 @@ class MercadoPagoPaymentMethodsSettingsSeeder extends Seeder
                 'order' => 19,
             ],
             [
-                'group' => 'Mercado Pago',
+                'group' => 'MercadoPago',
                 'key' => 'mercadopago.payment_methods.pix.installments_enabled',
                 'display_name' => 'PIX - Parcelamento',
                 'value' => 0,
@@ -152,7 +152,7 @@ class MercadoPagoPaymentMethodsSettingsSeeder extends Seeder
                 'order' => 20,
             ],
             [
-                'group' => 'Mercado Pago',
+                'group' => 'MercadoPago',
                 'key' => 'mercadopago.payment_methods.pix.max_installments',
                 'display_name' => 'PIX - Máx. Parcelas',
                 'value' => 1,
@@ -163,7 +163,7 @@ class MercadoPagoPaymentMethodsSettingsSeeder extends Seeder
                 'order' => 21,
             ],
             [
-                'group' => 'Mercado Pago',
+                'group' => 'MercadoPago',
                 'key' => 'mercadopago.payment_methods.wallet.enabled',
                 'display_name' => 'Carteira Mercado Pago - Habilitado',
                 'value' => 1,
@@ -176,7 +176,7 @@ class MercadoPagoPaymentMethodsSettingsSeeder extends Seeder
                 'order' => 22,
             ],
             [
-                'group' => 'Mercado Pago',
+                'group' => 'MercadoPago',
                 'key' => 'mercadopago.payment_methods.wallet.installments_enabled',
                 'display_name' => 'Carteira Mercado Pago - Parcelamento',
                 'value' => 1,
@@ -189,7 +189,7 @@ class MercadoPagoPaymentMethodsSettingsSeeder extends Seeder
                 'order' => 23,
             ],
             [
-                'group' => 'Mercado Pago',
+                'group' => 'MercadoPago',
                 'key' => 'mercadopago.payment_methods.wallet.max_installments',
                 'display_name' => 'Carteira Mercado Pago - Máx. Parcelas',
                 'value' => 12,

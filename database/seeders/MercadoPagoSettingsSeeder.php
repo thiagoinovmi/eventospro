@@ -15,7 +15,7 @@ class MercadoPagoSettingsSeeder extends Seeder
         // Mercado Pago Settings Group
         $settings = [
             [
-                'group' => 'Mercado Pago',
+                'group' => 'MercadoPago',
                 'key' => 'mercadopago.access_token',
                 'display_name' => 'Access Token',
                 'value' => '',
@@ -26,7 +26,7 @@ class MercadoPagoSettingsSeeder extends Seeder
                 'order' => 1,
             ],
             [
-                'group' => 'Mercado Pago',
+                'group' => 'MercadoPago',
                 'key' => 'mercadopago.public_key',
                 'display_name' => 'Public Key',
                 'value' => '',
@@ -37,7 +37,7 @@ class MercadoPagoSettingsSeeder extends Seeder
                 'order' => 2,
             ],
             [
-                'group' => 'Mercado Pago',
+                'group' => 'MercadoPago',
                 'key' => 'mercadopago.mode',
                 'display_name' => 'Modo de Operação',
                 'value' => 'test',
@@ -52,7 +52,7 @@ class MercadoPagoSettingsSeeder extends Seeder
                 'order' => 3,
             ],
             [
-                'group' => 'Mercado Pago',
+                'group' => 'MercadoPago',
                 'key' => 'mercadopago.webhook_url',
                 'display_name' => 'URL do Webhook',
                 'value' => url('/webhooks/mercadopago'),
@@ -63,7 +63,7 @@ class MercadoPagoSettingsSeeder extends Seeder
                 'order' => 4,
             ],
             [
-                'group' => 'Mercado Pago',
+                'group' => 'MercadoPago',
                 'key' => 'mercadopago.webhook_token',
                 'display_name' => 'Token do Webhook',
                 'value' => '',
@@ -74,7 +74,7 @@ class MercadoPagoSettingsSeeder extends Seeder
                 'order' => 5,
             ],
             [
-                'group' => 'Mercado Pago',
+                'group' => 'MercadoPago',
                 'key' => 'mercadopago.enabled',
                 'display_name' => 'Habilitar Mercado Pago',
                 'value' => 1,
