@@ -80,16 +80,28 @@
         <!-- Camera/Scanner -->
         <div class="scanner-wrapper" v-else>
             <div class="scanner-container">
-                <div v-if="errorMessage" class="alert alert-danger m-3" role="alert">
+                <template v-if="!is_laser && hide_scanner <= 0">
+                    <qrcode-stream @decode="getOrderNumberFromQRCode" @init="onInit" :constraints="{ facingMode: 'environment' }"></qrcode-stream>
+                    <div class="scanner-overlay-info">
+                        <div class="scanner-info-box">
+                            <i class="fas fa-camera me-2"></i>
+                            <span>{{ trans('em.camera_scanner_mode') }}</span>
+                        </div>
+                    </div>
+                </template>
+                <template v-if="is_laser">
+                    <div class="scanner-laser-container">
+                        <div class="scanner-info-box">
+                            <i class="fas fa-barcode me-2"></i>
+                            <span>{{ trans('em.laser_scanner_mode') }}</span>
+                        </div>
+                        <input ref="laserInput" v-model="laser_scanner" @change="getOrderNumberFromLaserInput" @blur="focusLaserInput" class="form-control scanner-laser-input" :placeholder="trans('em.scan_ticket_on_laser')" autofocus/>
+                    </div>
+                </template>
+                <div v-if="errorMessage" class="alert alert-danger m-3 scanner-error-alert" role="alert">
                     <i class="fas fa-exclamation-circle me-2"></i>
                     <strong>{{ trans('em.error') }}:</strong> {{ errorMessage }}
                 </div>
-                <template v-if="!is_laser && hide_scanner <= 0">
-                    <qrcode-stream @decode="getOrderNumberFromQRCode" @init="onInit" :constraints="{ facingMode: 'environment' }"></qrcode-stream>
-                </template>
-                <template v-if="is_laser">
-                    <input ref="laserInput" v-model="laser_scanner" @change="getOrderNumberFromLaserInput" @blur="focusLaserInput" class="form-control" :placeholder="trans('em.scan_ticket_on_laser')" autofocus/>
-                </template>
             </div>
         </div>
     </div>
@@ -366,18 +378,30 @@ export default {
     left: 0 !important;
     width: 100% !important;
     height: 100% !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+    display: block !important;
 }
 
 ::v-deep .qrcode-stream video {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
     width: 100% !important;
     height: 100% !important;
     object-fit: cover !important;
 }
 
 ::v-deep .qrcode-stream__camera {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+::v-deep .qrcode-stream__overlay {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
     width: 100% !important;
     height: 100% !important;
 }
@@ -458,6 +482,65 @@ export default {
     font-weight: bold;
     display: inline-block;
     margin-bottom: 10px;
+}
+
+.scanner-overlay-info {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+}
+
+.scanner-info-box {
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.scanner-laser-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+}
+
+.scanner-laser-input {
+    width: 100%;
+    max-width: 400px;
+    padding: 15px;
+    font-size: 16px;
+    border: 2px solid white;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.scanner-laser-input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.scanner-laser-input:focus {
+    outline: none;
+    border-color: #28a745;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.scanner-error-alert {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    z-index: 100;
 }
 
 .scanner-customer-name {
