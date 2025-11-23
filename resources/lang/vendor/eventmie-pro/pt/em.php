@@ -503,8 +503,8 @@ return [
     'event_category'                  => 'Categoria de Evento',
     'hide_info'                       => 'Ocultar informações',
     'show_info'                       => 'Mostrar informações',
-    'total_tickets'                   => 'Total de bilhetes',
-    'total_order'                     => 'Ordem total',
+    'total_tickets'                   => 'Total de ingressos',
+    'total_order'                     => 'Valor total do pedido',
     'create_event'                    => 'Criar Evento',
     'add_tag'                         => 'Adicionar etiqueta',
     'profile_page'                    => 'Página de perfil',
@@ -602,8 +602,8 @@ return [
     
     'rsvp'                    => 'R.S.V.P',
     
-    'accept_terms'            => 'By clicking "Register", I accept the <a href="'.route('eventmie.page', ['page'=>'terms']).'" target="_blank">Terms of Service</a> and have read the <a href="'.route('eventmie.page', ['page'=>'privacy']).'" target="_blank">Privacy Policy</a>. I agree that '.config('app.name').' may share my information with event organizers.',
-    'order_terms'             => 'This order is subject to '.config('app.name').' <a href="'.route('eventmie.page', ['page'=>'terms']).'" target="_blank">Terms of Service</a> and <a href="'.route('eventmie.page', ['page'=>'privacy']).'" target="_blank">Privacy Policy</a>.',    
+    'accept_terms'            => 'Ao clicar em "Registrar", aceito os <a href="'.route('eventmie.page', ['page'=>'terms']).'" target="_blank">Termos de Serviço</a> e li a <a href="'.route('eventmie.page', ['page'=>'privacy']).'" target="_blank">Política de Privacidade</a>. Concordo que '.config('app.name').' pode compartilhar minhas informações com organizadores de eventos.',
+    'order_terms'             => 'Este pedido está sujeito aos <a href="'.route('eventmie.page', ['page'=>'terms']).'" target="_blank">Termos de Serviço</a> e à <a href="'.route('eventmie.page', ['page'=>'privacy']).'" target="_blank">Política de Privacidade</a> do '.config('app.name').'.',    
 
     'incorrect_email_password' => 'Senha ou email incorretos',
 
