@@ -74,10 +74,13 @@
             return;
         }
         
-        // Try with minimal constraints first
+        // Try with minimal constraints first - no zoom
         var constraints = {
             video: {
-                facingMode: { ideal: 'environment' }
+                facingMode: { ideal: 'environment' },
+                zoom: { ideal: 1 },
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
             },
             audio: false
         };

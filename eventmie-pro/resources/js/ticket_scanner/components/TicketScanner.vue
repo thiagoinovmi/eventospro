@@ -81,7 +81,7 @@
         <div class="scanner-wrapper" v-else>
             <div class="scanner-container">
                 <template v-if="!is_laser && hide_scanner <= 0">
-                    <qrcode-stream @decode="getOrderNumberFromQRCode" @init="onInit" :constraints="{ video: { facingMode: 'environment', zoom: { ideal: 1 } } }"></qrcode-stream>
+                    <qrcode-stream @decode="getOrderNumberFromQRCode" @init="onInit" :constraints="cameraConstraints"></qrcode-stream>
                     <div class="scanner-overlay-info">
                         <div class="scanner-info-box">
                             <i class="fas fa-camera me-2"></i>
@@ -140,6 +140,16 @@ export default {
             manualData: {},
             manualOrderNumber: '',
             manualError: '',
+            // Camera constraints - no zoom
+            cameraConstraints: {
+                video: {
+                    facingMode: { ideal: 'environment' },
+                    zoom: { ideal: 1, min: 1, max: 1 },
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                },
+                audio: false
+            }
         }
     },
     methods: {
