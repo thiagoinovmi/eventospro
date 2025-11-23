@@ -799,4 +799,28 @@ return [
     // Early Check-in
     'scan_on_event_day_only'            => 'Check-in antecipado',
     'scan_on_event_day_only_ie'         => 'Permitir escaneamento e check-in de ingressos apenas no dia do evento. (Se habilitado, os ingressos só podem ser escaneados no dia do evento)',
+    
+    // Mercado Pago
+    'mercadopago_settings'              => 'Configurações Mercado Pago',
+    'mercadopago_access_token'          => 'Token de Acesso',
+    'mercadopago_public_key'            => 'Chave Pública',
+    'mercadopago_mode'                  => 'Modo',
+    'mercadopago_test_mode'             => 'Modo Teste',
+    'mercadopago_production_mode'       => 'Modo Produção',
+    'mercadopago_webhook_url'           => 'URL do Webhook',
+    'mercadopago_webhook_token'         => 'Token do Webhook',
+    'mercadopago_enabled'               => 'Habilitado',
+    'mercadopago_test_connection'       => 'Testar Conexão',
+    'mercadopago_connection_success'    => 'Conexão com Mercado Pago estabelecida com sucesso',
+    'mercadopago_connection_failed'     => 'Erro ao conectar com Mercado Pago',
+    'mercadopago_payment_methods'       => 'Métodos de Pagamento',
+    'mercadopago_credit_card'           => 'Cartão de Crédito',
+    'mercadopago_debit_card'            => 'Cartão de Débito',
+    'mercadopago_boleto'                => 'Boleto Bancário',
+    'mercadopago_pix'                   => 'PIX',
+    'mercadopago_wallet'                => 'Carteira Mercado Pago',
+    'mercadopago_installments'          => 'Parcelamento',
+    'mercadopago_max_installments'      => 'Máximo de Parcelas',
+    'mercadopago_settings_updated'      => 'Configurações atualizadas com sucesso',
+    'mercadopago_method_updated'        => 'Método de pagamento atualizado com sucesso',
 ];
