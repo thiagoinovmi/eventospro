@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace Classiebit\Eventmie\Http\Controllers;
 
 use App\Models\MercadoPagoSetting;
 use App\Models\MercadoPagoPaymentMethod;
@@ -9,7 +9,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use Classiebit\Eventmie\Services\MercadoPagoService;
 
-class MercadoPagoSettingsController extends Controller
+class MercadoPagoSettingsController extends \App\Http\Controllers\Controller
 {
     /**
      * Get Mercado Pago settings

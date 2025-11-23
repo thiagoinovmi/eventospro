@@ -341,6 +341,19 @@ Route::group([
         Route::post('get/sub-organizers', "$controller@get_organizer_users")->name('get_organizer_users');
     });
     
+    /* Mercado Pago Settings */
+    Route::prefix('/dashboard/mercadopago')->group(function () use ($namespace) {
+        $controller = $namespace.'\MercadoPagoSettingsController';
+        
+        // API Routes
+        Route::get('/api/settings', "$controller@getSettings")->name('mercadopago_settings_get');
+        Route::post('/api/settings', "$controller@updateSettings")->name('mercadopago_settings_update');
+        Route::post('/api/test-connection', "$controller@testConnection")->name('mercadopago_test_connection');
+        Route::get('/api/payment-methods', "$controller@getPaymentMethods")->name('mercadopago_payment_methods_get');
+        Route::put('/api/payment-methods/{id}', "$controller@updatePaymentMethod")->name('mercadopago_payment_methods_update');
+        Route::post('/api/seed-payment-methods', "$controller@seedPaymentMethods")->name('mercadopago_seed_payment_methods');
+    });
+    
     /* Notification */
     Route::prefix('/notifications')->group(function () use ($namespace)  {
         
