@@ -160,11 +160,11 @@
                                         <ul class="list-group">
                                             <li class="list-group-item mb-3 rounded border-2">
                                                 <div class="d-flex justify-content-between">
-                                                    <h6 class="my-0"><strong>{{ trans('em.total_tickets') }} TESTE</strong></h6>
+                                                    <h6 class="my-0"><strong>{{ trans('em.total_tickets') }}</strong></h6>
                                                     <strong :class="{'ticket-selected-text': bookedTicketsTotal() > 0 }">{{ bookedTicketsTotal() }}</strong>
                                                 </div>
                                                 <div class="d-flex justify-content-between">
-                                                    <h6 class="my-0"><strong>{{ trans('em.total_order') }} TESTE</strong></h6>
+                                                    <h6 class="my-0"><strong>{{ trans('em.total_order') }}</strong></h6>
                                                     <strong :class="{'ticket-selected-text': bookedTicketsTotal() > 0 }"><small>{{currency}}</small> {{ total }}</strong>
                                                 </div>
                                             </li>
@@ -226,7 +226,7 @@
 
                                                 <p v-if="payment_method == 'offline'" class="text-mute h6 px-3 mt-1"><strong>{{ trans('em.offline_payment_info') }}: </strong><small class="preserve-whitespace" v-html="event.offline_payment_info"></small></p>
 
-                                                <p class="text-mute h6 mt-2 mx-3">TESTE - <span v-html="trans('em.order_terms')"></span></p>
+                                                <p class="text-mute h6 mt-2 mx-3" v-html="trans('em.order_terms')"></p>
                                                 
                                             </div>
                                         </div>    
