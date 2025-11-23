@@ -2266,6 +2266,7 @@ const _sfc_main$3 = {
     "is_organiser",
     "is_customer",
     "is_paypal",
+    "is_mercadopago",
     "is_offline_payment_organizer",
     "is_offline_payment_customer",
     "booked_tickets"
@@ -2331,6 +2332,13 @@ const _sfc_main$3 = {
           setTimeout(() => {
             window.location.href = res.data.url;
           }, 1e3);
+        }
+        if (res.data.payment_method == "mercadopago" && res.data.status) {
+          Swal.hideLoading();
+          this.close();
+          setTimeout(() => {
+            window.location.href = route("eventmie.mercadopago_checkout");
+          }, 500);
         }
         if (res.data.url != "" && res.data.status && typeof res.data.url != "undefined") {
           Swal.hideLoading();
@@ -2591,7 +2599,9 @@ var _sfc_render$3 = function render() {
     } } }, [_vm.ticket_info ? _c("small", [_vm._v(_vm._s(_vm.trans("em.hide_info")))]) : _c("small", [_vm._v(_vm._s(_vm.trans("em.show_info")))])]), _vm.ticket_info ? _c("p", { staticClass: "ticket-info small text-muted" }, [_vm._v(_vm._s(item.description))]) : _vm._e()])]);
   }), 0)])]), _c("div", { staticClass: "row" }, [_c("div", { staticClass: "col-12" }, [_c("p", { staticClass: "mb-2 h6" }, [_vm._v(_vm._s(_vm.trans("em.cart")))]), _c("ul", { staticClass: "list-group" }, [_c("li", { staticClass: "list-group-item mb-3 rounded border-2" }, [_c("div", { staticClass: "d-flex justify-content-between" }, [_c("h6", { staticClass: "my-0" }, [_c("strong", [_vm._v(_vm._s(_vm.trans("em.total_tickets")))])]), _c("strong", { class: { "ticket-selected-text": _vm.bookedTicketsTotal() > 0 } }, [_vm._v(_vm._s(_vm.bookedTicketsTotal()))])]), _c("div", { staticClass: "d-flex justify-content-between" }, [_c("h6", { staticClass: "my-0" }, [_c("strong", [_vm._v(_vm._s(_vm.trans("em.total_order")))])]), _c("strong", { class: { "ticket-selected-text": _vm.bookedTicketsTotal() > 0 } }, [_vm._v(_vm._s(_vm.total) + " "), _c("small", [_vm._v(_vm._s(_vm.currency))])])])])])])]), !_vm.login_user_id ? _c("div", { staticClass: "row" }, [_c("div", { staticClass: "col-12" }, [_c("div", { staticClass: "w-100 mb-3" }, [_c("div", { staticClass: "alert alert-danger" }, [_vm._v(" " + _vm._s(_vm.trans("em.please_login_signup")) + " ")])])])]) : _vm._e(), _vm.bookedTicketsTotal() > 0 && _vm.login_user_id ? _c("div", { staticClass: "row" }, [_c("div", { staticClass: "col-12 payment-options mb-3" }, [_c("div", { staticClass: "border rounded border-1 border-dark list-group-flush px-2 bg-white" }, [_vm.total <= 0 ? _c("div", { staticClass: "d-block my-3 pl-3" }, [_c("div", { staticClass: "radio-inline" }, [_c("input", { staticClass: "custom-control-input", attrs: { "id": "free_order", "name": "free_order", "type": "radio", "checked": "" } }), _c("label", { staticClass: "custom-control-label", attrs: { "for": "free_order" } }, [_vm._v("  "), _c("i", { staticClass: "fas fa-glass-cheers" }), _vm._v(" " + _vm._s(_vm.trans("em.free")))])])]) : _c("div", { staticClass: "d-block my-3 pl-3" }, [_vm.is_admin <= 0 && _vm.is_paypal > 0 ? _c("div", { staticClass: "radio-inline" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.payment_method, expression: "payment_method" }], staticClass: "custom-control-input", attrs: { "type": "radio", "id": "payment_method_paypal", "name": "payment_method", "value": "1" }, domProps: { "checked": _vm._q(_vm.payment_method, "1") }, on: { "change": function($event) {
     _vm.payment_method = "1";
-  } } }), _vm._m(0)]) : _vm._e(), _vm.is_organiser > 0 && _vm.is_offline_payment_organizer > 0 || _vm.is_customer > 0 && _vm.is_offline_payment_customer > 0 || _vm.is_admin > 0 ? _c("div", { staticClass: "radio-inline" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.payment_method, expression: "payment_method" }], staticClass: "custom-control-input", attrs: { "type": "radio", "id": "payment_method_offline", "name": "payment_method", "value": "offline" }, domProps: { "checked": _vm._q(_vm.payment_method, "offline") }, on: { "change": function($event) {
+  } } }), _vm._m(0)]) : _vm._e(), _vm.is_admin <= 0 && _vm.is_mercadopago > 0 ? _c("div", { staticClass: "radio-inline" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.payment_method, expression: "payment_method" }], staticClass: "custom-control-input", attrs: { "type": "radio", "id": "payment_method_mercadopago", "name": "payment_method", "value": "2" }, domProps: { "checked": _vm._q(_vm.payment_method, "2") }, on: { "change": function($event) {
+    _vm.payment_method = "2";
+  } } }), _vm._m(1)]) : _vm._e(), _vm.is_organiser > 0 && _vm.is_offline_payment_organizer > 0 || _vm.is_customer > 0 && _vm.is_offline_payment_customer > 0 || _vm.is_admin > 0 ? _c("div", { staticClass: "radio-inline" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.payment_method, expression: "payment_method" }], staticClass: "custom-control-input", attrs: { "type": "radio", "id": "payment_method_offline", "name": "payment_method", "value": "offline" }, domProps: { "checked": _vm._q(_vm.payment_method, "offline") }, on: { "change": function($event) {
     _vm.payment_method = "offline";
   } } }), _c("label", { staticClass: "custom-control-label", attrs: { "for": "payment_method_offline" } }, [_vm._v("  "), _c("i", { staticClass: "fas fa-suitcase-rolling" }), _vm._v(" " + _vm._s(_vm.trans("em.offline")) + " "), _c("small", [_vm._v("(" + _vm._s(_vm.trans("em.cash_on_arrival")) + ")")])])]) : _vm._e(), _vm.payment_method == "offline" ? _c("p", { staticClass: "text-mute h6 px-3 mt-1" }, [_c("strong", [_vm._v(_vm._s(_vm.trans("em.offline_payment_info")) + ": ")]), _c("small", { staticClass: "preserve-whitespace", domProps: { "innerHTML": _vm._s(_vm.event.offline_payment_info) } })]) : _vm._e(), _c("p", { staticClass: "text-mute h6 mt-2 mx-3", domProps: { "innerHTML": _vm._s(_vm.trans("em.order_terms")) } })])])]), _c("div", { staticClass: "col-12 mt-2 pb-4" }, [_c("div", { staticClass: "d-grid" }, [_c("div", { staticClass: "btn-group btn-group-md btn-block btn-group-justified" }, [_c("button", { staticClass: "btn btn-success btn-lg btn-block", class: { "disabled": _vm.disable }, attrs: { "disabled": _vm.disable, "type": "button" }, on: { "click": function($event) {
     return _vm.bookTickets();
@@ -2602,6 +2612,9 @@ var _sfc_render$3 = function render() {
 var _sfc_staticRenderFns$3 = [function() {
   var _vm = this, _c = _vm._self._c;
   return _c("label", { staticClass: "custom-control-label", attrs: { "for": "payment_method_paypal" } }, [_vm._v("  "), _c("i", { staticClass: "fab fa-paypal" }), _vm._v(" PayPal")]);
+}, function() {
+  var _vm = this, _c = _vm._self._c;
+  return _c("label", { staticClass: "custom-control-label", attrs: { "for": "payment_method_mercadopago" } }, [_vm._v("  "), _c("i", { staticClass: "fas fa-credit-card" }), _vm._v(" Mercado Pago")]);
 }];
 var __component__$3 = /* @__PURE__ */ normalizeComponent(
   _sfc_main$3,
@@ -3452,4 +3465,4 @@ window.app = new Vue({
     GComponent
   }
 });
-//# sourceMappingURL=index-aHq7pFuI.js.map
+//# sourceMappingURL=index-CURoE0zQ.js.map

@@ -373,6 +373,11 @@ Route::group([
 
     /* Mercado Pago Webhook */
     Route::post('/webhooks/mercadopago', $namespace.'\MercadoPagoController@webhook')->name('mercadopago_webhook');
+
+    /* Mercado Pago Checkout Page */
+    Route::get('/mercadopago/checkout', function() {
+        return view('eventmie-pro::mercadopago.checkout');
+    })->middleware('auth')->name('mercadopago_checkout');
     
     /* Notification */
     Route::prefix('/notifications')->group(function () use ($namespace)  {

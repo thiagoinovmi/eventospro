@@ -205,6 +205,12 @@
                                                     <label class="custom-control-label" for="payment_method_paypal"> &nbsp;<i class="fab fa-paypal"></i> PayPal</label>
                                                 </div>
 
+                                                <!-- Mercado Pago -->
+                                                <div class="radio-inline" v-if="is_admin <= 0 && is_mercadopago > 0">
+                                                    <input type="radio" class="custom-control-input" id="payment_method_mercadopago" name="payment_method" v-model="payment_method" value="2" >
+                                                    <label class="custom-control-label" for="payment_method_mercadopago"> &nbsp;<i class="fas fa-credit-card"></i> Mercado Pago</label>
+                                                </div>
+
                                                 
                                                 <!-- For Admin & Organizer & Customer -->
                                                 <div class="radio-inline" 
@@ -286,6 +292,7 @@ export default {
         'is_organiser',
         'is_customer',
         'is_paypal',
+        'is_mercadopago',
         'is_offline_payment_organizer',
         'is_offline_payment_customer',
         'booked_tickets',
@@ -380,6 +387,21 @@ export default {
                     setTimeout(() => {
                         window.location.href = res.data.url;    
                     }, 1000);
+                }
+
+                // Mercado Pago payment method
+                if(res.data.payment_method == 'mercadopago' && res.data.status) {
+                    
+                    // hide loader
+                    Swal.hideLoading();
+
+                    // close popup
+                    this.close();
+                    
+                    // Redirect to Mercado Pago checkout
+                    setTimeout(() => {
+                        window.location.href = route('eventmie.mercadopago_checkout');    
+                    }, 500);
                 }
 
                 if(res.data.url != '' && res.data.status  && typeof(res.data.url) != "undefined") {
