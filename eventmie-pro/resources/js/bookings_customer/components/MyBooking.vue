@@ -54,7 +54,7 @@
                                     </td>
                                     
                                     <td class="align-middle" :data-title="trans('em.ticket')"><i class="fas fa-ticket"></i> {{ booking.ticket_title }} <strong>{{ ' x '+booking.quantity }}</strong></td>
-                                    <td class="align-middle" :data-title="trans('em.order_total')">{{ booking.net_price+' '+ currency }} </td>
+                                    <td class="align-middle" :data-title="trans('em.order_total')">{{ currency + ' ' + (booking.net_price || '0.00') }} </td>
                                     <td class="align-middle" :data-title="trans('em.booked_on')">{{ moment(userTimezone(booking.created_at, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD')).format(date_format.vue_date_format) }} {{ showTimezone() }}</td>
                                     <td class="align-middle text-capitalize" :data-title="trans('em.payment')">
                                         <span class="badge bg-secondary text-white" v-if="booking.payment_type == 'offline'">

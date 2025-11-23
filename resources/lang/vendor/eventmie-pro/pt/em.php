@@ -504,7 +504,7 @@ return [
     'hide_info'                       => 'Ocultar informações',
     'show_info'                       => 'Mostrar informações',
     'total_tickets'                   => 'Total de ingressos',
-    'total_order'                     => 'Valor total do pedido',
+    'total_order'                     => 'Valor total',
     'create_event'                    => 'Criar Evento',
     'add_tag'                         => 'Adicionar etiqueta',
     'profile_page'                    => 'Página de perfil',

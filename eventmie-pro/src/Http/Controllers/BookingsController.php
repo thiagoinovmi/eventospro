@@ -1286,21 +1286,45 @@ class BookingsController extends Controller
                 // TODO: Implement proper Mercado Pago payment tokenization on frontend
                 // The actual payment should be processed using Mercado Pago's JavaScript SDK
                 
-                // Create booking in database
+                // Get event and ticket information
+                $event = \Classiebit\Eventmie\Models\Event::find($validated['event_id']);
+                $ticket = \Classiebit\Eventmie\Models\Ticket::where('event_id', $validated['event_id'])->first();
+                
+                if (!$event) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Evento não encontrado'
+                    ], 404);
+                }
+                
+                if (!$ticket) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Ingresso não encontrado'
+                    ], 404);
+                }
+                
+                // Create booking in database with correct event and ticket information
                 $bookingData = [
                     'event_id' => $validated['event_id'],
                     'customer_id' => Auth::id(),
-                    'ticket_id' => 1, // TODO: Get actual ticket ID from request
+                    'ticket_id' => $ticket->id,
                     'quantity' => 1, // TODO: Get actual quantity from request
                     'price' => $validated['total'],
                     'status' => 1, // Approved
                     'transaction_id' => 'MP_' . time() . '_' . Auth::id(),
                     'customer_name' => Auth::user()->name,
                     'customer_email' => Auth::user()->email,
-                    'event_title' => 'Event', // TODO: Get from event
-                    'ticket_title' => 'Ticket', // TODO: Get from ticket
-                    'event_category' => 'Category', // TODO: Get from event
-                    'currency' => 'BRL'
+                    'event_title' => $event->title,
+                    'event_start_date' => $event->start_date,
+                    'event_end_date' => $event->end_date,
+                    'event_start_time' => $event->start_time,
+                    'event_end_time' => $event->end_time,
+                    'ticket_title' => $ticket->title,
+                    'ticket_price' => $ticket->price,
+                    'event_category' => $event->category_id,
+                    'currency' => 'BRL',
+                    'is_paid' => 1
                 ];
                 
                 $newBooking = $this->booking->create($bookingData);
