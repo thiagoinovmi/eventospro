@@ -254,7 +254,7 @@
                                         <div class="d-grid">
                                             <div class="btn-group btn-group-md btn-block  btn-group-justified">
                                                 <button :class="{ 'disabled' : disable }" :disabled="disable" type="button" class="btn btn-success btn-lg btn-block" @click="bookTickets()">
-                                                    <i :class="payment_method == 2 ? 'fas fa-lock' : 'fas fa-cash-register'"></i> 
+                                                    <i class="fas fa-lock"></i> 
                                                     {{ trans('em.checkout') }}
                                                 </button>
                                             </div>

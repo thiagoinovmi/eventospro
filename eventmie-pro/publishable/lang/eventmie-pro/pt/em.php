@@ -155,7 +155,7 @@ return [
     'transaction'                     => 'Transação',
     'tax'                             => 'Imposto',
     'taxes'                           => 'Impostos',
-    'checkout'                        => 'Confira',
+    'checkout'                        => 'Confirmar pagamento',
     'out_of_stock'                    => 'Fora de estoque',
     'select_a_ticket'                 => 'Selecione pelo menos um bilhete',
     'bookings_over'                   => 'Reservas encerradas',
