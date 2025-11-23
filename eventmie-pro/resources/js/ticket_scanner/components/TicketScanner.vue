@@ -25,6 +25,10 @@
                     <button v-if="!manualData.is_checked_in" class="btn btn-lg btn-success px-5 py-3 fw-bold" :disabled="processing" @click="verifyAndCheckinManual"><i class="fas fa-circle-check"></i> {{ trans('em.verify_and_checkin') }}</button>
                     <div v-else class="alert alert-warning mb-0">
                         <i class="fas fa-info-circle me-2"></i>{{ trans('em.ticket_already_checked_in') }}
+                        <br>
+                        <small v-if="manualData.previous_checkin_date && manualData.previous_checkin_time" class="text-muted">
+                            {{ trans('em.checked_in_at') }}: {{ manualData.previous_checkin_date }} {{ manualData.previous_checkin_time }}
+                        </small>
                     </div>
                 </div>
                 <div v-if="manualError" class="scanner-error-message">{{ manualError }}</div>

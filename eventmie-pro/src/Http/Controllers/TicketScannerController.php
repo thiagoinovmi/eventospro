@@ -297,6 +297,9 @@ class TicketScannerController extends Controller
 
         // Check if any of the bookings are already checked in
         $isCheckedIn = false;
+        $previousCheckinDate = null;
+        $previousCheckinTime = null;
+        
         foreach ($bookings as $booking) {
             $checkin = Checkin::where([
                 'event_id' => $booking->event_id,
@@ -306,6 +309,9 @@ class TicketScannerController extends Controller
             
             if ($checkin) {
                 $isCheckedIn = true;
+                // Format the previous check-in date and time
+                $previousCheckinDate = Carbon::parse($checkin->event_start_date)->format('d/m/Y');
+                $previousCheckinTime = Carbon::parse($checkin->check_in_time)->format('H:i');
                 break;
             }
         }
@@ -320,6 +326,8 @@ class TicketScannerController extends Controller
             'checkin_date' => $checkinDate,
             'checkin_time' => $checkinTime,
             'is_checked_in' => $isCheckedIn,
+            'previous_checkin_date' => $previousCheckinDate,
+            'previous_checkin_time' => $previousCheckinTime,
             'tickets' => $tickets
         ]);
     }
