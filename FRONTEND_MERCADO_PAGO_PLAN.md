@@ -388,13 +388,14 @@ Redirecionar para sucesso/erro
 - [ ] Integrar na tela de edição de eventos
 - [ ] Testar API calls
 
-### **Fase 7.3: Checkout Transparente**
-- [ ] Criar view blade checkout
-- [ ] Criar componente Vue CheckoutMercadoPago
-- [ ] Integrar SDK do Mercado Pago
-- [ ] Criar componente PaymentForm
-- [ ] Testar validações
-- [ ] Testar integração com SDK
+### **Fase 8: Checkout Transparente** ⏳ EM PROGRESSO
+- [x] Criar componente Vue CheckoutMercadoPago ✅
+- [x] Integrar SDK do Mercado Pago ✅
+- [x] Implementar validações ✅
+- [x] Implementar máscaras de entrada ✅
+- [ ] Integrar no TicketList.vue
+- [ ] Testar fluxo completo
+- [ ] Testar com credenciais de produção
 
 ### **Fase 7.4: Painel do Usuário**
 - [ ] Criar view blade transactions
