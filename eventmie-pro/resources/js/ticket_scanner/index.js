@@ -8,9 +8,7 @@ import "../vue_common.js"
 /**
  * Local Third-party Lib Imports
  */
-/* Instances */
 import VueQrcodeReader from "vue-qrcode-reader";
-window.VueQrcodeReader = VueQrcodeReader;
 Vue.use(VueQrcodeReader);
 
 /**

@@ -90,8 +90,12 @@
 <script>
 import mixinsFilters from '../../mixins';
 import axios from 'axios';
+import { QrcodeStream } from 'vue-qrcode-reader';
 
 export default {
+    components: {
+        QrcodeStream
+    },
     mixins:[
         mixinsFilters
     ],
@@ -307,3 +311,142 @@ export default {
     }
 }
 </script>
+
+<style scoped>
+.scanner-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #000;
+}
+
+.scanner-wrapper .col-12 {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* QRCode Stream Styles */
+::v-deep .qrcode-stream {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+::v-deep .qrcode-stream video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+::v-deep .qrcode-stream__camera {
+    width: 100%;
+    height: 100%;
+}
+
+/* Scanner Result Overlay */
+.scanner-result-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+    color: white;
+}
+
+.scanner-result-overlay.bg-success {
+    background-color: rgba(40, 167, 69, 0.95);
+}
+
+.scanner-result-overlay.bg-warning {
+    background-color: rgba(255, 193, 7, 0.95);
+    color: #000;
+}
+
+.scanner-result-overlay.bg-danger {
+    background-color: rgba(220, 53, 69, 0.95);
+}
+
+.scanner-event-header {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.scanner-ticket-block {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    min-width: 300px;
+}
+
+.scanner-ticket-badge {
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.scanner-attendee-list {
+    margin-top: 10px;
+}
+
+.scanner-attendee-name {
+    padding: 8px 0;
+}
+
+.scanner-customer-block {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    min-width: 300px;
+}
+
+.scanner-customer-badge {
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-weight: bold;
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
+.scanner-customer-name {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.scanner-customer-email {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.scanner-error-message {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 20px;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+</style>
