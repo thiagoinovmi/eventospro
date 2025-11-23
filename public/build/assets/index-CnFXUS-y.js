@@ -1,3 +1,4 @@
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/MercadoPagoCheckout-Dklunexd.js","assets/mixins-DsimpN2H.js","assets/MercadoPagoCheckout-7uJ2J9J-.css"])))=>i.map(i=>d[i]);
 import { g as getDefaultExportFromCjs, b as getAugmentedNamespace, _, n as normalizeComponent, m as mixinsFilters, c as moment$1 } from "./mixins-DsimpN2H.js";
 import { m as mapMutations, a as mapState, i as index } from "./vuex.esm-BLukzcBM.js";
 import { v as vSelect } from "./vue-select-rC5MlIUN.js";
@@ -2251,11 +2252,87 @@ const VueGoogleMaps = /* @__PURE__ */ _mergeNamespaces({
   __proto__: null,
   default: vueGoogleMaps
 }, [vueGoogleMapsExports]);
+const scriptRel = "modulepreload";
+const assetsURL = function(dep) {
+  return "/build/" + dep;
+};
+const seen = {};
+const __vitePreload = function preload(baseModule, deps, importerUrl) {
+  let promise = Promise.resolve();
+  if (deps && deps.length > 0) {
+    let allSettled2 = function(promises) {
+      return Promise.all(
+        promises.map(
+          (p) => Promise.resolve(p).then(
+            (value) => ({ status: "fulfilled", value }),
+            (reason) => ({ status: "rejected", reason })
+          )
+        )
+      );
+    };
+    document.getElementsByTagName("link");
+    const cspNonceMeta = document.querySelector(
+      "meta[property=csp-nonce]"
+    );
+    const cspNonce = (cspNonceMeta == null ? void 0 : cspNonceMeta.nonce) || (cspNonceMeta == null ? void 0 : cspNonceMeta.getAttribute("nonce"));
+    promise = allSettled2(
+      deps.map((dep) => {
+        dep = assetsURL(dep);
+        if (dep in seen) return;
+        seen[dep] = true;
+        const isCss = dep.endsWith(".css");
+        const cssSelector = isCss ? '[rel="stylesheet"]' : "";
+        if (document.querySelector(`link[href="${dep}"]${cssSelector}`)) {
+          return;
+        }
+        const link = document.createElement("link");
+        link.rel = isCss ? "stylesheet" : scriptRel;
+        if (!isCss) {
+          link.as = "script";
+        }
+        link.crossOrigin = "";
+        link.href = dep;
+        if (cspNonce) {
+          link.setAttribute("nonce", cspNonce);
+        }
+        document.head.appendChild(link);
+        if (isCss) {
+          return new Promise((res, rej) => {
+            link.addEventListener("load", res);
+            link.addEventListener(
+              "error",
+              () => rej(new Error(`Unable to preload CSS for ${dep}`))
+            );
+          });
+        }
+      })
+    );
+  }
+  function handlePreloadError(err) {
+    const e = new Event("vite:preloadError", {
+      cancelable: true
+    });
+    e.payload = err;
+    window.dispatchEvent(e);
+    if (!e.defaultPrevented) {
+      throw err;
+    }
+  }
+  return promise.then((res) => {
+    for (const item of res || []) {
+      if (item.status !== "rejected") continue;
+      handlePreloadError(item.reason);
+    }
+    return baseModule().catch(handlePreloadError);
+  });
+};
 const _sfc_main$3 = {
   mixins: [
     mixinsFilters
   ],
-  components: {},
+  components: {
+    "mercadopago-checkout": () => __vitePreload(() => import("./MercadoPagoCheckout-Dklunexd.js"), true ? __vite__mapDeps([0,1,2]) : void 0)
+  },
   props: [
     "tickets",
     "max_ticket_qty",
@@ -2291,12 +2368,29 @@ const _sfc_main$3 = {
       cardNumber: "",
       cardMonth: "",
       cardYear: "",
-      cardCvv: ""
+      cardCvv: "",
+      paymentMethods: {
+        credit_card: true,
+        debit_card: true,
+        boleto: true,
+        pix: true,
+        wallet: true
+      },
+      installmentOptions: this.generateInstallments(12)
     };
   },
   computed: {
     // get global variables
     ...mapState(["booking_date", "start_time", "end_time", "booking_end_date", "booked_date_server"])
+  },
+  watch: {
+    payment_method(newValue) {
+      if (newValue == 2) {
+        this.$nextTick(() => {
+          this.scrollToMercadoPagoForm();
+        });
+      }
+    }
   },
   mounted() {
     console.log("=== DEBUG TICKET LIST ===");
@@ -2310,6 +2404,16 @@ const _sfc_main$3 = {
   methods: {
     // update global variables
     ...mapMutations(["add", "update"]),
+    generateInstallments(maxInstallments) {
+      const options = [];
+      for (let i = 1; i <= maxInstallments; i++) {
+        options.push({
+          value: i,
+          label: i === 1 ? "1x sem juros" : `${i}x ${i <= 6 ? "sem juros" : "com juros"}`
+        });
+      }
+      return options;
+    },
     // reset form and close modal
     close: function() {
       this.price = null;
@@ -2325,11 +2429,32 @@ const _sfc_main$3 = {
       this.openModal = false;
     },
     bookTickets() {
+      console.log("=== BOOK TICKETS INICIADO ===");
+      console.log("payment_method:", this.payment_method);
+      console.log("total:", this.total);
       this.showLoaderNotification(trans("em.processing"));
       this.disable = true;
+      if (this.total <= 0) {
+        console.log("Processando como ingresso gratuito");
+        this.processFreeTickets();
+        return;
+      }
+      if (this.payment_method == 2) {
+        console.log("Mercado Pago selecionado - processando pagamento");
+        Swal.hideLoading();
+        if (this.$refs.mercadoPagoCheckout) {
+          this.$refs.mercadoPagoCheckout.processPayment();
+        } else {
+          console.error("MercadoPagoCheckout ref não encontrado");
+        }
+        this.disable = false;
+        return;
+      }
+      console.log("Enviando para backend:", route("eventmie.bookings_book_tickets"));
       let post_url = route("eventmie.bookings_book_tickets");
       let post_data = new FormData(this.$refs.form);
       axios.post(post_url, post_data).then((res) => {
+        console.log("Resposta recebida:", res.data);
         if (res.data.status && res.data.message != "" && typeof res.data.message != "undefined") {
           Swal.hideLoading();
           this.close();
@@ -2345,9 +2470,7 @@ const _sfc_main$3 = {
         if (res.data.payment_method == "mercadopago" && res.data.status) {
           Swal.hideLoading();
           this.close();
-          setTimeout(() => {
-            window.location.href = route("eventmie.mercadopago_checkout");
-          }, 500);
+          this.scrollToMercadoPagoForm();
         }
         if (res.data.url != "" && res.data.status && typeof res.data.url != "undefined") {
           Swal.hideLoading();
@@ -2361,7 +2484,44 @@ const _sfc_main$3 = {
           this.showNotification("error", res.data.message);
         }
       }).catch((error) => {
+        console.error("Erro na requisição:", error);
+        console.error("Resposta de erro:", error.response);
+        Swal.hideLoading();
         this.disable = false;
+        let serrors = Vue.helpers.axiosErrors(error);
+        if (serrors.length) {
+          console.log("Erros de validação:", serrors);
+          this.serverValidate(serrors);
+        }
+      });
+    },
+    scrollToMercadoPagoForm() {
+      const element = document.querySelector(".mercadopago-checkout-container");
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    },
+    processFreeTickets() {
+      let post_url = route("eventmie.bookings_book_tickets");
+      let post_data = new FormData(this.$refs.form);
+      post_data.set("payment_method", "offline");
+      axios.post(post_url, post_data).then((res) => {
+        Swal.hideLoading();
+        if (res.data.status && res.data.message != "" && typeof res.data.message != "undefined") {
+          this.close();
+          this.showNotification("success", res.data.message);
+          if (res.data.url != "" && typeof res.data.url != "undefined") {
+            setTimeout(() => {
+              window.location.href = res.data.url;
+            }, 1e3);
+          }
+        } else if (!res.data.status && res.data.message != "") {
+          this.close();
+          this.showNotification("error", res.data.message);
+        }
+      }).catch((error) => {
+        this.disable = false;
+        Swal.hideLoading();
         let serrors = Vue.helpers.axiosErrors(error);
         if (serrors.length) {
           this.serverValidate(serrors);
@@ -2573,7 +2733,7 @@ var _sfc_render$3 = function render() {
   } } }), _c("div", {}, [_vm.is_customer <= 0 ? _c("div", { staticClass: "row" }, [_c("div", { staticClass: "col-md-4 mb-3" }, [_vm.is_customer <= 0 ? _c("div", [_c("label", { staticClass: "form-label h6", attrs: { "for": "customer_id" } }, [_vm._v(_vm._s(_vm.trans("em.select_customer")))]), _c("v-select", { staticClass: "form-control px-0 py-0 border-0 mb-2", attrs: { "label": "name", "placeholder": _vm.trans("em.search_customer_email"), "required": !_vm.customer, "filterable": false, "options": _vm.options }, on: { "search": _vm.onSearch }, model: { value: _vm.customer, callback: function($$v) {
     _vm.customer = $$v;
   }, expression: "customer" } }, [_c("div", { attrs: { "slot": "no-options" }, slot: "no-options" }, [_vm._v(_vm._s(_vm.trans("em.customer_not_found")))])]), _c("div", { directives: [{ name: "show", rawName: "v-show", value: _vm.errors.has("customer_id"), expression: "errors.has('customer_id')" }], staticClass: "invalid-feedback danger" }, [_vm._v(_vm._s(_vm.errors.first("customer_id")))])], 1) : _vm._e()])]) : _vm._e(), _c("div", { staticClass: "row" }, [_c("div", { staticClass: "col-12" }, [_c("ul", { staticClass: "list-group" }, _vm._l(_vm.tickets, function(item, index2) {
-    return _c("li", { key: index2, staticClass: "list-group-item mb-3 rounded border-2" }, [_c("input", { staticClass: "formbh g-control", attrs: { "type": "hidden", "name": "ticket_id[]" }, domProps: { "value": item.id } }), _c("input", { staticClass: "form-control", attrs: { "type": "hidden", "name": "ticket_title[]" }, domProps: { "value": item.title } }), _c("div", { staticClass: "d-flex justify-content-between lh-condensed d-flex-wrap" }, [_c("div", { staticClass: "w-40" }, [_c("h6", { staticClass: "my-0" }, [_c("strong", [_vm._v(_vm._s(item.title))])]), _c("p", { staticClass: "my-0 h6" }, [_vm._v(_vm._s(item.price > 0 ? item.price : "0.00") + " "), _c("small", [_vm._v(_vm._s(_vm.currency))])])]), _c("div", { staticClass: "w-20" }, [typeof _vm.booked_tickets[item.id + "-" + _vm.booked_date_server] != "undefined" ? _c("div", [(item.customer_limit != null ? item.customer_limit : _vm.max_ticket_qty) <= 100 ? _c("select", { directives: [{ name: "model", rawName: "v-model", value: _vm.quantity[index2], expression: "quantity[index]" }], staticClass: "form-select border-2 form-select-lg", attrs: { "name": "quantity[]" }, on: { "change": function($event) {
+    return _c("li", { key: index2, staticClass: "list-group-item mb-3 rounded border-2" }, [_c("input", { staticClass: "formbh g-control", attrs: { "type": "hidden", "name": "ticket_id[]" }, domProps: { "value": item.id } }), _c("input", { staticClass: "form-control", attrs: { "type": "hidden", "name": "ticket_title[]" }, domProps: { "value": item.title } }), _c("div", { staticClass: "d-flex justify-content-between lh-condensed d-flex-wrap" }, [_c("div", { staticClass: "w-40" }, [_c("h6", { staticClass: "my-0" }, [_c("strong", [_vm._v(_vm._s(item.title))])]), _c("p", { staticClass: "my-0 h6" }, [_c("small", [_vm._v(_vm._s(_vm.currency))]), _vm._v(" " + _vm._s(item.price > 0 ? item.price : "0.00"))])]), _c("div", { staticClass: "w-20" }, [typeof _vm.booked_tickets[item.id + "-" + _vm.booked_date_server] != "undefined" ? _c("div", [(item.customer_limit != null ? item.customer_limit : _vm.max_ticket_qty) <= 100 ? _c("select", { directives: [{ name: "model", rawName: "v-model", value: _vm.quantity[index2], expression: "quantity[index]" }], staticClass: "form-select border-2 form-select-lg", attrs: { "name": "quantity[]" }, on: { "change": function($event) {
       var $$selectedVal = Array.prototype.filter.call($event.target.options, function(o) {
         return o.selected;
       }).map(function(o) {
@@ -2601,20 +2761,25 @@ var _sfc_render$3 = function render() {
     })], 2) : _c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.quantity[index2], expression: "quantity[index]" }], staticClass: "form-control form-input-sm", attrs: { "type": "number", "name": "quantity[]", "value": "0", "min": "0", "max": item.quantity > (item.customer_limit != null ? item.customer_limit : _vm.max_ticket_qty) ? parseInt(item.customer_limit != null ? item.customer_limit : _vm.max_ticket_qty) : parseInt(item.quantity) }, domProps: { "value": _vm.quantity[index2] }, on: { "input": function($event) {
       if ($event.target.composing) return;
       _vm.$set(_vm.quantity, index2, $event.target.value);
-    } } }), item.quantity < (item.customer_limit != null ? item.customer_limit : _vm.max_ticket_qty) && item.quantity > 0 ? _c("p", { staticClass: "text-primary h6 text-nowrap" }, [_c("small", [_c("i", { staticClass: "fas fa-exclamation" }), _vm._v(" " + _vm._s(_vm.trans("em.vacant")) + " " + _vm._s(item.quantity))])]) : _vm._e(), item.quantity <= 0 ? _c("p", { staticClass: "text-danger" }, [_c("small", [_c("i", { staticClass: "fas fa-times-circle" }), _vm._v(" " + _vm._s(_vm.trans("em.vacant")) + " 0")])]) : _vm._e()])]), _c("div", [_c("strong", [_vm._v(" " + _vm._s(_vm.total_price[index2] ? _vm.total_price[index2] : "0.00") + " "), _c("small", [_vm._v(_vm._s(_vm.currency))])]), _vm.quantity[index2] > 0 ? _c("span", [_c("i", { staticClass: "fas fa-check-circle text-success" })]) : _vm._e()])]), _c("div", { staticClass: "break-flex w-30 w-m-100" }, [_vm.quantity[index2] > 0 && item.price > 0 && item.taxes.length > 0 ? _c("ul", { staticClass: "list-group list-group-flush my-2" }, _vm._l(item.taxes, function(tax, index1) {
+    } } }), item.quantity < (item.customer_limit != null ? item.customer_limit : _vm.max_ticket_qty) && item.quantity > 0 ? _c("p", { staticClass: "text-primary h6 text-nowrap" }, [_c("small", [_c("i", { staticClass: "fas fa-exclamation" }), _vm._v(" " + _vm._s(_vm.trans("em.vacant")) + " " + _vm._s(item.quantity))])]) : _vm._e(), item.quantity <= 0 ? _c("p", { staticClass: "text-danger" }, [_c("small", [_c("i", { staticClass: "fas fa-times-circle" }), _vm._v(" " + _vm._s(_vm.trans("em.vacant")) + " 0")])]) : _vm._e()])]), _c("div", [_c("strong", [_c("small", [_vm._v(_vm._s(_vm.currency))]), _vm._v(" " + _vm._s(_vm.total_price[index2] ? _vm.total_price[index2] : "0.00") + " ")]), _vm.quantity[index2] > 0 ? _c("span", [_c("i", { staticClass: "fas fa-check-circle text-success" })]) : _vm._e()])]), _c("div", { staticClass: "break-flex w-30 w-m-100" }, [_vm.quantity[index2] > 0 && item.price > 0 && item.taxes.length > 0 ? _c("ul", { staticClass: "list-group list-group-flush my-2" }, _vm._l(item.taxes, function(tax, index1) {
       return _c("li", { key: index1, staticClass: "list-group-item small px-2 p-1 text-muted" }, [_c("span", [_vm._v(_vm._s(tax.title) + " "), _c("small", [_vm._v(_vm._s(_vm.total_price[index2] > 0 ? _vm.countTax(item.price, tax.rate, tax.rate_type, tax.net_price, _vm.quantity[index2]) : 0))])])]);
     }), 0) : _vm._e()]), _c("div", { staticClass: "break-flex" }, [_c("a", { staticClass: "pointer ticket-info-toggle small", on: { "click": function($event) {
       _vm.ticket_info = !_vm.ticket_info;
     } } }, [_vm.ticket_info ? _c("small", [_vm._v(_vm._s(_vm.trans("em.hide_info")))]) : _c("small", [_vm._v(_vm._s(_vm.trans("em.show_info")))])]), _vm.ticket_info ? _c("p", { staticClass: "ticket-info small text-muted" }, [_vm._v(_vm._s(item.description))]) : _vm._e()])]);
-  }), 0)])]), _c("div", { staticClass: "row" }, [_c("div", { staticClass: "col-12" }, [_c("p", { staticClass: "mb-2 h6" }, [_vm._v(_vm._s(_vm.trans("em.cart")))]), _c("ul", { staticClass: "list-group" }, [_c("li", { staticClass: "list-group-item mb-3 rounded border-2" }, [_c("div", { staticClass: "d-flex justify-content-between" }, [_c("h6", { staticClass: "my-0" }, [_c("strong", [_vm._v(_vm._s(_vm.trans("em.total_tickets")))])]), _c("strong", { class: { "ticket-selected-text": _vm.bookedTicketsTotal() > 0 } }, [_vm._v(_vm._s(_vm.bookedTicketsTotal()))])]), _c("div", { staticClass: "d-flex justify-content-between" }, [_c("h6", { staticClass: "my-0" }, [_c("strong", [_vm._v(_vm._s(_vm.trans("em.total_order")))])]), _c("strong", { class: { "ticket-selected-text": _vm.bookedTicketsTotal() > 0 } }, [_vm._v(_vm._s(_vm.total) + " "), _c("small", [_vm._v(_vm._s(_vm.currency))])])])])])])]), !_vm.login_user_id ? _c("div", { staticClass: "row" }, [_c("div", { staticClass: "col-12" }, [_c("div", { staticClass: "w-100 mb-3" }, [_c("div", { staticClass: "alert alert-danger" }, [_vm._v(" " + _vm._s(_vm.trans("em.please_login_signup")) + " ")])])])]) : _vm._e(), _vm.bookedTicketsTotal() > 0 && _vm.login_user_id ? _c("div", { staticClass: "row" }, [_c("div", { staticClass: "col-12 payment-options mb-3" }, [_c("div", { staticClass: "border rounded border-1 border-dark list-group-flush px-2 bg-white" }, [_vm.total <= 0 ? _c("div", { staticClass: "d-block my-3 pl-3" }, [_c("div", { staticClass: "radio-inline" }, [_c("input", { staticClass: "custom-control-input", attrs: { "id": "free_order", "name": "free_order", "type": "radio", "checked": "" } }), _c("label", { staticClass: "custom-control-label", attrs: { "for": "free_order" } }, [_vm._v("  "), _c("i", { staticClass: "fas fa-glass-cheers" }), _vm._v(" " + _vm._s(_vm.trans("em.free")))])])]) : _c("div", { staticClass: "d-block my-3 pl-3" }, [_vm.is_admin <= 0 && _vm.is_paypal > 0 ? _c("div", { staticClass: "radio-inline" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.payment_method, expression: "payment_method" }], staticClass: "custom-control-input", attrs: { "type": "radio", "id": "payment_method_paypal", "name": "payment_method", "value": "1" }, domProps: { "checked": _vm._q(_vm.payment_method, "1") }, on: { "change": function($event) {
+  }), 0)])]), _c("div", { staticClass: "row" }, [_c("div", { staticClass: "col-12" }, [_c("p", { staticClass: "mb-2 h6" }, [_vm._v(_vm._s(_vm.trans("em.cart")))]), _c("ul", { staticClass: "list-group" }, [_c("li", { staticClass: "list-group-item mb-3 rounded border-2" }, [_c("div", { staticClass: "d-flex justify-content-between" }, [_c("h6", { staticClass: "my-0" }, [_c("strong", [_vm._v(_vm._s(_vm.trans("em.total_tickets")))])]), _c("strong", { class: { "ticket-selected-text": _vm.bookedTicketsTotal() > 0 } }, [_vm._v(_vm._s(_vm.bookedTicketsTotal()))])]), _c("div", { staticClass: "d-flex justify-content-between" }, [_c("h6", { staticClass: "my-0" }, [_c("strong", [_vm._v(_vm._s(_vm.trans("em.total_order")))])]), _c("strong", { class: { "ticket-selected-text": _vm.bookedTicketsTotal() > 0 } }, [_c("small", [_vm._v(_vm._s(_vm.currency))]), _vm._v(" " + _vm._s(_vm.total))])])])])])]), !_vm.login_user_id ? _c("div", { staticClass: "row" }, [_c("div", { staticClass: "col-12" }, [_c("div", { staticClass: "w-100 mb-3" }, [_c("div", { staticClass: "alert alert-danger" }, [_vm._v(" " + _vm._s(_vm.trans("em.please_login_signup")) + " ")])])])]) : _vm._e(), _vm.bookedTicketsTotal() > 0 && _vm.login_user_id ? _c("div", { staticClass: "row" }, [_c("div", { staticClass: "col-12 payment-options mb-3" }, [_c("div", { staticClass: "border rounded border-1 border-dark list-group-flush px-2 bg-white" }, [_vm.total <= 0 ? _c("div", { staticClass: "d-block my-3 pl-3" }, [_c("div", { staticClass: "radio-inline" }, [_c("input", { staticClass: "custom-control-input", attrs: { "id": "free_order", "name": "free_order", "type": "radio", "checked": "" } }), _c("label", { staticClass: "custom-control-label", attrs: { "for": "free_order" } }, [_vm._v("  "), _c("i", { staticClass: "fas fa-glass-cheers" }), _vm._v(" " + _vm._s(_vm.trans("em.free")))])])]) : _c("div", { staticClass: "d-block my-3 pl-3" }, [_vm.is_admin <= 0 && _vm.is_paypal > 0 ? _c("div", { staticClass: "radio-inline" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.payment_method, expression: "payment_method" }], staticClass: "custom-control-input", attrs: { "type": "radio", "id": "payment_method_paypal", "name": "payment_method", "value": "1" }, domProps: { "checked": _vm._q(_vm.payment_method, "1") }, on: { "change": function($event) {
     _vm.payment_method = "1";
   } } }), _vm._m(0)]) : _vm._e(), _vm.is_admin <= 0 && _vm.is_mercadopago > 0 ? _c("div", { staticClass: "radio-inline" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.payment_method, expression: "payment_method" }], staticClass: "custom-control-input", attrs: { "type": "radio", "id": "payment_method_mercadopago", "name": "payment_method", "value": "2" }, domProps: { "checked": _vm._q(_vm.payment_method, "2") }, on: { "change": function($event) {
     _vm.payment_method = "2";
   } } }), _vm._m(1)]) : _vm._e(), _vm.is_organiser > 0 && _vm.is_offline_payment_organizer > 0 || _vm.is_customer > 0 && _vm.is_offline_payment_customer > 0 || _vm.is_admin > 0 ? _c("div", { staticClass: "radio-inline" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.payment_method, expression: "payment_method" }], staticClass: "custom-control-input", attrs: { "type": "radio", "id": "payment_method_offline", "name": "payment_method", "value": "offline" }, domProps: { "checked": _vm._q(_vm.payment_method, "offline") }, on: { "change": function($event) {
     _vm.payment_method = "offline";
-  } } }), _c("label", { staticClass: "custom-control-label", attrs: { "for": "payment_method_offline" } }, [_vm._v("  "), _c("i", { staticClass: "fas fa-suitcase-rolling" }), _vm._v(" " + _vm._s(_vm.trans("em.offline")) + " "), _c("small", [_vm._v("(" + _vm._s(_vm.trans("em.cash_on_arrival")) + ")")])])]) : _vm._e(), _vm.payment_method == "offline" ? _c("p", { staticClass: "text-mute h6 px-3 mt-1" }, [_c("strong", [_vm._v(_vm._s(_vm.trans("em.offline_payment_info")) + ": ")]), _c("small", { staticClass: "preserve-whitespace", domProps: { "innerHTML": _vm._s(_vm.event.offline_payment_info) } })]) : _vm._e(), _c("p", { staticClass: "text-mute h6 mt-2 mx-3", domProps: { "innerHTML": _vm._s(_vm.trans("em.order_terms")) } })])])]), _c("div", { staticClass: "col-12 mt-2 pb-4" }, [_c("div", { staticClass: "d-grid" }, [_c("div", { staticClass: "btn-group btn-group-md btn-block btn-group-justified" }, [_c("button", { staticClass: "btn btn-success btn-lg btn-block", class: { "disabled": _vm.disable }, attrs: { "disabled": _vm.disable, "type": "button" }, on: { "click": function($event) {
+  } } }), _c("label", { staticClass: "custom-control-label", attrs: { "for": "payment_method_offline" } }, [_vm._v("  "), _c("i", { staticClass: "fas fa-suitcase-rolling" }), _vm._v(" " + _vm._s(_vm.trans("em.offline")) + " "), _c("small", [_vm._v("(" + _vm._s(_vm.trans("em.cash_on_arrival")) + ")")])])]) : _vm._e(), _vm.payment_method == "offline" ? _c("p", { staticClass: "text-mute h6 px-3 mt-1" }, [_c("strong", [_vm._v(_vm._s(_vm.trans("em.offline_payment_info")) + ": ")]), _c("small", { staticClass: "preserve-whitespace", domProps: { "innerHTML": _vm._s(_vm.event.offline_payment_info) } })]) : _vm._e(), _c("p", { staticClass: "text-mute h6 mt-2 mx-3", domProps: { "innerHTML": _vm._s(_vm.trans("em.order_terms")) } })])])]), _vm.payment_method == 2 && _vm.total > 0 ? _c("div", { staticClass: "col-12 mt-4" }, [_c("mercadopago-checkout", { ref: "mercadoPagoCheckout", attrs: { "event": _vm.event, "tickets": _vm.tickets, "total": _vm.total, "currency": _vm.currency, "booking-data": {
+    booking_date: _vm.booking_date,
+    booking_end_date: _vm.booking_end_date,
+    start_time: _vm.start_time,
+    end_time: _vm.end_time
+  }, "payment-methods": _vm.paymentMethods, "installment-options": _vm.installmentOptions } })], 1) : _vm._e(), _c("div", { staticClass: "col-12 mt-2 pb-4" }, [_c("div", { staticClass: "d-grid" }, [_c("div", { staticClass: "btn-group btn-group-md btn-block btn-group-justified" }, [_c("button", { staticClass: "btn btn-success btn-lg btn-block fw-bold text-white", class: { "disabled": _vm.disable }, attrs: { "disabled": _vm.disable, "type": "button" }, on: { "click": function($event) {
     return _vm.bookTickets();
-  } } }, [_c("i", { staticClass: "fas fa-cash-register" }), _vm._v(" " + _vm._s(_vm.trans("em.checkout")))])])])])]) : _vm._e(), _c("div", { staticClass: "row" }, [_c("div", { staticClass: "col-12" }, [!_vm.login_user_id ? _c("div", [_c("div", { staticClass: "d-grid pb-4" }, [_c("div", { staticClass: "btn-group btn-group-md btn-block btn-group-justified" }, [_c("button", { staticClass: "btn btn-primary btn-lg", attrs: { "type": "button" }, on: { "click": function($event) {
+  } } }, [_c("i", { staticClass: "fas fa-lock" }), _vm._v(" " + _vm._s(_vm.trans("em.checkout")) + " ")])])])])]) : _vm._e(), _c("div", { staticClass: "row" }, [_c("div", { staticClass: "col-12" }, [!_vm.login_user_id ? _c("div", [_c("div", { staticClass: "d-grid pb-4" }, [_c("div", { staticClass: "btn-group btn-group-md btn-block btn-group-justified" }, [_c("button", { staticClass: "btn btn-primary btn-lg", attrs: { "type": "button" }, on: { "click": function($event) {
     return _vm.loginFirst();
   } } }, [_c("i", { staticClass: "fas fa-fingerprint" }), _vm._v(" " + _vm._s(_vm.trans("em.login")))])])])]) : _vm._e()])])])])])])])]) : _vm._e()]);
 };
@@ -2643,6 +2808,7 @@ const _sfc_main$2 = {
     "is_organiser",
     "is_customer",
     "is_paypal",
+    "is_mercadopago",
     "is_offline_payment_organizer",
     "is_offline_payment_customer",
     "tickets",
@@ -3268,7 +3434,7 @@ var _sfc_render$2 = function render2() {
     } } }, [_c("i", { staticClass: "fa fa-chevron-right" })])])]) : _vm._e();
   }), 0) : _vm._e(), _vm.booked_date_server != null && _vm.event.merge_schedule > 0 ? _c("div", { staticClass: "single-schedule w alert alert-primary bg-primary mt-lg-1" }, [_c("div", { staticClass: "fw-bold text-light" }, [_c("i", { staticClass: "fas fa-check-circle" }), _vm._v(" " + _vm._s(_vm.trans("em.seasonal_ticket_info")))])]) : _vm._e()]) : _vm._e(), _vm.event.repetitive <= 0 ? _c("div", { staticClass: "single-schedule" }, [_c("div", { staticClass: "schedule-row d-inline-flex align-items-center bg-primary flex-wrap gap-2", attrs: { "id": "buy_ticket_btn" }, on: { "click": function($event) {
     !(_vm.moment(_vm.event.end_date + " " + _vm.event.end_time, "YYYY-MM-DD HH:mm:ss").format("YYYY-MM-DD HH:mm:ss") < _vm.moment().format("YYYY-MM-DD HH:mm:ss")) && _vm.checkSeatAvailability(_vm.moment(_vm.event.start_date, "YYYY-MM-DD").format("YYYY-MM-DD")) ? _vm.singleEvent() : null;
-  } } }, [_c("div", { staticClass: "schedule-col schedule-date" }, [_c("div", { staticClass: "fw-bold text-light" }, [_vm._v(" " + _vm._s(_vm.convert_date_to_local_format(_vm.userTimezone(_vm.event.start_date + " " + _vm.event.start_time, "YYYY-MM-DD HH:mm:ss").format("YYYY-MM-DD"))) + " ")])]), _c("div", { staticClass: "schedule-col schedule-status text-center" }, [_vm.moment(_vm.event.end_date + " " + _vm.event.end_time, "YYYY-MM-DD HH:mm:ss").format("YYYY-MM-DD HH:mm:ss") < _vm.moment().format("YYYY-MM-DD HH:mm:ss") ? _c("div", { staticClass: "badge bg-danger" }, [_vm._v(_vm._s(_vm.trans("em.ended")))]) : !(_vm.moment(_vm.event.end_date + " " + _vm.event.end_time, "YYYY-MM-DD HH:mm:ss").format("YYYY-MM-DD HH:mm:ss") < _vm.moment().format("YYYY-MM-DD HH:mm:ss")) && !_vm.checkSeatAvailability(_vm.moment(_vm.event.start_date, "YYYY-MM-DD").format("YYYY-MM-DD")) ? _c("div", { staticClass: "badge bg-danger" }, [_vm._v(_vm._s(_vm.trans("em.out_of_stock")))]) : !(_vm.moment(_vm.event.end_date + " " + _vm.event.end_time, "YYYY-MM-DD HH:mm:ss").format("YYYY-MM-DD HH:mm:ss") < _vm.moment().format("YYYY-MM-DD HH:mm:ss")) && _vm.positiveInteger(_vm.checkSeatAvailability(_vm.moment(_vm.event.start_date, "YYYY-MM-DD").format("YYYY-MM-DD"))) ? _c("div", { staticClass: "badge bg-warning text-dark" }, [_vm._v(_vm._s(_vm.trans("em.filling_fast")))]) : _vm._e()]), _c("div", { staticClass: "schedule-col schedule-time text-end" }, [_c("div", { staticClass: "badge bg-light text-dark" }, [_vm._v(" " + _vm._s(_vm.userTimezone(_vm.event.start_date + " " + _vm.event.start_time, "YYYY-MM-DD HH:mm:ss").format(_vm.date_format.vue_time_format)) + " - " + _vm._s(_vm.userTimezone(_vm.event.end_date + " " + _vm.event.end_time, "YYYY-MM-DD HH:mm:ss").format(_vm.date_format.vue_time_format)) + " " + _vm._s(_vm.showTimezone()) + " ")])])])]) : _vm._e(), _vm.booking_date && _vm.start_time && _vm.end_time ? _c("ticket-component", { attrs: { "event": _vm.event, "tickets": _vm.tickets, "max_ticket_qty": _vm.max_ticket_qty, "currency": _vm.currency, "login_user_id": _vm.login_user_id, "is_admin": _vm.is_admin, "is_organiser": _vm.is_organiser, "is_customer": _vm.is_customer, "is_paypal": _vm.is_paypal, "is_offline_payment_organizer": _vm.is_offline_payment_organizer, "is_offline_payment_customer": _vm.is_offline_payment_customer, "booked_tickets": _vm.booked_tickets } }) : _vm._e()], 1);
+  } } }, [_c("div", { staticClass: "schedule-col schedule-date" }, [_c("div", { staticClass: "fw-bold text-light" }, [_vm._v(" " + _vm._s(_vm.convert_date_to_local_format(_vm.userTimezone(_vm.event.start_date + " " + _vm.event.start_time, "YYYY-MM-DD HH:mm:ss").format("YYYY-MM-DD"))) + " ")])]), _c("div", { staticClass: "schedule-col schedule-status text-center" }, [_vm.moment(_vm.event.end_date + " " + _vm.event.end_time, "YYYY-MM-DD HH:mm:ss").format("YYYY-MM-DD HH:mm:ss") < _vm.moment().format("YYYY-MM-DD HH:mm:ss") ? _c("div", { staticClass: "badge bg-danger" }, [_vm._v(_vm._s(_vm.trans("em.ended")))]) : !(_vm.moment(_vm.event.end_date + " " + _vm.event.end_time, "YYYY-MM-DD HH:mm:ss").format("YYYY-MM-DD HH:mm:ss") < _vm.moment().format("YYYY-MM-DD HH:mm:ss")) && !_vm.checkSeatAvailability(_vm.moment(_vm.event.start_date, "YYYY-MM-DD").format("YYYY-MM-DD")) ? _c("div", { staticClass: "badge bg-danger" }, [_vm._v(_vm._s(_vm.trans("em.out_of_stock")))]) : !(_vm.moment(_vm.event.end_date + " " + _vm.event.end_time, "YYYY-MM-DD HH:mm:ss").format("YYYY-MM-DD HH:mm:ss") < _vm.moment().format("YYYY-MM-DD HH:mm:ss")) && _vm.positiveInteger(_vm.checkSeatAvailability(_vm.moment(_vm.event.start_date, "YYYY-MM-DD").format("YYYY-MM-DD"))) ? _c("div", { staticClass: "badge bg-warning text-dark" }, [_vm._v(_vm._s(_vm.trans("em.filling_fast")))]) : _vm._e()]), _c("div", { staticClass: "schedule-col schedule-time text-end" }, [_c("div", { staticClass: "badge bg-light text-dark" }, [_vm._v(" " + _vm._s(_vm.userTimezone(_vm.event.start_date + " " + _vm.event.start_time, "YYYY-MM-DD HH:mm:ss").format(_vm.date_format.vue_time_format)) + " - " + _vm._s(_vm.userTimezone(_vm.event.end_date + " " + _vm.event.end_time, "YYYY-MM-DD HH:mm:ss").format(_vm.date_format.vue_time_format)) + " " + _vm._s(_vm.showTimezone()) + " ")])])])]) : _vm._e(), _vm.booking_date && _vm.start_time && _vm.end_time ? _c("ticket-component", { attrs: { "event": _vm.event, "tickets": _vm.tickets, "max_ticket_qty": _vm.max_ticket_qty, "currency": _vm.currency, "login_user_id": _vm.login_user_id, "is_admin": _vm.is_admin, "is_organiser": _vm.is_organiser, "is_customer": _vm.is_customer, "is_paypal": _vm.is_paypal, "is_mercadopago": _vm.is_mercadopago, "is_offline_payment_organizer": _vm.is_offline_payment_organizer, "is_offline_payment_customer": _vm.is_offline_payment_customer, "booked_tickets": _vm.booked_tickets } }) : _vm._e()], 1);
 };
 var _sfc_staticRenderFns$2 = [function() {
   var _vm = this, _c = _vm._self._c;
@@ -3280,7 +3446,7 @@ var __component__$2 = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns$2,
   false,
   null,
-  "0c126da8"
+  "7b38f0bb"
 );
 const SelectDates = __component__$2.exports;
 const _sfc_main$1 = {
@@ -3474,4 +3640,4 @@ window.app = new Vue({
     GComponent
   }
 });
-//# sourceMappingURL=index-C3u9kndY.js.map
+//# sourceMappingURL=index-CnFXUS-y.js.map
