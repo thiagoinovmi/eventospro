@@ -1163,4 +1163,64 @@ class BookingsController extends Controller
         
     }
 
+    /**
+     * Process Mercado Pago payment
+     */
+    public function mercadopago_process(Request $request)
+    {
+        \Log::info('=== MERCADO PAGO PROCESS INICIADO ===');
+        \Log::info('Request data:', $request->all());
+
+        try {
+            // Validate required fields
+            $validated = $request->validate([
+                'event_id' => 'required|integer',
+                'booking_date' => 'required|date',
+                'start_time' => 'required',
+                'end_time' => 'required',
+                'payment_method' => 'required|string',
+                'selected_method' => 'required|string',
+                'total' => 'required|numeric'
+            ]);
+
+            \Log::info('Dados validados:', $validated);
+
+            // Get booking data from session
+            $booking = session('mercadopago_booking');
+            $order = session('mercadopago_order');
+
+            if (!$booking || !$order) {
+                \Log::error('Booking ou Order não encontrado na sessão');
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Erro: Dados de reserva não encontrados'
+                ], 400);
+            }
+
+            \Log::info('Booking encontrado:', $booking->toArray());
+            \Log::info('Order encontrado:', $order->toArray());
+
+            // Here you would integrate with Mercado Pago SDK
+            // For now, we'll just return success
+            // TODO: Implement actual Mercado Pago payment processing
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Pagamento processado com sucesso!',
+                'booking_id' => $booking->id
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Erro ao processar pagamento Mercado Pago:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Erro ao processar pagamento: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
 }

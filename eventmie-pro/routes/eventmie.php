@@ -260,6 +260,7 @@ Route::group([
         // API
         Route::post('/api/get_tickets', "$controller@get_tickets")->name('bookings_get_tickets');
         Route::post('/api/book_tickets', "$controller@book_tickets")->name('bookings_book_tickets');
+        Route::post('/api/mercadopago/process', "$controller@mercadopago_process")->name('eventmie.mercadopago_process');
     });
     
     /* My Bookings (customers) */
