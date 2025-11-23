@@ -1223,8 +1223,8 @@ class BookingsController extends Controller
                 \Log::info('Processando pagamento sem booking prévio');
             }
 
-            \Log::info('Booking encontrado:', $booking ? $booking->toArray() : 'null');
-            \Log::info('Order encontrado:', $order ? $order->toArray() : 'null');
+            \Log::info('Booking encontrado:', ['booking' => $booking ? $booking->toArray() : null]);
+            \Log::info('Order encontrado:', ['order' => $order ? $order->toArray() : null]);
 
             // Here you would integrate with Mercado Pago SDK
             // For now, we'll just return success
