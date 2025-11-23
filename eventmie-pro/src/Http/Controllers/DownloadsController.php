@@ -123,12 +123,12 @@ class DownloadsController extends Controller
     {
         try {
             $storageDisk = getDisk(); // Get current storage disk
-            $qrcodeFilename = $data['id'] . '-' . $data['order_number'] . '.png';
+            $qrcodeFilename = $data['id'] . '-' . $data['order_number'] . '.png.svg';
             $relativePath = 'qrcodes/' . $data['customer_id'] . '/' . $qrcodeFilename;
 
             if ($storageDisk == 's3') {
-                // Generate QR code in memory
-                $qrCodeContent = \QrCode::format('png')->size(256)->generate(json_encode($qrcode_data));
+                // Generate QR code in memory using SVG (works with GD)
+                $qrCodeContent = \QrCode::format('svg')->size(256)->generate(json_encode($qrcode_data));
 
                 // Store in S3
                 Storage::disk('s3')->put($relativePath, $qrCodeContent);
@@ -145,7 +145,9 @@ class DownloadsController extends Controller
 
                 // Generate QR code only if not already created
                 if (!\File::exists($localPath)) {
-                    \QrCode::format('png')->size(256)->generate(json_encode($qrcode_data), $localPath);
+                    // Use SVG format which works with GD backend
+                    $qrCodeContent = \QrCode::format('svg')->size(256)->generate(json_encode($qrcode_data));
+                    \File::put($localPath, $qrCodeContent);
                 }
 
                 return \File::exists($localPath);

@@ -142,20 +142,49 @@
             <tr>
                 <td style="padding-top: 0;">
                     @php
-                        $qrcode =
-                            $booking['customer_id'] . '/' . $booking['id'] . '-' . $booking['order_number'] . '.png';
-                        $qrcodePath = public_path('/storage/qrcodes/' . $qrcode);
+                        $qrcodeBaseName = $booking['customer_id'] . '/' . $booking['id'] . '-' . $booking['order_number'];
+                        $qrcodePath = null;
+                        $qrcodeType = 'png';
+                        $fileExists = false;
+
+                        // Try PNG first
+                        $qrcodePngPath = public_path('/storage/qrcodes/' . $qrcodeBaseName . '.png');
+                        // Try SVG
+                        $qrcodeSvgPath = public_path('/storage/qrcodes/' . $qrcodeBaseName . '.png.svg');
 
                         if(getDisk() == 's3') {
-                            $qrcodePath = getStorageImage('qrcodes/'.$qrcode);
-
-                            $fileExists = Storage::disk('s3')->exists('qrcodes/'.$qrcode);
+                            $fileExistsPng = Storage::disk('s3')->exists('qrcodes/' . $qrcodeBaseName . '.png');
+                            $fileExistsSvg = Storage::disk('s3')->exists('qrcodes/' . $qrcodeBaseName . '.png.svg');
+                            
+                            if($fileExistsPng) {
+                                $qrcodePath = getStorageImage('qrcodes/' . $qrcodeBaseName . '.png');
+                                $qrcodeType = 'png';
+                                $fileExists = true;
+                            } elseif($fileExistsSvg) {
+                                $qrcodePath = getStorageImage('qrcodes/' . $qrcodeBaseName . '.png.svg');
+                                $qrcodeType = 'svg';
+                                $fileExists = true;
+                            }
+                        } else {
+                            if(file_exists($qrcodePngPath)) {
+                                $qrcodePath = $qrcodePngPath;
+                                $qrcodeType = 'png';
+                                $fileExists = true;
+                            } elseif(file_exists($qrcodeSvgPath)) {
+                                $qrcodePath = $qrcodeSvgPath;
+                                $qrcodeType = 'svg';
+                                $fileExists = true;
+                            }
                         }
                     @endphp
                     
-                    @if (file_exists($qrcodePath) && getDisk() != 's3')
-                        <img src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents($qrcodePath)) }}" class="qr-code-image">
-                    @elseif(getDisk() == 's3' && $fileExists)
+                    @if ($fileExists && getDisk() != 's3')
+                        @if ($qrcodeType == 'png')
+                            <img src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents($qrcodePath)) }}" class="qr-code-image">
+                        @elseif ($qrcodeType == 'svg')
+                            <img src="{{ 'data:image/svg+xml;base64,' . base64_encode(file_get_contents($qrcodePath)) }}" class="qr-code-image">
+                        @endif
+                    @elseif($fileExists && getDisk() == 's3')
                         <img src="{{ $qrcodePath }}" class="qr-code-image">
                     @endif
                 </td>
