@@ -103,14 +103,21 @@
 
 ---
 
-### **FASE 7: Frontend - Admin Settings** ⏳ PENDENTE
-- [ ] Criar view com abas
-- [ ] Criar componente Vue para Settings
-- [ ] Criar componente Vue para Payment Methods
-- [ ] Implementar formulários
+### **FASE 7: Frontend - Admin Settings** ⏳ EM PROGRESSO
+- [x] Corrigir rotas em eventmie.php ✅
+- [x] Criar views blade ✅
+- [x] Criar componente Vue AdminSettings ✅
+- [x] Criar componente SettingsTab ✅
+- [x] Criar componente PaymentMethodsTab ✅
+- [x] Criar componente TransactionsTab ✅
+- [x] Criar componente RefundsTab ✅
+- [ ] Registrar componentes no app.js
+- [ ] Testar abas
 - [ ] Criar Menu Financeiro no Voyager
 
 **Tempo Estimado:** 3-4 horas  
+**Tempo Decorrido:** 1.5 horas  
+**Status:** ⏳ EM PROGRESSO  
 
 ---
 
