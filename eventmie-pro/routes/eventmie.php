@@ -378,6 +378,11 @@ Route::group([
     Route::get('/mercadopago/checkout', function() {
         return view('eventmie-pro::mercadopago.checkout');
     })->middleware('auth')->name('mercadopago_checkout');
+
+    /* Mercado Pago Transactions Page */
+    Route::get('/mercadopago/transactions', function() {
+        return view('eventmie-pro::mercadopago.transactions');
+    })->middleware('auth')->name('mercadopago_transactions');
     
     /* Notification */
     Route::prefix('/notifications')->group(function () use ($namespace)  {
