@@ -328,6 +328,16 @@ export default {
         // get global variables
         ...mapState( ['booking_date', 'start_time', 'end_time', 'booking_end_date', 'booked_date_server']),
     },
+
+    mounted() {
+        console.log('=== DEBUG TICKET LIST ===');
+        console.log('is_admin:', this.is_admin);
+        console.log('is_mercadopago:', this.is_mercadopago);
+        console.log('is_paypal:', this.is_paypal);
+        console.log('is_customer:', this.is_customer);
+        console.log('is_organiser:', this.is_organiser);
+        console.log('Condição Mercado Pago (is_admin <= 0 && is_mercadopago > 0):', this.is_admin <= 0 && this.is_mercadopago > 0);
+    },
    
     methods: {
         // update global variables
