@@ -1,5 +1,5 @@
 .wrapper[data-v-1f90552a]{position:relative;z-index:0;width:100%;height:100%}.overlay[data-v-1f90552a],.tracking-layer[data-v-1f90552a]{position:absolute;width:100%;height:100%;top:0;left:0}.camera[data-v-1f90552a],.pause-frame[data-v-1f90552a]{display:block;-o-object-fit:cover;object-fit:cover;width:100%;height:100%}
-.scanner-wrapper[data-v-60017fc2] {
+.scanner-wrapper[data-v-8c7b7db5] {
     position: fixed;
     top: 0;
     left: 0;
@@ -13,7 +13,7 @@
     background-color: #000;
     z-index: 1000;
 }
-.scanner-container[data-v-60017fc2] {
+.scanner-container[data-v-8c7b7db5] {
     position: absolute;
     top: 0;
     left: 0;
@@ -28,7 +28,7 @@
 }
 
 /* QRCode Stream Styles */
-[data-v-60017fc2] .qrcode-stream {
+[data-v-8c7b7db5] .qrcode-stream {
     position: absolute !important;
     top: 0 !important;
     left: 0 !important;
@@ -38,19 +38,19 @@
     align-items: center !important;
     justify-content: center !important;
 }
-[data-v-60017fc2] .qrcode-stream video {
+[data-v-8c7b7db5] .qrcode-stream video {
     width: 100% !important;
     height: 100% !important;
     -o-object-fit: cover !important;
        object-fit: cover !important;
 }
-[data-v-60017fc2] .qrcode-stream__camera {
+[data-v-8c7b7db5] .qrcode-stream__camera {
     width: 100% !important;
     height: 100% !important;
 }
 
 /* Scanner Result Overlay */
-.scanner-result-overlay[data-v-60017fc2] {
+.scanner-result-overlay[data-v-8c7b7db5] {
     position: fixed;
     top: 0;
     left: 0;
@@ -64,50 +64,51 @@
     padding: 20px;
     color: white;
 }
-.scanner-result-overlay.bg-success[data-v-60017fc2] {
+.scanner-result-overlay.bg-success[data-v-8c7b7db5] {
     background-color: rgba(40, 167, 69, 0.95);
 }
-.scanner-result-overlay.bg-warning[data-v-60017fc2] {
+.scanner-result-overlay.bg-warning[data-v-8c7b7db5] {
     background-color: rgba(255, 193, 7, 0.95);
     color: #000;
 }
-.scanner-result-overlay.bg-danger[data-v-60017fc2] {
+.scanner-result-overlay.bg-danger[data-v-8c7b7db5] {
     background-color: rgba(220, 53, 69, 0.95);
 }
-.scanner-event-header[data-v-60017fc2] {
+.scanner-event-header[data-v-8c7b7db5] {
     text-align: center;
     margin-bottom: 30px;
     font-size: 1.5rem;
     font-weight: bold;
 }
-.scanner-ticket-block[data-v-60017fc2] {
+.scanner-ticket-block[data-v-8c7b7db5] {
     background-color: rgba(255, 255, 255, 0.1);
     padding: 15px;
     border-radius: 8px;
     margin-bottom: 15px;
     min-width: 300px;
 }
-.scanner-ticket-badge[data-v-60017fc2] {
-    background-color: rgba(255, 255, 255, 0.2);
+.scanner-ticket-badge[data-v-8c7b7db5] {
+    background-color: #000;
+    color: #fff;
     padding: 8px 12px;
     border-radius: 4px;
     font-weight: bold;
     display: inline-block;
 }
-.scanner-attendee-list[data-v-60017fc2] {
+.scanner-attendee-list[data-v-8c7b7db5] {
     margin-top: 10px;
 }
-.scanner-attendee-name[data-v-60017fc2] {
+.scanner-attendee-name[data-v-8c7b7db5] {
     padding: 8px 0;
 }
-.scanner-customer-block[data-v-60017fc2] {
+.scanner-customer-block[data-v-8c7b7db5] {
     background-color: rgba(255, 255, 255, 0.1);
     padding: 15px;
     border-radius: 8px;
     text-align: center;
     min-width: 300px;
 }
-.scanner-customer-badge[data-v-60017fc2] {
+.scanner-customer-badge[data-v-8c7b7db5] {
     background-color: rgba(255, 255, 255, 0.2);
     padding: 8px 12px;
     border-radius: 4px;
@@ -115,16 +116,16 @@
     display: inline-block;
     margin-bottom: 10px;
 }
-.scanner-customer-name[data-v-60017fc2] {
+.scanner-customer-name[data-v-8c7b7db5] {
     font-size: 1.2rem;
     font-weight: bold;
     margin-bottom: 5px;
 }
-.scanner-customer-email[data-v-60017fc2] {
+.scanner-customer-email[data-v-8c7b7db5] {
     font-size: 0.9rem;
     opacity: 0.9;
 }
-.scanner-error-message[data-v-60017fc2] {
+.scanner-error-message[data-v-8c7b7db5] {
     background-color: rgba(255, 255, 255, 0.1);
     padding: 20px;
     border-radius: 8px;
