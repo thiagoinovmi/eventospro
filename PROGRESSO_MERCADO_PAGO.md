@@ -4,8 +4,8 @@
 
 **Data Início:** 23 de Novembro de 2025  
 **Status:** EM PROGRESSO  
-**Fase Atual:** 4 - Backend - Checkout  
-**Progresso Geral:** 3/12 (25%)  
+**Fase Atual:** 5 - Backend - Webhooks  
+**Progresso Geral:** 4/12 (33%)  
 
 ---
 
@@ -61,14 +61,17 @@
 
 ---
 
-### **FASE 4: Backend - Checkout** ⏳ PENDENTE
-- [ ] Criar `MercadoPagoCheckoutController`
-- [ ] Implementar lógica de criação de pagamento
-- [ ] Implementar validações de dados
-- [ ] Integrar com `BookingsController`
-- [ ] Criar rotas
+### **FASE 4: Backend - Checkout** ✅ CONCLUÍDA
+- [x] Verificar `MercadoPagoController` existente ✅
+- [x] Implementar lógica de criação de pagamento ✅
+- [x] Implementar validações de dados ✅
+- [x] Integrar com `BookingsController` ✅
+- [x] Criar rotas ✅
+- [x] Testar controller e service ✅
 
 **Tempo Estimado:** 3-4 horas  
+**Tempo Decorrido:** 0.5 horas  
+**Status:** ✅ CONCLUÍDA  
 
 ---
 
@@ -163,8 +166,8 @@
 | 1 | ✅ CONCLUÍDA | 100% |
 | 2 | ✅ CONCLUÍDA | 100% |
 | 3 | ✅ CONCLUÍDA | 100% |
-| 4 | ⏳ EM PROGRESSO | 0% |
-| 5 | ⏳ PENDENTE | 0% |
+| 4 | ✅ CONCLUÍDA | 100% |
+| 5 | ⏳ EM PROGRESSO | 0% |
 | 6 | ⏳ PENDENTE | 0% |
 | 7 | ⏳ PENDENTE | 0% |
 | 8 | ⏳ PENDENTE | 0% |
@@ -172,22 +175,22 @@
 | 10 | ⏳ PENDENTE | 0% |
 | 11 | ⏳ PENDENTE | 0% |
 | 12 | ⏳ PENDENTE | 0% |
-| **TOTAL** | | **25%** |
+| **TOTAL** | | **33%** |
 
 ---
 
 ## 🎯 PRÓXIMA AÇÃO
 
-**Iniciando FASE 4: Backend - Checkout**
+**Iniciando FASE 5: Backend - Webhooks**
 
 Vou criar:
-1. Verificar `MercadoPagoController` existente
-2. Implementar lógica de criação de pagamento
-3. Implementar validações de dados
-4. Integrar com `BookingsController`
-5. Testar rotas
+1. Verificar webhook methods no `MercadoPagoController`
+2. Implementar processamento de webhooks
+3. Validar assinatura de webhooks
+4. Atualizar status de transações
+5. Testar webhooks
 
 ---
 
-**Última Atualização:** 23 de Novembro de 2025 - 16:30  
+**Última Atualização:** 23 de Novembro de 2025 - 16:32  
 **Atualizado por:** Sistema de Progresso
