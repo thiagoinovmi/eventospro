@@ -1175,9 +1175,10 @@ class BookingsController extends Controller
             // Validate required fields
             $validated = $request->validate([
                 'event_id' => 'required|integer',
-                'booking_date' => 'required|date',
-                'start_time' => 'required',
-                'end_time' => 'required',
+                'booking_date' => 'required|string',
+                'booking_end_date' => 'required|string',
+                'start_time' => 'required|string',
+                'end_time' => 'required|string',
                 'payment_method' => 'required|string',
                 'selected_method' => 'required|string',
                 'total' => 'required|numeric'
@@ -1210,6 +1211,15 @@ class BookingsController extends Controller
                 'booking_id' => $booking->id
             ]);
 
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Erro de validação:', $e->errors());
+            
+            return response()->json([
+                'status' => false,
+                'message' => 'Erro de validação: ' . implode(', ', array_map(function($errors) {
+                    return implode(', ', $errors);
+                }, $e->errors()))
+            ], 422);
         } catch (\Exception $e) {
             \Log::error('Erro ao processar pagamento Mercado Pago:', [
                 'message' => $e->getMessage(),

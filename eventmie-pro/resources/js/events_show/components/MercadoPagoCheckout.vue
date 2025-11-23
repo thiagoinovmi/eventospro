@@ -365,7 +365,10 @@ export default {
             } catch (error) {
                 console.error('Payment error:', error);
                 console.error('Resposta de erro:', error.response);
-                this.$emit('error', error.response?.data?.message || 'Erro ao processar pagamento. Tente novamente.');
+                
+                const errorMessage = error.response?.data?.message || 'Erro ao processar pagamento. Tente novamente.';
+                this.errorMessage = errorMessage;
+                console.error('Mensagem de erro:', errorMessage);
             }
         }
 
