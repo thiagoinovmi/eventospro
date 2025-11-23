@@ -59,4 +59,29 @@
 
 @section('javascript')
 @vite(['eventmie-pro/resources/js/ticket_scanner/index.js'])
+
+<script>
+// Request camera permission on page load for iOS
+document.addEventListener('DOMContentLoaded', function() {
+    // Request camera permission
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ 
+            video: { 
+                facingMode: 'environment',
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+            },
+            audio: false
+        }).then(function(stream) {
+            console.log('Camera permission granted');
+            // Stop the stream immediately - we just needed permission
+            stream.getTracks().forEach(function(track) {
+                track.stop();
+            });
+        }).catch(function(error) {
+            console.error('Camera permission error:', error);
+        });
+    }
+});
+</script>
 @stop
