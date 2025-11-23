@@ -102,19 +102,44 @@ class MercadoPagoPaymentMethodController extends \App\Http\Controllers\Controlle
 
     /**
      * Get payment methods for a specific event
+     * Only returns methods that are enabled globally AND enabled for the event
      */
     public function getEventMethods($eventId)
     {
         try {
             $event = Event::findOrFail($eventId);
             
+            // Get event payment methods with global payment method data
             $methods = EventPaymentMethod::where('event_id', $eventId)
                 ->with('paymentMethod')
-                ->get();
+                ->get()
+                ->filter(function ($method) {
+                    // Only return if both global AND event method are enabled
+                    return $method->paymentMethod && 
+                           $method->paymentMethod->enabled && 
+                           $method->enabled;
+                })
+                ->values(); // Reset array keys
+
+            // Transform to include all necessary data
+            $formattedMethods = $methods->map(function ($method) {
+                return [
+                    'id' => $method->id,
+                    'payment_method_id' => $method->payment_method_id,
+                    'event_id' => $method->event_id,
+                    'name' => $method->paymentMethod->name,
+                    'type' => $method->paymentMethod->type,
+                    'description' => $method->paymentMethod->description,
+                    'enabled' => $method->enabled,
+                    'installments_enabled' => $method->installments_enabled && $method->paymentMethod->installments_enabled,
+                    'max_installments' => $method->max_installments,
+                    'global_enabled' => $method->paymentMethod->enabled
+                ];
+            });
 
             return response()->json([
                 'status' => true,
-                'data' => $methods
+                'data' => $formattedMethods
             ]);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
