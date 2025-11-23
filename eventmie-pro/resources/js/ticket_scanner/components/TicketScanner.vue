@@ -102,6 +102,10 @@
                     <i class="fas fa-exclamation-circle me-2"></i>
                     <strong>{{ trans('em.error') }}:</strong> {{ errorMessage }}
                 </div>
+                <!-- Debug info -->
+                <div class="scanner-debug-info">
+                    <small>is_laser: {{ is_laser }} | showResult: {{ showResult }} | hide_scanner: {{ hide_scanner }}</small>
+                </div>
             </div>
         </div>
     </div>
@@ -334,6 +338,9 @@ export default {
         clearTimeout(this.resultTimeout);
     },
     mounted() {
+        console.log('TicketScanner mounted - is_laser:', this.is_laser);
+        console.log('showResult:', this.showResult);
+        console.log('showManualDetails:', this.showManualDetails);
         if (this.is_laser) {
             this.focusLaserInput();
         }
@@ -541,6 +548,21 @@ export default {
     left: 20px;
     right: 20px;
     z-index: 100;
+}
+
+.scanner-debug-info {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #0f0;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 10px;
+    z-index: 9999;
+    max-width: 90vw;
+    word-break: break-all;
 }
 
 .scanner-customer-name {
