@@ -1169,7 +1169,21 @@ class BookingsController extends Controller
     public function mercadopago_process(Request $request)
     {
         \Log::info('=== MERCADO PAGO PROCESS INICIADO ===');
-        \Log::info('Request data:', $request->all());
+        \Log::info('Request method:', [$request->getMethod()]);
+        \Log::info('Request headers:', $request->headers->all());
+        \Log::info('Request all data:', $request->all());
+        
+        // Log each parameter individually
+        \Log::info('PARÂMETROS RECEBIDOS:');
+        \Log::info('  event_id: ' . $request->input('event_id'));
+        \Log::info('  booking_date: ' . $request->input('booking_date'));
+        \Log::info('  booking_end_date: ' . $request->input('booking_end_date'));
+        \Log::info('  start_time: ' . $request->input('start_time'));
+        \Log::info('  end_time: ' . $request->input('end_time'));
+        \Log::info('  payment_method: ' . $request->input('payment_method'));
+        \Log::info('  selected_method: ' . $request->input('selected_method'));
+        \Log::info('  total: ' . $request->input('total'));
+        \Log::info('  card_data: ' . json_encode($request->input('card_data')));
 
         try {
             // Validate required fields
@@ -1184,6 +1198,7 @@ class BookingsController extends Controller
                 'total' => 'required|numeric'
             ]);
 
+            \Log::info('VALIDAÇÃO PASSOU');
             \Log::info('Dados validados:', $validated);
 
             // Get booking data from session or create new one
