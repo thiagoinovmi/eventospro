@@ -437,6 +437,9 @@ export default {
                 // hide loader
                 Swal.hideLoading();
                 
+                // Fechar o modal
+                this.close();
+                
                 // Mostrar formulário de Mercado Pago
                 this.scrollToMercadoPagoForm();
                 this.disable = false;
