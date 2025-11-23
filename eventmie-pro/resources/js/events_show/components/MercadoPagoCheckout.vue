@@ -211,13 +211,16 @@ export default {
         },
         installmentOptions: {
             type: Array,
-            default: () => [
-                { value: 1, label: '1x sem juros' },
-                { value: 2, label: '2x sem juros' },
-                { value: 3, label: '3x sem juros' },
-                { value: 6, label: '6x sem juros' },
-                { value: 12, label: '12x com juros' }
-            ]
+            default: () => {
+                const options = [];
+                for (let i = 1; i <= 12; i++) {
+                    options.push({
+                        value: i,
+                        label: i === 1 ? '1x sem juros' : `${i}x ${i <= 6 ? 'sem juros' : 'com juros'}`
+                    });
+                }
+                return options;
+            }
         }
     },
 

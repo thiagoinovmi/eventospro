@@ -349,13 +349,7 @@ export default {
                 pix: true,
                 wallet: true
             },
-            installmentOptions: [
-                { value: 1, label: '1x sem juros' },
-                { value: 2, label: '2x sem juros' },
-                { value: 3, label: '3x sem juros' },
-                { value: 6, label: '6x sem juros' },
-                { value: 12, label: '12x com juros' }
-            ]
+            installmentOptions: this.generateInstallments(12)
         }
     },
 
@@ -388,6 +382,17 @@ export default {
     methods: {
         // update global variables
         ...mapMutations(['add', 'update']),
+
+        generateInstallments(maxInstallments) {
+            const options = [];
+            for (let i = 1; i <= maxInstallments; i++) {
+                options.push({
+                    value: i,
+                    label: i === 1 ? '1x sem juros' : `${i}x ${i <= 6 ? 'sem juros' : 'com juros'}`
+                });
+            }
+            return options;
+        },
 
         // reset form and close modal
         close: function () {    
