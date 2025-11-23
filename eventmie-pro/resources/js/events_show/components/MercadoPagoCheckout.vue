@@ -343,11 +343,12 @@ export default {
                     total: this.total
                 };
 
-                console.log('Enviando dados para:', route('eventmie.mercadopago_process'));
+                const apiUrl = '/bookings/api/mercadopago/process';
+                console.log('Enviando dados para:', apiUrl);
                 console.log('Dados:', paymentData);
 
                 // Send payment request
-                const response = await axios.post(route('eventmie.mercadopago_process'), paymentData);
+                const response = await axios.post(apiUrl, paymentData);
 
                 console.log('Resposta recebida:', response.data);
 
