@@ -240,7 +240,8 @@ export default {
                 cardExpiry: '',
                 cardCvv: ''
             },
-            errorMessage: ''
+            errorMessage: '',
+            successMessage: ''
         }
     },
 
@@ -353,12 +354,14 @@ export default {
                 console.log('Resposta recebida:', response.data);
 
                 if (response.data.status) {
-                    this.$emit('success', response.data.message || 'Pagamento processado com sucesso!');
+                    this.successMessage = response.data.message || 'Pagamento processado com sucesso!';
+                    console.log('Pagamento confirmado com sucesso!');
                     
                     // Redirect after success
                     setTimeout(() => {
-                        window.location.href = route('eventmie.booking_confirmation', { id: response.data.booking_id });
-                    }, 2000);
+                        // Redirect to mybookings page
+                        window.location.href = '/mybookings';
+                    }, 3000);
                 } else {
                     this.$emit('error', response.data.message || 'Erro ao processar pagamento');
                 }
