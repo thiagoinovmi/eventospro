@@ -9025,6 +9025,9 @@ const _sfc_main = {
     clearTimeout(this.resultTimeout);
   },
   mounted() {
+    console.log("TicketScanner mounted - is_laser:", this.is_laser);
+    console.log("showResult:", this.showResult);
+    console.log("showManualDetails:", this.showManualDetails);
     if (this.is_laser) {
       this.focusLaserInput();
     }
@@ -9039,7 +9042,7 @@ var _sfc_render = function render() {
   }), _c("div", { staticClass: "scanner-customer-block" }, [_c("div", { staticClass: "scanner-customer-badge" }, [_vm._v(_vm._s(_vm.trans("em.buyer")))]), _c("div", { staticClass: "scanner-customer-name text-dark" }, [_vm._v(_vm._s(_vm.resultData.customer_name))]), _c("div", { staticClass: "scanner-customer-email text-dark" }, [_vm._v(_vm._s(_vm.resultData.customer_email))])]), _c("div", { staticClass: "d-flex justify-content-center mt-3" }, [_c("button", { staticClass: "btn btn-secondary px-4 py-2", on: { "click": _vm.refreshPage } }, [_c("i", { staticClass: "fas fa-sync-alt me-2" }), _vm._v(_vm._s(_vm.trans("em.scan_another_ticket")) + " ")])])] : [_c("div", { staticClass: "scanner-error-message" }, [_vm._v(" ")]), _c("div", { staticClass: "scanner-event-header" }, [_c("i", { staticClass: "fas fa-ban" }), _vm._v(" " + _vm._s(_vm.resultMessage) + " ")])]] : _vm._e()], 2) : _c("div", { staticClass: "scanner-wrapper" }, [_c("div", { staticClass: "scanner-container" }, [!_vm.is_laser && _vm.hide_scanner <= 0 ? [_c("qrcode-stream", { attrs: { "constraints": { facingMode: "environment" } }, on: { "decode": _vm.getOrderNumberFromQRCode, "init": _vm.onInit } }), _c("div", { staticClass: "scanner-overlay-info" }, [_c("div", { staticClass: "scanner-info-box" }, [_c("i", { staticClass: "fas fa-camera me-2" }), _c("span", [_vm._v(_vm._s(_vm.trans("em.camera_scanner_mode")))])])])] : _vm._e(), _vm.is_laser ? [_c("div", { staticClass: "scanner-laser-container" }, [_c("div", { staticClass: "scanner-info-box" }, [_c("i", { staticClass: "fas fa-barcode me-2" }), _c("span", [_vm._v(_vm._s(_vm.trans("em.laser_scanner_mode")))])]), _c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.laser_scanner, expression: "laser_scanner" }], ref: "laserInput", staticClass: "form-control scanner-laser-input", attrs: { "placeholder": _vm.trans("em.scan_ticket_on_laser"), "autofocus": "" }, domProps: { "value": _vm.laser_scanner }, on: { "change": _vm.getOrderNumberFromLaserInput, "blur": _vm.focusLaserInput, "input": function($event) {
     if ($event.target.composing) return;
     _vm.laser_scanner = $event.target.value;
-  } } })])] : _vm._e(), _vm.errorMessage ? _c("div", { staticClass: "alert alert-danger m-3 scanner-error-alert", attrs: { "role": "alert" } }, [_c("i", { staticClass: "fas fa-exclamation-circle me-2" }), _c("strong", [_vm._v(_vm._s(_vm.trans("em.error")) + ":")]), _vm._v(" " + _vm._s(_vm.errorMessage) + " ")]) : _vm._e()], 2)])]);
+  } } })])] : _vm._e(), _vm.errorMessage ? _c("div", { staticClass: "alert alert-danger m-3 scanner-error-alert", attrs: { "role": "alert" } }, [_c("i", { staticClass: "fas fa-exclamation-circle me-2" }), _c("strong", [_vm._v(_vm._s(_vm.trans("em.error")) + ":")]), _vm._v(" " + _vm._s(_vm.errorMessage) + " ")]) : _vm._e(), _c("div", { staticClass: "scanner-debug-info" }, [_c("small", [_vm._v("is_laser: " + _vm._s(_vm.is_laser) + " | showResult: " + _vm._s(_vm.showResult) + " | hide_scanner: " + _vm._s(_vm.hide_scanner))])])], 2)])]);
 };
 var _sfc_staticRenderFns = [];
 var __component__ = /* @__PURE__ */ normalizeComponent(
@@ -9048,7 +9051,7 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "c493af3d"
+  "004eab37"
 );
 const TicketScanner = __component__.exports;
 Vue.use(VueQrcodeReader);
@@ -9058,4 +9061,4 @@ window.app = new Vue({
     TicketScanner
   }
 });
-//# sourceMappingURL=index-LYjGuVU0.js.map
+//# sourceMappingURL=index-CHnpJr7U.js.map
