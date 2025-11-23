@@ -63,24 +63,39 @@
 <script>
 // Request camera permission on page load for iOS
 document.addEventListener('DOMContentLoaded', function() {
-    // Request camera permission
+    // Request camera permission with retry logic
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices.getUserMedia({ 
-            video: { 
-                facingMode: 'environment',
-                width: { ideal: 1280 },
-                height: { ideal: 720 }
-            },
-            audio: false
-        }).then(function(stream) {
-            console.log('Camera permission granted');
-            // Stop the stream immediately - we just needed permission
-            stream.getTracks().forEach(function(track) {
-                track.stop();
+        var requestCamera = function() {
+            navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    facingMode: 'environment',
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                },
+                audio: false
+            }).then(function(stream) {
+                console.log('Camera permission granted');
+                // Keep stream alive for a moment to ensure permission is cached
+                setTimeout(function() {
+                    stream.getTracks().forEach(function(track) {
+                        track.stop();
+                    });
+                }, 500);
+            }).catch(function(error) {
+                console.error('Camera permission error:', error.name, error.message);
+                // Retry after a delay
+                if (error.name === 'NotAllowedError') {
+                    console.log('User denied camera access');
+                } else if (error.name === 'NotFoundError') {
+                    console.log('No camera found');
+                } else {
+                    setTimeout(requestCamera, 2000);
+                }
             });
-        }).catch(function(error) {
-            console.error('Camera permission error:', error);
-        });
+        };
+        
+        // Start requesting camera with a small delay
+        setTimeout(requestCamera, 500);
     }
 });
 </script>

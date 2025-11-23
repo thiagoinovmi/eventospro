@@ -131,19 +131,23 @@ export default {
                 })
                 .catch(error => {
                     console.error('Camera initialization error:', error);
+                    console.error('Error name:', error.name);
+                    console.error('Error message:', error.message);
                     
                     if (error.name === 'NotAllowedError') {
-                        this.errorMessage = trans('em.camera_access_required');
+                        this.errorMessage = trans('em.camera_access_required') + ' - Por favor, permita o acesso à câmera nas configurações do seu navegador.';
                     } else if (error.name === 'NotFoundError') {
                         this.errorMessage = trans('em.camera_not_detected');
                     } else if (error.name === 'NotSupportedError') {
                         this.errorMessage = trans('em.camera_https_required');
                     } else if (error.name === 'NotReadableError') {
-                        this.errorMessage = trans('em.camera_not_detected');
+                        this.errorMessage = trans('em.camera_not_detected') + ' - A câmera pode estar em uso por outro aplicativo.';
                     } else if (error.name === 'OverconstrainedError') {
-                        this.errorMessage = trans('em.camera_not_detected');
+                        this.errorMessage = trans('em.camera_not_detected') + ' - Tente novamente.';
                     } else if (error.name === 'SecurityError') {
                         this.errorMessage = trans('em.camera_https_required');
+                    } else if (error.name === 'TypeError') {
+                        this.errorMessage = 'Câmera não disponível. Verifique as permissões do navegador.';
                     } else {
                         this.errorMessage = error.message || trans('em.camera_not_detected');
                     }
