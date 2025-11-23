@@ -80,7 +80,7 @@
                     <i class="fas fa-exclamation-circle me-2"></i>
                     <strong>{{ trans('em.error') }}:</strong> {{ errorMessage }}
                 </div>
-                <qrcode-stream v-if="!is_laser && hide_scanner <= 0" :camera="camera" @decode="getOrderNumberFromQRCode" @init="onInit"></qrcode-stream>
+                <qrcode-stream v-if="!is_laser && hide_scanner <= 0" @decode="getOrderNumberFromQRCode" @init="onInit" :constraints="{ facingMode: 'environment' }"></qrcode-stream>
                 <input v-if="is_laser" ref="laserInput" v-model="laser_scanner" @change="getOrderNumberFromLaserInput" @blur="focusLaserInput" class="form-control" :placeholder="trans('em.scan_ticket_on_laser')" autofocus/>
             </div>
         </div>
@@ -108,7 +108,6 @@ export default {
             errorMessage    : '',
             hide_scanner    : 0,
             booking         : [],
-            camera: 'auto',
             showResult: false,
             resultType: '', // 'error', 'warning', 'success'
             resultMessage: '',
@@ -125,24 +124,30 @@ export default {
     },
     methods: {
         onInit(promise) {
-            promise.then(() => {
-                console.log('Successfully initilized! Ready for scanning now!')
-            })
-            .catch(error => {
-                if (error.name === 'NotAllowedError') {
-                    this.errorMessage = trans('em.camera_access_required');
-                } else if (error.name === 'NotFoundError') {
-                    this.errorMessage = trans('em.camera_not_detected');
-                } else if (error.name === 'NotSupportedError') {
-                    this.errorMessage = trans('em.camera_https_required');
-                } else if (error.name === 'NotReadableError') {
-                    this.errorMessage = trans('em.camera_not_detected');
-                } else if (error.name === 'OverconstrainedError') {
-                    this.errorMessage = trans('em.camera_not_detected');
-                } else {
-                    this.errorMessage = trans('em.camera_not_detected');
-                }
-            })
+            promise
+                .then(() => {
+                    console.log('Camera initialized successfully!');
+                    this.errorMessage = '';
+                })
+                .catch(error => {
+                    console.error('Camera initialization error:', error);
+                    
+                    if (error.name === 'NotAllowedError') {
+                        this.errorMessage = trans('em.camera_access_required');
+                    } else if (error.name === 'NotFoundError') {
+                        this.errorMessage = trans('em.camera_not_detected');
+                    } else if (error.name === 'NotSupportedError') {
+                        this.errorMessage = trans('em.camera_https_required');
+                    } else if (error.name === 'NotReadableError') {
+                        this.errorMessage = trans('em.camera_not_detected');
+                    } else if (error.name === 'OverconstrainedError') {
+                        this.errorMessage = trans('em.camera_not_detected');
+                    } else if (error.name === 'SecurityError') {
+                        this.errorMessage = trans('em.camera_https_required');
+                    } else {
+                        this.errorMessage = error.message || trans('em.camera_not_detected');
+                    }
+                });
         },
         getOrderNumberFromQRCode(content) {
             if (this.showResult || this.processing || this.showManualDetails) return;
