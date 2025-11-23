@@ -1,4 +1,4 @@
-@extends('eventmie-pro::layouts.app')
+@extends('eventmie::layouts.app')
 
 @section('content')
 <div class="container mt-5 mb-5">

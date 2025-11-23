@@ -391,28 +391,36 @@ Route::group([
     /* Mercado Pago Webhook */
     Route::post('/webhooks/mercadopago', $namespace.'\MercadoPagoController@webhook')->name('mercadopago_webhook');
 
-    /* Mercado Pago Checkout Page */
-    Route::get('/mercadopago/checkout', function() {
-        return view('eventmie-pro::mercadopago.checkout');
-    })->middleware('auth')->name('mercadopago_checkout');
-
-    /* Mercado Pago Transactions Page */
-    Route::get('/mercadopago/transactions', function() {
-        return view('eventmie-pro::mercadopago.transactions');
-    })->middleware('auth')->name('mercadopago_transactions');
-
-    /* Mercado Pago Admin Routes */
-    Route::middleware(['auth', 'admin'])->prefix('/admin/mercadopago')->group(function () use ($namespace) {
+    /* Mercado Pago Admin Dashboard */
+    Route::middleware(['auth', 'admin'])->prefix('/dashboard/mercadopago')->group(function () use ($namespace) {
         $controller = $namespace.'\MercadoPagoController';
         
-        // Admin transactions page
-        Route::get('/transactions', function() {
-            return view('eventmie-pro::admin.mercadopago.transactions');
-        })->name('mercadopago_admin_transactions_page');
+        // Admin settings page (with Vue component)
+        Route::get('/settings', function() {
+            return view('eventmie::mercadopago.admin.settings');
+        })->name('mercadopago_admin_settings');
         
         // Admin API routes
         Route::get('/api/transactions', "$controller@adminListTransactions")->name('mercadopago_admin_transactions');
         Route::get('/api/stats', "$controller@adminGetStats")->name('mercadopago_admin_stats');
+    });
+
+    /* Mercado Pago User Routes */
+    Route::middleware('auth')->group(function () use ($namespace) {
+        $controller = $namespace.'\MercadoPagoController';
+        
+        // User transactions page
+        Route::get('/mercadopago/transactions', function() {
+            return view('eventmie::mercadopago.user.transactions');
+        })->name('mercadopago_user_transactions');
+    });
+
+    /* Mercado Pago Checkout Page */
+    Route::middleware('auth')->group(function () use ($namespace) {
+        // Checkout is handled via Vue component in events show page
+        Route::get('/mercadopago/checkout', function() {
+            return view('eventmie::mercadopago.checkout');
+        })->name('mercadopago_checkout');
     });
     
     /* Notification */
