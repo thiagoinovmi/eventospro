@@ -254,7 +254,7 @@
                                     <div class="col-12 mt-2 pb-4">
                                         <div class="d-grid">
                                             <div class="btn-group btn-group-md btn-block  btn-group-justified">
-                                                <button :class="{ 'disabled' : disable }" :disabled="disable" type="button" class="btn btn-success btn-lg btn-block" @click="bookTickets()">
+                                                <button :class="{ 'disabled' : disable }" :disabled="disable" type="button" class="btn btn-success btn-lg btn-block fw-bold text-white" @click="bookTickets()">
                                                     <i class="fas fa-lock"></i> 
                                                     {{ trans('em.checkout') }}
                                                 </button>
