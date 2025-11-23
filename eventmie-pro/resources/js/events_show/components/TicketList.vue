@@ -245,6 +245,8 @@
                                                 start_time: start_time,
                                                 end_time: end_time
                                             }"
+                                            :payment-methods="paymentMethods"
+                                            :installment-options="installmentOptions"
                                         />
                                     </div>
 
@@ -340,6 +342,20 @@ export default {
             cardMonth   : "",
             cardYear    : "",
             cardCvv     : "",
+            paymentMethods: {
+                credit_card: true,
+                debit_card: true,
+                boleto: true,
+                pix: true,
+                wallet: true
+            },
+            installmentOptions: [
+                { value: 1, label: '1x sem juros' },
+                { value: 2, label: '2x sem juros' },
+                { value: 3, label: '3x sem juros' },
+                { value: 6, label: '6x sem juros' },
+                { value: 12, label: '12x com juros' }
+            ]
         }
     },
 

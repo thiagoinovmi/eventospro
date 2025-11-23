@@ -153,8 +153,8 @@
                             </div>
                         </div>
 
-                        <!-- Installments -->
-                        <div class="mb-3" v-if="installmentOptions.length > 0">
+                        <!-- Installments - Apenas para cartão de crédito e carteira -->
+                        <div class="mb-3" v-if="['credit_card', 'wallet'].includes(selectedMethod) && installmentOptions.length > 0">
                             <label for="installments" class="form-label">{{ trans('em.installments') || 'Parcelamento' }}</label>
                             <select class="form-select" id="installments" v-model="cardData.installments">
                                 <option v-for="option in installmentOptions" :key="option.value" :value="option.value">
@@ -208,6 +208,16 @@ export default {
                 pix: true,
                 wallet: true
             })
+        },
+        installmentOptions: {
+            type: Array,
+            default: () => [
+                { value: 1, label: '1x sem juros' },
+                { value: 2, label: '2x sem juros' },
+                { value: 3, label: '3x sem juros' },
+                { value: 6, label: '6x sem juros' },
+                { value: 12, label: '12x com juros' }
+            ]
         }
     },
 
@@ -227,14 +237,7 @@ export default {
                 cardExpiry: '',
                 cardCvv: ''
             },
-            errorMessage: '',
-            installmentOptions: [
-                { value: 1, label: '1x sem juros' },
-                { value: 2, label: '2x sem juros' },
-                { value: 3, label: '3x sem juros' },
-                { value: 6, label: '6x sem juros' },
-                { value: 12, label: '12x com juros' }
-            ]
+            errorMessage: ''
         }
     },
 
