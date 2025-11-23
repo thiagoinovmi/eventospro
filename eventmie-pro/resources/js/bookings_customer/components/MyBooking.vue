@@ -32,7 +32,7 @@
                                                 </h5>
                                                 <p class="text-mute">
                                                     <small class="text-muted">
-                                                        {{ userTimezone(booking.event_start_date+' '+booking.event_start_time, 'YYYY-MM-DD HH:mm:ss').format('DD/MMM/YYYY HH:mm') }}
+                                                        {{ userTimezone(booking.event_start_date+' '+booking.event_start_time, 'YYYY-MM-DD HH:mm:ss').format('DD/MM/YYYY HH:mm') }}
                                                     </small>
                                                 </p>
 
