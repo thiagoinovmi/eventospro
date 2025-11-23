@@ -41,9 +41,6 @@
                         <i class="fas fa-check-circle" v-if="resultType === 'success'"></i> 
                         <i class="fas fa-exclamation-triangle" v-if="resultType === 'warning'"></i> 
                         {{ resultType === 'success' ? trans('em.checkin_successful') : trans('em.already_checked_in') }}
-                        <button class="btn btn-dark px-4 py-2 float-end">
-                            <i class="fas fa-sync-alt me-2"></i>{{ trans('em.scan_another_ticket') }}
-                        </button>
                     </div>
                     <div v-for="ticket in resultData.tickets" :key="ticket.ticket_id" class="scanner-ticket-block">
                         <div class="scanner-ticket-badge"><i class="fas fa-ticket"></i> {{ ticket.ticket_title }}</div><br>
