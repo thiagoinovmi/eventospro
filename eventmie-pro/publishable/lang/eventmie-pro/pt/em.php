@@ -879,4 +879,14 @@ return [
     'payment_processing'                => 'Pagamento em processamento',
     'mercadopago_checkout'              => 'Checkout Mercado Pago',
     'mercadopago_checkout_info'         => 'Selecione o método de pagamento e complete o checkout com segurança',
+    
+    // Admin - Transações
+    'total_transactions'                => 'Total de Transações',
+    'total_approved'                    => 'Total Aprovado',
+    'total_refunded'                    => 'Total Reembolsado',
+    'pending_refunds'                   => 'Reembolsos Pendentes',
+    'date_from'                         => 'Data De',
+    'date_to'                           => 'Data Até',
+    'search'                            => 'Buscar',
+    'user'                              => 'Usuário',
 ];

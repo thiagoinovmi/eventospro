@@ -487,4 +487,83 @@ class MercadoPagoController extends \App\Http\Controllers\Controller
             ]);
         }
     }
+
+    /**
+     * Admin: Listar todas as transações com filtros
+     */
+    public function adminListTransactions(Request $request)
+    {
+        try {
+            $query = MercadoPagoTransaction::with(['booking', 'booking.user', 'booking.event', 'refunds']);
+
+            // Filtro por status
+            if ($request->filled('status')) {
+                $query->where('status', $request->status);
+            }
+
+            // Filtro por método de pagamento
+            if ($request->filled('payment_method')) {
+                $query->where('payment_method_type', $request->payment_method);
+            }
+
+            // Filtro por data inicial
+            if ($request->filled('date_from')) {
+                $query->whereDate('created_at', '>=', $request->date_from);
+            }
+
+            // Filtro por data final
+            if ($request->filled('date_to')) {
+                $query->whereDate('created_at', '<=', $request->date_to);
+            }
+
+            // Busca por ID de transação, email ou nome
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $query->where(function ($q) use ($search) {
+                    $q->where('id', 'like', "%$search%")
+                        ->orWhere('payer_email', 'like', "%$search%")
+                        ->orWhere('payer_name', 'like', "%$search%");
+                });
+            }
+
+            $transactions = $query->orderBy('created_at', 'desc')->paginate(15);
+
+            return response()->json([
+                'status' => true,
+                'data' => $transactions,
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Admin list transactions error', [
+                'error' => $e->getMessage(),
+            ]);
+            return error($e->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Admin: Obter estatísticas de transações
+     */
+    public function adminGetStats()
+    {
+        try {
+            $stats = [
+                'total_transactions' => MercadoPagoTransaction::count(),
+                'total_approved' => MercadoPagoTransaction::where('status', 'approved')->sum('amount'),
+                'total_refunded' => MercadoPagoRefund::sum('amount'),
+                'pending_refunds' => MercadoPagoRefund::where('status', 'pending')->count(),
+            ];
+
+            return response()->json([
+                'status' => true,
+                'data' => $stats,
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Admin get stats error', [
+                'error' => $e->getMessage(),
+            ]);
+            return error($e->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+    }
 }

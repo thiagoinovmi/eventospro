@@ -383,6 +383,20 @@ Route::group([
     Route::get('/mercadopago/transactions', function() {
         return view('eventmie-pro::mercadopago.transactions');
     })->middleware('auth')->name('mercadopago_transactions');
+
+    /* Mercado Pago Admin Routes */
+    Route::middleware(['auth', 'admin'])->prefix('/admin/mercadopago')->group(function () use ($namespace) {
+        $controller = $namespace.'\MercadoPagoController';
+        
+        // Admin transactions page
+        Route::get('/transactions', function() {
+            return view('eventmie-pro::admin.mercadopago.transactions');
+        })->name('mercadopago_admin_transactions_page');
+        
+        // Admin API routes
+        Route::get('/api/transactions', "$controller@adminListTransactions")->name('mercadopago_admin_transactions');
+        Route::get('/api/stats', "$controller@adminGetStats")->name('mercadopago_admin_stats');
+    });
     
     /* Notification */
     Route::prefix('/notifications')->group(function () use ($namespace)  {
