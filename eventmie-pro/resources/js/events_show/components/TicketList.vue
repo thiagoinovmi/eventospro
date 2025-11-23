@@ -62,7 +62,7 @@
                                                 <div class="d-flex justify-content-between lh-condensed d-flex-wrap">
                                                     <div class="w-40">
                                                         <h6 class="my-0"><strong>{{ item.title }}</strong></h6>
-                                                        <p class="my-0 h6">{{ item.price > 0 ? item.price : '0.00' }} <small>{{currency}}</small></p>
+                                                        <p class="my-0 h6"><small>{{currency}}</small> {{ item.price > 0 ? item.price : '0.00' }}</p>
                                                     </div>
                                                     
                                                     <div class="w-20">
@@ -123,8 +123,7 @@
 
                                                     <div>
                                                         <strong>
-                                                            {{ total_price[index] ? total_price[index] : '0.00' }}
-                                                            <small>{{currency}}</small>
+                                                            <small>{{currency}}</small> {{ total_price[index] ? total_price[index] : '0.00' }}
                                                         </strong>
                                                         <span v-if="quantity[index] > 0"><i class="fas fa-check-circle text-success"></i></span>
                                                     </div>
@@ -166,7 +165,7 @@
                                                 </div>
                                                 <div class="d-flex justify-content-between">
                                                     <h6 class="my-0"><strong>{{ trans('em.total_order') }}</strong></h6>
-                                                    <strong :class="{'ticket-selected-text': bookedTicketsTotal() > 0 }">{{ total }} <small>{{currency}}</small></strong>
+                                                    <strong :class="{'ticket-selected-text': bookedTicketsTotal() > 0 }"><small>{{currency}}</small> {{ total }}</strong>
                                                 </div>
                                             </li>
                                         </ul>
