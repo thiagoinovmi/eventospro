@@ -282,8 +282,8 @@ class TicketScannerController extends Controller
         $orderNumber = $firstBooking->order_number;
         $customerName = $firstBooking->customer_name ?? '';
         $customerEmail = $firstBooking->customer_email ?? '';
-        $checkinDate = $today->format('d M Y');
-        $checkinTime = $today->format('h:i A');
+        $checkinDate = $today->format('d/m/Y');
+        $checkinTime = $today->format('H:i');
 
         // Group bookings by ticket_id
         $tickets = [];
