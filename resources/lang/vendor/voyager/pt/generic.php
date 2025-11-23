@@ -305,6 +305,7 @@ return [
     "organizer_bank"                                  => "Detalhes do banco organizador",
     'Header Menu'                                     => 'Menu de Cabeçalho',
     'Footer Menu'                                     => 'Menu de Rodapé',
+    'logout'                                          => 'Sair',
     
     // Field translations (snake_case keys for helper function)
     'id'                                              => 'ID',
