@@ -413,6 +413,10 @@ export default {
         },
 
         bookTickets(){
+            console.log('=== BOOK TICKETS INICIADO ===');
+            console.log('payment_method:', this.payment_method);
+            console.log('total:', this.total);
+            
             // show loader
             this.showLoaderNotification(trans('em.processing'));
 
@@ -421,6 +425,7 @@ export default {
 
             // Se for ingresso gratuito, processar direto sem pagamento
             if(this.total <= 0) {
+                console.log('Processando como ingresso gratuito');
                 // Processar como ingresso gratuito
                 this.processFreeTickets();
                 return;
@@ -428,6 +433,7 @@ export default {
 
             // Se for Mercado Pago, mostrar formulário em vez de redirecionar
             if(this.payment_method == 2) {
+                console.log('Mercado Pago selecionado - mostrando formulário');
                 // hide loader
                 Swal.hideLoading();
                 
@@ -437,12 +443,14 @@ export default {
                 return;
             }
 
+            console.log('Enviando para backend:', route('eventmie.bookings_book_tickets'));
             let post_url = route('eventmie.bookings_book_tickets');
             let post_data = new FormData(this.$refs.form);
             
             // axios post request
             axios.post(post_url, post_data)
             .then(res => {
+                console.log('Resposta recebida:', res.data);
                 
                 if(res.data.status && res.data.message != ''  && typeof(res.data.message) != "undefined") {
                    
@@ -504,12 +512,14 @@ export default {
 
             })
             .catch(error => {
+                console.error('Erro na requisição:', error);
+                console.error('Resposta de erro:', error.response);
+                Swal.hideLoading();
                 this.disable = false;
                 let serrors = Vue.helpers.axiosErrors(error);
                 if (serrors.length) {
-                    
+                    console.log('Erros de validação:', serrors);
                     this.serverValidate(serrors);
-                    
                 }
             });
         },
