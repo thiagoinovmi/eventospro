@@ -146,8 +146,8 @@ class TicketScannerController extends Controller
         $orderNumber = $firstBooking->order_number;
         $customerName = $firstBooking->customer_name ?? '';
         $customerEmail = $firstBooking->customer_email ?? '';
-        $checkinDate = $today->format('d M Y');
-        $checkinTime = $today->format('h:i A');
+        $checkinDate = $today->format('d/m/Y');
+        $checkinTime = $today->format('H:i');
 
         foreach ($bookings as $booking) {
             // Validate event access
@@ -247,8 +247,8 @@ class TicketScannerController extends Controller
             ]);
         } else {
             // Use the actual check-in time from the first record
-            $checkinTime = Carbon::parse($firstScanRecord->check_in_time)->format('h:i A');
-            $checkinDate = Carbon::parse($firstScanRecord->event_start_date)->format('d M Y');
+            $checkinTime = Carbon::parse($firstScanRecord->check_in_time)->format('H:i');
+            $checkinDate = Carbon::parse($firstScanRecord->event_start_date)->format('d/m/Y');
             return response()->json([
                 'status' => true,
                 'flag' => 'warning',

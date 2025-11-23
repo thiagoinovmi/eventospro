@@ -76,6 +76,10 @@
         <!-- Camera/Scanner -->
         <div class="row scanner-wrapper" v-else>
             <div class="col-12" style="height: 90vh;">
+                <div v-if="errorMessage" class="alert alert-danger m-3" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <strong>{{ trans('em.error') }}:</strong> {{ errorMessage }}
+                </div>
                 <qrcode-stream v-if="!is_laser && hide_scanner <= 0" :camera="camera" @decode="getOrderNumberFromQRCode" @init="onInit"></qrcode-stream>
                 <input v-if="is_laser" ref="laserInput" v-model="laser_scanner" @change="getOrderNumberFromLaserInput" @blur="focusLaserInput" class="form-control" :placeholder="trans('em.scan_ticket_on_laser')" autofocus/>
             </div>
