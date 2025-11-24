@@ -167,6 +167,60 @@
             </div>
         </div>
 
+        <!-- PIX QR Code (waiting for payment) -->
+        <div v-if="isWaitingPayment && selectedMethod === 'pix'" class="row mb-4">
+            <div class="col-12">
+                <div class="card border-success">
+                    <div class="card-body text-center">
+                        <h6 class="card-title mb-4">
+                            <i class="fas fa-mobile-alt me-2 text-success"></i>
+                            {{ trans('em.waiting_pix_payment') || 'Aguardando Pagamento PIX' }}
+                        </h6>
+                        
+                        <!-- QR Code -->
+                        <div class="mb-4" v-if="pixQrCode">
+                            <img :src="pixQrCode" alt="PIX QR Code" class="img-fluid" style="max-width: 300px;">
+                        </div>
+                        
+                        <!-- Copy Code -->
+                        <div class="mb-4" v-if="pixData">
+                            <p class="text-muted mb-2">{{ trans('em.or_copy_code') || 'Ou copie o código:' }}</p>
+                            <div class="input-group">
+                                <input 
+                                    type="text" 
+                                    class="form-control" 
+                                    :value="pixData" 
+                                    readonly
+                                    id="pixCode"
+                                >
+                                <button 
+                                    class="btn btn-outline-primary" 
+                                    type="button"
+                                    @click="copyToClipboard"
+                                >
+                                    <i class="fas fa-copy me-2"></i>
+                                    {{ trans('em.copy') || 'Copiar' }}
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Expiration Timer -->
+                        <div class="alert alert-info" v-if="pixExpiration">
+                            <i class="fas fa-clock me-2"></i>
+                            {{ trans('em.pix_expires_in') || 'PIX expira em' }}: 
+                            <strong>{{ formatTimeRemaining(pixExpiration) }}</strong>
+                        </div>
+                        
+                        <!-- Waiting Message -->
+                        <div class="alert alert-warning">
+                            <i class="fas fa-hourglass-half me-2"></i>
+                            {{ trans('em.waiting_payment_confirmation') || 'Aguardando confirmação do pagamento...' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Error Message -->
         <div v-if="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
             <i class="fas fa-exclamation-circle me-2"></i>
@@ -221,6 +275,7 @@ export default {
     data() {
         return {
             selectedMethod: 'credit_card',
+            selectedTicket: null,
             cardData: {
                 holderName: '',
                 number: '',
@@ -236,7 +291,12 @@ export default {
             },
             errorMessage: '',
             successMessage: '',
-            loadedMethods: {}
+            loadedMethods: {},
+            pixData: null,
+            pixQrCode: null,
+            pixExpiration: null,
+            isWaitingPayment: false,
+            paymentCheckInterval: null
         }
     },
 
@@ -255,6 +315,11 @@ export default {
     },
 
     methods: {
+        setSelectedTicket(ticket) {
+            console.log('Ticket selecionado no MercadoPagoCheckout:', ticket);
+            this.selectedTicket = ticket;
+        },
+
         loadPaymentMethods() {
             console.log('=== CARREGANDO MÉTODOS DE PAGAMENTO ===');
             console.log('Event ID:', this.event?.id);
@@ -371,8 +436,7 @@ export default {
         async processPayment() {
             console.log('=== PROCESS PAYMENT INICIADO ===');
             console.log('selectedMethod:', this.selectedMethod);
-            console.log('cardData:', this.cardData);
-            console.log('tickets:', this.tickets);
+            console.log('selectedTicket:', this.selectedTicket);
             
             if (!this.validateForm()) {
                 this.$emit('error', 'Por favor, preencha todos os campos corretamente');
@@ -382,11 +446,10 @@ export default {
             this.errorMessage = '';
 
             try {
-                // Get first ticket with quantity > 0 (or first ticket if none selected)
-                let selectedTicket = null;
-                if (this.tickets && this.tickets.length > 0) {
-                    selectedTicket = this.tickets[0]; // Use first ticket for now
-                }
+                // Use the ticket passed from TicketList
+                const ticketToUse = this.selectedTicket || (this.tickets && this.tickets.length > 0 ? this.tickets[0] : null);
+                
+                console.log('Ticket a ser usado:', ticketToUse);
 
                 // Prepare payment data
                 const paymentData = {
@@ -399,8 +462,8 @@ export default {
                     selected_method: this.selectedMethod,
                     card_data: ['credit_card', 'debit_card'].includes(this.selectedMethod) ? this.cardData : null,
                     total: this.total,
-                    ticket_id: selectedTicket ? selectedTicket.id : null,
-                    ticket_title: selectedTicket ? selectedTicket.title : null
+                    ticket_id: ticketToUse ? ticketToUse.id : null,
+                    ticket_title: ticketToUse ? ticketToUse.title : null
                 };
 
                 const apiUrl = '/bookings/api/mercadopago/process';
@@ -413,14 +476,24 @@ export default {
                 console.log('Resposta recebida:', response.data);
 
                 if (response.data.status) {
-                    this.successMessage = response.data.message || 'Pagamento processado com sucesso!';
-                    console.log('Pagamento confirmado com sucesso!');
-                    
-                    // Redirect after success
-                    setTimeout(() => {
-                        // Redirect to mybookings page
-                        window.location.href = '/mybookings';
-                    }, 3000);
+                    // Se for PIX, mostrar QR Code e aguardar pagamento
+                    if (this.selectedMethod === 'pix' && response.data.pix_data) {
+                        this.pixData = response.data.pix_data;
+                        this.pixQrCode = response.data.pix_qr_code;
+                        this.pixExpiration = new Date(response.data.pix_expiration);
+                        this.isWaitingPayment = true;
+                        
+                        // Iniciar verificação de pagamento a cada 5 segundos
+                        this.startPaymentCheck(response.data.transaction_id);
+                    } else {
+                        // Para outros métodos, redirecionar direto
+                        this.successMessage = response.data.message || 'Pagamento processado com sucesso!';
+                        console.log('Pagamento confirmado com sucesso!');
+                        
+                        setTimeout(() => {
+                            window.location.href = '/mybookings';
+                        }, 3000);
+                    }
                 } else {
                     this.$emit('error', response.data.message || 'Erro ao processar pagamento');
                 }
@@ -432,6 +505,54 @@ export default {
                 this.errorMessage = errorMessage;
                 console.error('Mensagem de erro:', errorMessage);
             }
+        },
+
+        startPaymentCheck(transactionId) {
+            console.log('Iniciando verificação de pagamento PIX para:', transactionId);
+            
+            // Verificar a cada 5 segundos
+            this.paymentCheckInterval = setInterval(async () => {
+                try {
+                    const response = await axios.get(`/bookings/api/mercadopago/check-payment/${transactionId}`);
+                    
+                    if (response.data.status === 'approved') {
+                        console.log('Pagamento aprovado!');
+                        clearInterval(this.paymentCheckInterval);
+                        
+                        this.successMessage = 'Pagamento confirmado com sucesso!';
+                        this.isWaitingPayment = false;
+                        
+                        setTimeout(() => {
+                            window.location.href = '/mybookings';
+                        }, 2000);
+                    }
+                } catch (error) {
+                    console.error('Erro ao verificar pagamento:', error);
+                }
+            }, 5000);
+        },
+
+        copyToClipboard() {
+            const pixCode = document.getElementById('pixCode');
+            if (pixCode) {
+                pixCode.select();
+                document.execCommand('copy');
+                alert('Código PIX copiado para a área de transferência!');
+            }
+        },
+
+        formatTimeRemaining(expirationTime) {
+            const now = new Date();
+            const diff = expirationTime - now;
+            
+            if (diff <= 0) {
+                return 'Expirado';
+            }
+            
+            const minutes = Math.floor(diff / 60000);
+            const seconds = Math.floor((diff % 60000) / 1000);
+            
+            return `${minutes}m ${seconds}s`;
         }
 
     }

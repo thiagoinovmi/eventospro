@@ -1354,12 +1354,26 @@ class BookingsController extends Controller
                 $newBooking = $this->booking->create($bookingData);
                 \Log::info('Booking criado:', ['id' => $newBooking->id, 'transaction_id' => $bookingData['transaction_id']]);
                 
-                return response()->json([
+                $response = [
                     'status' => true,
                     'message' => 'Pagamento processado com sucesso!',
                     'booking_id' => $newBooking->id,
                     'transaction_id' => $bookingData['transaction_id']
-                ]);
+                ];
+                
+                // Se for PIX, gerar QR Code
+                if ($validated['selected_method'] === 'pix') {
+                    // Gerar PIX com duração de 30 minutos
+                    $pixData = $this->generatePixPayment($validated['total'], $newBooking->id);
+                    
+                    if ($pixData) {
+                        $response['pix_data'] = $pixData['pix_code'];
+                        $response['pix_qr_code'] = $pixData['qr_code'];
+                        $response['pix_expiration'] = $pixData['expiration'];
+                    }
+                }
+                
+                return response()->json($response);
                 
             } catch (\Exception $e) {
                 \Log::error('Erro ao processar pagamento com Mercado Pago:', [
@@ -1391,6 +1405,94 @@ class BookingsController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Erro ao processar pagamento: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Generate PIX payment with QR Code
+     */
+    private function generatePixPayment($amount, $bookingId)
+    {
+        try {
+            $accessToken = setting('mercadopago.access_token');
+            if (!$accessToken) {
+                \Log::error('Access token do Mercado Pago não configurado');
+                return null;
+            }
+
+            // Configure Mercado Pago SDK
+            \MercadoPago\MercadoPagoConfig::setAccessToken($accessToken);
+
+            // Create PIX payment request
+            $request = new \MercadoPago\Request\PaymentCreateRequest();
+            $request->setBody([
+                "transaction_amount" => (float)$amount,
+                "description" => "Pagamento de ingresso - Booking #{$bookingId}",
+                "payment_method_id" => "pix",
+                "payer" => [
+                    "email" => Auth::user()->email,
+                    "first_name" => Auth::user()->name
+                ],
+                "date_of_expiration" => now()->addMinutes(30)->toIso8601String()
+            ]);
+
+            $client = new \MercadoPago\Client\PaymentClient();
+            $response = $client->create($request);
+
+            if ($response && isset($response->id)) {
+                // Extract PIX data from response
+                $pixData = $response->point_of_interaction->transaction_data->qr_code ?? null;
+                $qrCodeUrl = $response->point_of_interaction->transaction_data->qr_code_url ?? null;
+
+                return [
+                    'pix_code' => $pixData,
+                    'qr_code' => $qrCodeUrl,
+                    'expiration' => now()->addMinutes(30)->toIso8601String(),
+                    'payment_id' => $response->id
+                ];
+            }
+
+            return null;
+        } catch (\Exception $e) {
+            \Log::error('Erro ao gerar PIX:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return null;
+        }
+    }
+
+    /**
+     * Check payment status
+     */
+    public function checkPaymentStatus($transactionId)
+    {
+        try {
+            // Get booking by transaction ID
+            $booking = $this->booking->where('transaction_id', $transactionId)->first();
+
+            if (!$booking) {
+                return response()->json([
+                    'status' => 'not_found',
+                    'message' => 'Transação não encontrada'
+                ], 404);
+            }
+
+            // Return booking status
+            return response()->json([
+                'status' => $booking->status == 1 ? 'approved' : 'pending',
+                'booking_id' => $booking->id,
+                'transaction_id' => $transactionId
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Erro ao verificar status do pagamento:', [
+                'message' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Erro ao verificar pagamento'
             ], 500);
         }
     }

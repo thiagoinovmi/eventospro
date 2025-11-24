@@ -438,8 +438,19 @@ export default {
                 // hide loader
                 Swal.hideLoading();
                 
+                // Find the selected ticket (the one with quantity > 0)
+                let selectedTicket = null;
+                for (let i = 0; i < this.tickets.length; i++) {
+                    if (this.quantity[i] && parseInt(this.quantity[i]) > 0) {
+                        selectedTicket = this.tickets[i];
+                        console.log('Ticket selecionado:', selectedTicket);
+                        break;
+                    }
+                }
+                
                 // Chamar método de processamento do componente MercadoPagoCheckout
                 if(this.$refs.mercadoPagoCheckout) {
+                    this.$refs.mercadoPagoCheckout.setSelectedTicket(selectedTicket);
                     this.$refs.mercadoPagoCheckout.processPayment();
                 } else {
                     console.error('MercadoPagoCheckout ref não encontrado');

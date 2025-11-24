@@ -152,12 +152,17 @@ const _sfc_main = {
       console.log("=== PROCESS PAYMENT INICIADO ===");
       console.log("selectedMethod:", this.selectedMethod);
       console.log("cardData:", this.cardData);
+      console.log("tickets:", this.tickets);
       if (!this.validateForm()) {
         this.$emit("error", "Por favor, preencha todos os campos corretamente");
         return;
       }
       this.errorMessage = "";
       try {
+        let selectedTicket = null;
+        if (this.tickets && this.tickets.length > 0) {
+          selectedTicket = this.tickets[0];
+        }
         const paymentData = {
           event_id: this.event.id,
           booking_date: this.bookingData.booking_date,
@@ -167,7 +172,9 @@ const _sfc_main = {
           payment_method: "mercadopago",
           selected_method: this.selectedMethod,
           card_data: ["credit_card", "debit_card"].includes(this.selectedMethod) ? this.cardData : null,
-          total: this.total
+          total: this.total,
+          ticket_id: selectedTicket ? selectedTicket.id : null,
+          ticket_title: selectedTicket ? selectedTicket.title : null
         };
         const apiUrl = "/bookings/api/mercadopago/process";
         console.log("Enviando dados para:", apiUrl);
@@ -240,10 +247,10 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "0adc4dab"
+  "7ce9b013"
 );
 const MercadoPagoCheckout = __component__.exports;
 export {
   MercadoPagoCheckout as default
 };
-//# sourceMappingURL=MercadoPagoCheckout-DO9mWX1p.js.map
+//# sourceMappingURL=MercadoPagoCheckout-MMfID2UN.js.map
