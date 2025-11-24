@@ -28,7 +28,12 @@ Route::get('/52cab7070ba5124895a63a3703f66893232', function() {
 });
 
 // Mercado Pago Webhook (sem CSRF)
-Route::post('/api/mercadopago/webhook', '\Classiebit\Eventmie\Http\Controllers\BookingsController@mercadopagoWebhook')
+Route::post('/api/mercadopago/webhook', function (Request $request) {
+    \Log::info('=== WEBHOOK MERCADO PAGO RECEBIDO ===');
+    \Log::info('Body:', $request->all());
+    
+    return response()->json(['status' => 'success'], 200);
+})
     ->name('mercadopago_webhook')
     ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
