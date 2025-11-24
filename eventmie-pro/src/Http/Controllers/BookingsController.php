@@ -1438,14 +1438,24 @@ class BookingsController extends Controller
     private function processCardPayment($validated, $user)
     {
         try {
+            \Log::info('=== INICIANDO PROCESSAMENTO DE CARTÃO ===');
+            
             // Get token from settings table (Voyager)
             $accessToken = setting('mercadopago.access_token');
+            \Log::info('Token obtido:', ['token_length' => strlen($accessToken ?? '')]);
+            
             if (!$accessToken) {
                 return [
                     'status' => false,
                     'message' => 'Mercado Pago não está configurado'
                 ];
             }
+
+            \Log::info('Dados do usuário:', [
+                'email' => $user->email,
+                'name' => $user->name,
+                'document' => $user->document ?? 'vazio'
+            ]);
 
             // Prepare payment data for card payment
             $paymentData = [
@@ -1465,11 +1475,13 @@ class BookingsController extends Controller
                 "external_reference" => "BOOKING-" . time() . "-" . $user->id
             ];
 
-            \Log::info('Enviando pagamento de cartão para Mercado Pago:', [
+            \Log::info('Dados do pagamento preparados:', [
                 'amount' => $paymentData['transaction_amount'],
                 'method' => $paymentData['payment_method_id'],
                 'installments' => $paymentData['installments'],
-                'email' => $paymentData['payer']['email']
+                'email' => $paymentData['payer']['email'],
+                'token_length' => strlen($paymentData['token'] ?? ''),
+                'cpf' => $paymentData['payer']['identification']['number']
             ]);
 
             // Make cURL request to Mercado Pago API
