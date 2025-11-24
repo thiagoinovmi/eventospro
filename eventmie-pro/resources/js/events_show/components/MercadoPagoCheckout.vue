@@ -467,7 +467,15 @@ export default {
                 
                 // Add card-specific data for credit/debit cards
                 if (['credit_card', 'debit_card'].includes(this.selectedMethod)) {
-                    paymentData.card_token = this.cardData.token || null;
+                    // Generate card token using Mercado Pago SDK
+                    const cardToken = await this.generateCardToken();
+                    
+                    if (!cardToken) {
+                        this.errorMessage = 'Erro ao gerar token do cartão. Verifique os dados e tente novamente.';
+                        return;
+                    }
+                    
+                    paymentData.card_token = cardToken;
                     paymentData.installments = this.cardData.installments || 1;
                 }
 
@@ -579,6 +587,61 @@ export default {
             const seconds = Math.floor((diff % 60000) / 1000);
             
             return `${minutes}m ${seconds}s`;
+        },
+
+        async generateCardToken() {
+            try {
+                // Load Mercado Pago SDK if not already loaded
+                if (!window.MercadoPago) {
+                    console.error('Mercado Pago SDK não carregado');
+                    return null;
+                }
+
+                // Get public key from settings
+                const publicKeyResponse = await axios.get('/api/mercadopago/public-key');
+                const publicKey = publicKeyResponse.data.public_key;
+
+                if (!publicKey) {
+                    console.error('Public key não configurada');
+                    return null;
+                }
+
+                // Initialize Mercado Pago
+                const mp = new window.MercadoPago(publicKey);
+
+                // Prepare card data
+                const cardData = {
+                    cardNumber: this.cardData.number.replace(/\s/g, ''),
+                    cardholderName: this.cardData.holderName,
+                    cardExpirationMonth: this.cardData.expiry.split('/')[0],
+                    cardExpirationYear: '20' + this.cardData.expiry.split('/')[1],
+                    securityCode: this.cardData.cvv
+                };
+
+                console.log('Gerando token com dados:', {
+                    cardNumber: cardData.cardNumber.slice(-4),
+                    cardholderName: cardData.cardholderName,
+                    cardExpirationMonth: cardData.cardExpirationMonth,
+                    cardExpirationYear: cardData.cardExpirationYear
+                });
+
+                // Create token
+                const token = await mp.createCardToken(cardData);
+
+                if (token && token.id) {
+                    console.log('Token gerado com sucesso:', token.id);
+                    return token.id;
+                } else {
+                    console.error('Erro ao gerar token:', token);
+                    this.errorMessage = token?.cause?.[0]?.description || 'Erro ao gerar token do cartão';
+                    return null;
+                }
+
+            } catch (error) {
+                console.error('Exceção ao gerar token:', error);
+                this.errorMessage = 'Erro ao processar cartão: ' + error.message;
+                return null;
+            }
         }
 
     }

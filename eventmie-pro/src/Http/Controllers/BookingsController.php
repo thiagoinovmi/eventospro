@@ -1194,6 +1194,18 @@ class BookingsController extends Controller
     }
 
     /**
+     * Get Mercado Pago public key
+     */
+    public function getMercadoPagoPublicKey()
+    {
+        $publicKey = setting('mercadopago.public_key');
+        
+        return response()->json([
+            'public_key' => $publicKey
+        ]);
+    }
+
+    /**
      * Process Mercado Pago payment
      */
     public function mercadopago_process(Request $request)

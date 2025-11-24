@@ -86,6 +86,9 @@
     </div>
     <!--Main wrapper end-->
 
+    {{-- Mercado Pago SDK --}}
+    <script src="https://sdk.mercadopago.com/js/v2"></script>
+
     @include('eventmie::layouts.include_js')
 
     {!! CookieConsent::scripts() !!}
