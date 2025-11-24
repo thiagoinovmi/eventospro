@@ -1,5 +1,6 @@
 <template>
-    <div class="container-fluid">
+    <div>
+        <div class="container-fluid">
         <div class="row py-5">
             <div class="col-md-12">
                 <div class="card shadow-sm border-0">
@@ -194,6 +195,7 @@
                     </div>
                 </div>
             </div>
+        </div>
         </div>
     </div>
 </template>
