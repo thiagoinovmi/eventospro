@@ -1,247 +1,274 @@
 <template>
     <div class="mercadopago-checkout-container mt-4 p-4 border rounded bg-light">
-        <!-- Header -->
-        <div class="mb-4">
-            <h5 class="mb-3">
-                <i class="fas fa-credit-card me-2"></i>
-                {{ trans('em.payment_details') || 'Detalhes do Pagamento' }}
-            </h5>
-            <hr>
+        <!-- 🎉 Mensagem de Confirmação de Pagamento -->
+        <div v-if="paymentConfirmed" class="text-center py-5">
+            <div class="mb-4">
+                <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+            </div>
+            
+            <h3 class="text-success mb-3">
+                ✅ Pagamento Recebido e Confirmado!
+            </h3>
+            
+            <p class="text-muted mb-4">
+                Seu pagamento foi processado com sucesso. Você será redirecionado para a página de minhas reservas em breve.
+            </p>
+            
+            <div class="alert alert-success" role="alert">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Redirecionando...</strong> Aguarde alguns segundos.
+            </div>
+            
+            <div class="spinner-border text-success mt-3" role="status">
+                <span class="visually-hidden">Carregando...</span>
+            </div>
         </div>
 
-        <!-- Order Summary -->
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h6 class="card-title mb-3">{{ trans('em.order_summary') || 'Resumo do Pedido' }}</h6>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>{{ trans('em.subtotal') || 'Subtotal' }}:</span>
-                            <strong>{{ subtotal }} {{ currency }}</strong>
+        <!-- Formulário Normal (quando não confirmado) -->
+        <template v-else>
+            <!-- Header -->
+            <div class="mb-4">
+                <h5 class="mb-3">
+                    <i class="fas fa-credit-card me-2"></i>
+                    {{ trans('em.payment_details') || 'Detalhes do Pagamento' }}
+                </h5>
+                <hr>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title mb-3">{{ trans('em.order_summary') || 'Resumo do Pedido' }}</h6>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>{{ trans('em.subtotal') || 'Subtotal' }}:</span>
+                                <strong>{{ subtotal }} {{ currency }}</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>{{ trans('em.tax') || 'Taxa' }}:</span>
+                                <strong>{{ tax }} {{ currency }}</strong>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between">
+                                <span class="h6">{{ trans('em.total') || 'Total' }}:</span>
+                                <strong class="h6">{{ total }} {{ currency }}</strong>
+                            </div>
                         </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>{{ trans('em.tax') || 'Taxa' }}:</span>
-                            <strong>{{ tax }} {{ currency }}</strong>
-                        </div>
-                        <hr>
-                        <div class="d-flex justify-content-between">
-                            <span class="h6">{{ trans('em.total') || 'Total' }}:</span>
-                            <strong class="h6">{{ total }} {{ currency }}</strong>
+                    </div>
+                </div>
+
+                <!-- Payment Method Selection -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title mb-3">{{ trans('em.payment_method') || 'Método de Pagamento' }}</h6>
+                            
+                            <!-- Credit Card -->
+                            <div class="form-check mb-3" v-if="loadedMethods.credit_card">
+                                <input class="form-check-input" type="radio" id="method_credit_card" v-model="selectedMethod" value="credit_card">
+                                <label class="form-check-label" for="method_credit_card">
+                                    <i class="fas fa-credit-card me-2"></i>
+                                    {{ trans('em.credit_card') || 'Cartão de Crédito' }}
+                                </label>
+                            </div>
+
+                            <!-- Debit Card -->
+                            <div class="form-check mb-3" v-if="loadedMethods.debit_card">
+                                <input class="form-check-input" type="radio" id="method_debit_card" v-model="selectedMethod" value="debit_card">
+                                <label class="form-check-label" for="method_debit_card">
+                                    <i class="fas fa-credit-card me-2"></i>
+                                    {{ trans('em.debit_card') || 'Cartão de Débito' }}
+                                </label>
+                            </div>
+
+                            <!-- Boleto -->
+                            <div class="form-check mb-3" v-if="loadedMethods.boleto">
+                                <input class="form-check-input" type="radio" id="method_boleto" v-model="selectedMethod" value="boleto">
+                                <label class="form-check-label" for="method_boleto">
+                                    <i class="fas fa-barcode me-2"></i>
+                                    {{ trans('em.boleto') || 'Boleto Bancário' }}
+                                </label>
+                            </div>
+
+                            <!-- PIX -->
+                            <div class="form-check mb-3" v-if="loadedMethods.pix">
+                                <input class="form-check-input" type="radio" id="method_pix" v-model="selectedMethod" value="pix">
+                                <label class="form-check-label" for="method_pix">
+                                    <i class="fas fa-mobile-alt me-2"></i>
+                                    {{ trans('em.pix') || 'PIX' }}
+                                </label>
+                            </div>
+
+                            <!-- Wallet -->
+                            <div class="form-check" v-if="loadedMethods.mercadopago_wallet">
+                                <input class="form-check-input" type="radio" id="method_wallet" v-model="selectedMethod" value="mercadopago_wallet">
+                                <label class="form-check-label" for="method_wallet">
+                                    <i class="fas fa-wallet me-2"></i>
+                                    {{ trans('em.wallet') || 'Carteira Mercado Pago' }}
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Payment Method Selection -->
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h6 class="card-title mb-3">{{ trans('em.payment_method') || 'Método de Pagamento' }}</h6>
-                        
-                        <!-- Credit Card -->
-                        <div class="form-check mb-3" v-if="loadedMethods.credit_card">
-                            <input class="form-check-input" type="radio" id="method_credit_card" v-model="selectedMethod" value="credit_card">
-                            <label class="form-check-label" for="method_credit_card">
-                                <i class="fas fa-credit-card me-2"></i>
-                                {{ trans('em.credit_card') || 'Cartão de Crédito' }}
-                            </label>
-                        </div>
-
-                        <!-- Debit Card -->
-                        <div class="form-check mb-3" v-if="loadedMethods.debit_card">
-                            <input class="form-check-input" type="radio" id="method_debit_card" v-model="selectedMethod" value="debit_card">
-                            <label class="form-check-label" for="method_debit_card">
-                                <i class="fas fa-credit-card me-2"></i>
-                                {{ trans('em.debit_card') || 'Cartão de Débito' }}
-                            </label>
-                        </div>
-
-                        <!-- Boleto -->
-                        <div class="form-check mb-3" v-if="loadedMethods.boleto">
-                            <input class="form-check-input" type="radio" id="method_boleto" v-model="selectedMethod" value="boleto">
-                            <label class="form-check-label" for="method_boleto">
-                                <i class="fas fa-barcode me-2"></i>
-                                {{ trans('em.boleto') || 'Boleto Bancário' }}
-                            </label>
-                        </div>
-
-                        <!-- PIX -->
-                        <div class="form-check mb-3" v-if="loadedMethods.pix">
-                            <input class="form-check-input" type="radio" id="method_pix" v-model="selectedMethod" value="pix">
-                            <label class="form-check-label" for="method_pix">
-                                <i class="fas fa-mobile-alt me-2"></i>
-                                {{ trans('em.pix') || 'PIX' }}
-                            </label>
-                        </div>
-
-                        <!-- Wallet -->
-                        <div class="form-check" v-if="loadedMethods.mercadopago_wallet">
-                            <input class="form-check-input" type="radio" id="method_wallet" v-model="selectedMethod" value="mercadopago_wallet">
-                            <label class="form-check-label" for="method_wallet">
-                                <i class="fas fa-wallet me-2"></i>
-                                {{ trans('em.wallet') || 'Carteira Mercado Pago' }}
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Card Form (for credit/debit card) -->
-        <div v-if="['credit_card', 'debit_card'].includes(selectedMethod)" class="row mb-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h6 class="card-title mb-3">{{ trans('em.card_details') || 'Dados do Cartão' }}</h6>
-                        
-                        <!-- Cardholder Name -->
-                        <div class="mb-3">
-                            <label for="cardholderName" class="form-label">{{ trans('em.cardholder_name') || 'Nome do Titular' }}</label>
-                            <input 
-                                type="text" 
-                                class="form-control" 
-                                id="cardholderName"
-                                v-model="cardData.holderName"
-                                placeholder="João Silva"
-                                @input="validateCardholderName"
-                            >
-                            <small class="text-danger" v-if="errors.cardholderName">{{ errors.cardholderName }}</small>
-                        </div>
-
-                        <!-- Card Number -->
-                        <div class="mb-3">
-                            <label for="cardNumber" class="form-label">{{ trans('em.card_number') || 'Número do Cartão' }}</label>
-                            <input 
-                                type="text" 
-                                class="form-control" 
-                                id="cardNumber"
-                                v-model="cardData.number"
-                                placeholder="1234 5678 9012 3456"
-                                maxlength="19"
-                                @input="formatCardNumber"
-                            >
-                            <small class="text-danger" v-if="errors.cardNumber">{{ errors.cardNumber }}</small>
-                        </div>
-
-                        <!-- Expiry and CVV -->
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="cardExpiry" class="form-label">{{ trans('em.expiry_date') || 'Validade' }}</label>
+            <!-- Card Form (for credit/debit card) -->
+            <div v-if="['credit_card', 'debit_card'].includes(selectedMethod)" class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title mb-3">{{ trans('em.card_details') || 'Dados do Cartão' }}</h6>
+                            
+                            <!-- Cardholder Name -->
+                            <div class="mb-3">
+                                <label for="cardholderName" class="form-label">{{ trans('em.cardholder_name') || 'Nome do Titular' }}</label>
                                 <input 
                                     type="text" 
                                     class="form-control" 
-                                    id="cardExpiry"
-                                    v-model="cardData.expiry"
-                                    placeholder="MM/YY"
-                                    maxlength="5"
-                                    @input="formatCardExpiry"
+                                    id="cardholderName"
+                                    v-model="cardData.holderName"
+                                    placeholder="João Silva"
+                                    @input="validateCardholderName"
                                 >
-                                <small class="text-danger" v-if="errors.cardExpiry">{{ errors.cardExpiry }}</small>
+                                <small class="text-danger" v-if="errors.cardholderName">{{ errors.cardholderName }}</small>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="cardCvv" class="form-label">{{ trans('em.cvv') || 'CVV' }}</label>
+
+                            <!-- Card Number -->
+                            <div class="mb-3">
+                                <label for="cardNumber" class="form-label">{{ trans('em.card_number') || 'Número do Cartão' }}</label>
                                 <input 
                                     type="text" 
                                     class="form-control" 
-                                    id="cardCvv"
-                                    v-model="cardData.cvv"
-                                    placeholder="123"
-                                    maxlength="4"
-                                    @input="validateCVV"
+                                    id="cardNumber"
+                                    v-model="cardData.number"
+                                    placeholder="1234 5678 9012 3456"
+                                    maxlength="19"
+                                    @input="formatCardNumber"
                                 >
-                                <small class="text-danger" v-if="errors.cardCvv">{{ errors.cardCvv }}</small>
+                                <small class="text-danger" v-if="errors.cardNumber">{{ errors.cardNumber }}</small>
                             </div>
-                        </div>
 
-                        <!-- Installments - Apenas para cartão de crédito e carteira -->
-                        <div class="mb-3" v-if="['credit_card', 'wallet'].includes(selectedMethod) && installmentOptions.length > 0">
-                            <label for="installments" class="form-label">{{ trans('em.installments') || 'Parcelamento' }}</label>
-                            <select class="form-select" id="installments" v-model="cardData.installments">
-                                <option v-for="option in installmentOptions" :key="option.value" :value="option.value">
-                                    {{ option.label }}
-                                </option>
-                            </select>
+                            <!-- Expiry and CVV -->
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="cardExpiry" class="form-label">{{ trans('em.expiry_date') || 'Validade' }}</label>
+                                    <input 
+                                        type="text" 
+                                        class="form-control" 
+                                        id="cardExpiry"
+                                        v-model="cardData.expiry"
+                                        placeholder="MM/YY"
+                                        maxlength="5"
+                                        @input="formatCardExpiry"
+                                    >
+                                    <small class="text-danger" v-if="errors.cardExpiry">{{ errors.cardExpiry }}</small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="cardCvv" class="form-label">{{ trans('em.cvv') || 'CVV' }}</label>
+                                    <input 
+                                        type="text" 
+                                        class="form-control" 
+                                        id="cardCvv"
+                                        v-model="cardData.cvv"
+                                        placeholder="123"
+                                        maxlength="4"
+                                        @input="validateCVV"
+                                    >
+                                    <small class="text-danger" v-if="errors.cardCvv">{{ errors.cardCvv }}</small>
+                                </div>
+                            </div>
+
+                            <!-- Installments - Apenas para cartão de crédito e carteira -->
+                            <div class="mb-3" v-if="['credit_card', 'wallet'].includes(selectedMethod) && installmentOptions.length > 0">
+                                <label for="installments" class="form-label">{{ trans('em.installments') || 'Parcelamento' }}</label>
+                                <select class="form-select" id="installments" v-model="cardData.installments">
+                                    <option v-for="option in installmentOptions" :key="option.value" :value="option.value">
+                                        {{ option.label }}
+                                    </option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- PIX QR Code (waiting for payment) -->
-        <div v-if="isWaitingPayment && selectedMethod === 'pix'" class="row mb-4">
-            <div class="col-12">
-                <div class="card border-success">
-                    <div class="card-body text-center">
-                        <h6 class="card-title mb-4">
-                            <i class="fas fa-mobile-alt me-2 text-success"></i>
-                            {{ trans('em.waiting_pix_payment') || 'Aguardando Pagamento PIX' }}
-                        </h6>
-                        
-                        <!-- QR Code -->
-                        <div class="mb-4" v-if="pixQrCode">
-                            <img :src="pixQrCode" alt="PIX QR Code" class="img-fluid" style="max-width: 300px;">
-                        </div>
-                        
-                        <!-- Copy Code -->
-                        <div class="mb-4" v-if="pixData">
-                            <p class="text-muted mb-2">{{ trans('em.or_copy_code') || 'Ou copie o código:' }}</p>
-                            <div class="input-group">
-                                <input 
-                                    type="text" 
-                                    class="form-control" 
-                                    :value="pixData" 
-                                    readonly
-                                    id="pixCode"
-                                >
-                                <button 
-                                    class="btn btn-outline-primary" 
-                                    type="button"
-                                    @click="copyToClipboard"
-                                >
-                                    <i class="fas fa-copy me-2"></i>
-                                    {{ trans('em.copy') || 'Copiar' }}
-                                </button>
+            <!-- PIX QR Code (waiting for payment) -->
+            <div v-if="isWaitingPayment && selectedMethod === 'pix'" class="row mb-4">
+                <div class="col-12">
+                    <div class="card border-success">
+                        <div class="card-body text-center">
+                            <h6 class="card-title mb-4">
+                                <i class="fas fa-mobile-alt me-2 text-success"></i>
+                                {{ trans('em.waiting_pix_payment') || 'Aguardando Pagamento PIX' }}
+                            </h6>
+                            
+                            <!-- QR Code -->
+                            <div class="mb-4" v-if="pixQrCode">
+                                <img :src="pixQrCode" alt="PIX QR Code" class="img-fluid" style="max-width: 300px;">
                             </div>
-                        </div>
-                        
-                        <!-- Expiration Timer -->
-                        <div class="alert alert-info" v-if="pixExpiration">
-                            <i class="fas fa-clock me-2"></i>
-                            {{ trans('em.pix_expires_in') || 'PIX expira em' }}: 
-                            <strong :key="timerTrigger">{{ formatTimeRemaining(pixExpiration) }}</strong>
-                        </div>
-                        
-                        <!-- Waiting Message -->
-                        <div :class="['alert', paymentConfirmed ? 'alert-success' : 'alert-warning']">
-                            <i :class="[paymentConfirmed ? 'fas fa-check-circle' : 'fas fa-hourglass-half', 'me-2']"></i>
-                            {{ paymentConfirmed ? 'Pagamento recebido e confirmado!' : (trans('em.waiting_payment_confirmation') || 'Aguardando confirmação do pagamento...') }}
+                            
+                            <!-- Copy Code -->
+                            <div class="mb-4" v-if="pixData">
+                                <p class="text-muted mb-2">{{ trans('em.or_copy_code') || 'Ou copie o código:' }}</p>
+                                <div class="input-group">
+                                    <input 
+                                        type="text" 
+                                        class="form-control" 
+                                        :value="pixData" 
+                                        readonly
+                                        id="pixCode"
+                                    >
+                                    <button 
+                                        class="btn btn-outline-primary" 
+                                        type="button"
+                                        @click="copyToClipboard"
+                                    >
+                                        <i class="fas fa-copy me-2"></i>
+                                        {{ trans('em.copy') || 'Copiar' }}
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Expiration Timer -->
+                            <div class="alert alert-info" v-if="pixExpiration">
+                                <i class="fas fa-clock me-2"></i>
+                                {{ trans('em.pix_expires_in') || 'PIX expira em' }}: 
+                                <strong :key="timerTrigger">{{ formatTimeRemaining(pixExpiration) }}</strong>
+                            </div>
+                            
+                            <!-- Waiting Message -->
+                            <div class="alert alert-warning">
+                                <i class="fas fa-hourglass-half me-2"></i>
+                                {{ trans('em.waiting_payment_confirmation') || 'Aguardando confirmação do pagamento...' }}
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Error Message -->
-        <div v-if="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-circle me-2"></i>
-            {{ errorMessage }}
-            <button type="button" class="btn-close" @click="errorMessage = ''" aria-label="Close"></button>
-        </div>
+            <!-- Error Message -->
+            <div v-if="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                {{ errorMessage }}
+                <button type="button" class="btn-close" @click="errorMessage = ''" aria-label="Close"></button>
+            </div>
 
-        <!-- Success Message -->
-        <div v-if="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle me-2"></i>
-            {{ successMessage }}
-            <button type="button" class="btn-close" @click="successMessage = ''" aria-label="Close"></button>
-        </div>
+            <!-- Success Message -->
+            <div v-if="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                {{ successMessage }}
+                <button type="button" class="btn-close" @click="successMessage = ''" aria-label="Close"></button>
+            </div>
 
-        <!-- Security Info -->
-        <div class="mt-4 text-center">
-            <small class="text-muted">
-                <i class="fas fa-shield-alt me-1"></i>
-                {{ trans('em.secure_payment') || 'Pagamento seguro com Mercado Pago' }}
-            </small>
-        </div>
+            <!-- Security Info -->
+            <div class="mt-4 text-center">
+                <small class="text-muted">
+                    <i class="fas fa-shield-alt me-1"></i>
+                    {{ trans('em.secure_payment') || 'Pagamento seguro com Mercado Pago' }}
+                </small>
+            </div>
+        </template>
     </div>
 </template>
 
