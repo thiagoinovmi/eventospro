@@ -19,9 +19,6 @@ class VerifyCsrfToken extends Middleware
      * @var array
      */
     protected $except = [
-        'mercadopago/webhook',
-        '/mercadopago/webhook',
-        'api/mercadopago/webhook',
-        '*/mercadopago/webhook',
+        '*mercadopago/webhook*',
     ];
 }
