@@ -1405,11 +1405,19 @@ class BookingsController extends Controller
                     'transaction_id' => $transactionId
                 ];
                 
-                // Se for PIX, adicionar dados do PIX
-                if ($validated['selected_method'] === 'pix' && isset($paymentResult['pix_data'])) {
-                    $response['pix_data'] = $paymentResult['pix_data'];
-                    $response['pix_qr_code'] = $paymentResult['pix_qr_code'];
-                    $response['pix_expiration'] = $paymentResult['pix_expiration'];
+                // Se for PIX, Boleto ou Carteira, adicionar dados específicos
+                if ($validated['selected_method'] === 'pix' && isset($paymentResult['qr_code'])) {
+                    $response['payment_method'] = 'pix';
+                    $response['qr_code'] = $paymentResult['qr_code'];
+                    $response['qr_code_url'] = $paymentResult['qr_code_url'];
+                    $response['payment_id'] = $paymentResult['payment_id'];
+                } elseif ($validated['selected_method'] === 'boleto' && isset($paymentResult['barcode_url'])) {
+                    $response['payment_method'] = 'boleto';
+                    $response['barcode_url'] = $paymentResult['barcode_url'];
+                    $response['payment_id'] = $paymentResult['payment_id'];
+                } elseif ($validated['selected_method'] === 'mercadopago_wallet' && isset($paymentResult['payment_id'])) {
+                    $response['payment_method'] = 'wallet';
+                    $response['payment_id'] = $paymentResult['payment_id'];
                 }
                 
                 return response()->json($response);
