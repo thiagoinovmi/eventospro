@@ -1474,21 +1474,24 @@ class BookingsController extends Controller
             ]);
 
             // Prepare payment data for card payment
+            // According to Mercado Pago API v1 documentation
             $paymentData = [
                 "transaction_amount" => (float)$validated['total'],
                 "description" => "Pagamento de ingresso - Evento #{$validated['event_id']}",
                 "payment_method_id" => $validated['selected_method'],
+                "installments" => (int)($validated['installments'] ?? 1),
+                "token" => $validated['card_token'] ?? null,
                 "payer" => [
                     "email" => $user->email,
                     "first_name" => $user->name,
+                    "last_name" => "User",
                     "identification" => [
                         "type" => "CPF",
-                        "number" => str_replace(['.', '-'], '', $user->document ?? '00000000000')
+                        "number" => str_replace(['.', '-'], '', $user->document ?? '11144477735')
                     ]
                 ],
-                "installments" => (int)($validated['installments'] ?? 1),
-                "token" => $validated['card_token'] ?? null,
-                "external_reference" => "BOOKING-" . time() . "-" . $user->id
+                "external_reference" => "BOOKING-" . time() . "-" . $user->id,
+                "statement_descriptor" => "EVENTO"
             ];
 
             \Log::info('Dados do pagamento preparados:', [
@@ -1610,6 +1613,7 @@ class BookingsController extends Controller
             }
 
             // Prepare PIX payment data
+            // According to Mercado Pago API v1 documentation
             $paymentData = [
                 "transaction_amount" => (float)$validated['total'],
                 "description" => "Pagamento de ingresso - Evento #{$validated['event_id']}",
@@ -1617,13 +1621,14 @@ class BookingsController extends Controller
                 "payer" => [
                     "email" => $user->email,
                     "first_name" => $user->name,
+                    "last_name" => "User",
                     "identification" => [
                         "type" => "CPF",
-                        "number" => str_replace(['.', '-'], '', $user->document ?? '00000000000')
+                        "number" => str_replace(['.', '-'], '', $user->document ?? '11144477735')
                     ]
                 ],
-                "notification_url" => route('eventmie.mercadopago_webhook'),
                 "external_reference" => "BOOKING-" . time() . "-" . $user->id,
+                "notification_url" => route('eventmie.mercadopago_webhook'),
                 "date_of_expiration" => now()->addMinutes(30)->toIso8601String()
             ];
 
