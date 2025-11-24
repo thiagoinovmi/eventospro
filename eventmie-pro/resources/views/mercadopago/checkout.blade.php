@@ -147,32 +147,86 @@
     });
 
     function loadPaymentMethods() {
-        // This will be populated from the backend
-        const paymentMethods = [
-            { id: 'credit_card', name: 'Credit Card', icon: 'fas fa-credit-card' },
-            { id: 'debit_card', name: 'Debit Card', icon: 'fas fa-credit-card' },
-            { id: 'boleto', name: 'Boleto', icon: 'fas fa-barcode' },
-            { id: 'pix', name: 'PIX', icon: 'fas fa-qrcode' }
-        ];
+        console.log('=== CARREGANDO MÉTODOS DE PAGAMENTO ===');
+        
+        // Get event ID from URL or session
+        const eventId = new URLSearchParams(window.location.search).get('event_id') || 
+                       document.querySelector('[data-event-id]')?.dataset.eventId ||
+                       '{{ request()->get("event_id") }}';
+        
+        console.log('Event ID:', eventId);
+        
+        if (!eventId) {
+            console.error('Event ID não encontrado');
+            return;
+        }
 
-        const container = document.getElementById('payment-methods');
-        paymentMethods.forEach(method => {
-            const div = document.createElement('div');
-            div.className = 'form-check mb-2';
-            div.innerHTML = `
-                <input class="form-check-input" type="radio" name="payment_method" id="method_${method.id}" value="${method.id}">
-                <label class="form-check-label" for="method_${method.id}">
-                    <i class="${method.icon}"></i> ${method.name}
-                </label>
-            `;
-            container.appendChild(div);
-        });
+        // Load from API with cache busting
+        const timestamp = new Date().getTime();
+        const url = `/api/mercadopago/payment-methods/event/${eventId}?t=${timestamp}`;
+        console.log('Chamando API:', url);
 
-        // Add change event listener
-        document.querySelectorAll('input[name="payment_method"]').forEach(input => {
-            input.addEventListener('change', function() {
-                onPaymentMethodChange(this.value);
+        fetch(url, {
+            headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0'
+            }
+        })
+        .then(response => {
+            console.log('Resposta recebida:', response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log('Dados da API:', data);
+            
+            if (!data.status || !data.data) {
+                console.error('Erro na resposta da API:', data.message);
+                return;
+            }
+
+            const paymentMethods = data.data;
+            console.log('Métodos carregados:', paymentMethods.length, paymentMethods);
+
+            const container = document.getElementById('payment-methods');
+            container.innerHTML = ''; // Limpar métodos anteriores
+
+            const iconMap = {
+                'credit_card': 'fas fa-credit-card',
+                'debit_card': 'fas fa-credit-card',
+                'boleto': 'fas fa-barcode',
+                'pix': 'fas fa-qrcode',
+                'mercadopago_wallet': 'fas fa-wallet'
+            };
+
+            paymentMethods.forEach(method => {
+                const div = document.createElement('div');
+                div.className = 'form-check mb-2 p-3 border rounded';
+                const icon = iconMap[method.type] || 'fas fa-credit-card';
+                
+                div.innerHTML = `
+                    <input class="form-check-input" type="radio" name="payment_method" id="method_${method.id}" value="${method.id}" data-method-type="${method.type}">
+                    <label class="form-check-label" for="method_${method.id}">
+                        <i class="${icon}"></i> <strong>${method.name}</strong>
+                        <small class="text-muted d-block">${method.description || ''}</small>
+                    </label>
+                `;
+                container.appendChild(div);
             });
+
+            // Add change event listener
+            document.querySelectorAll('input[name="payment_method"]').forEach(input => {
+                input.addEventListener('change', function() {
+                    onPaymentMethodChange(this.value, this.dataset.methodType);
+                });
+            });
+
+            console.log('Métodos renderizados com sucesso');
+        })
+        .catch(error => {
+            console.error('Erro ao carregar métodos:', error);
+            document.getElementById('error-text').textContent = 'Erro ao carregar métodos de pagamento: ' + error.message;
+            document.getElementById('error-message').style.display = 'block';
         });
     }
 
@@ -184,15 +238,17 @@
         document.getElementById('total').textContent = 'R$ 0.00';
     }
 
-    function onPaymentMethodChange(method) {
+    function onPaymentMethodChange(methodId, methodType) {
+        console.log('Método selecionado:', methodId, 'Tipo:', methodType);
+        
         const cardForm = document.getElementById('card-form');
         const cardholderSection = document.getElementById('cardholder-section');
         const installmentsSection = document.getElementById('installments-section');
 
-        if (method === 'credit_card' || method === 'debit_card') {
+        if (methodType === 'credit_card' || methodType === 'debit_card') {
             cardForm.style.display = 'block';
             cardholderSection.style.display = 'block';
-            installmentsSection.style.display = method === 'credit_card' ? 'block' : 'none';
+            installmentsSection.style.display = methodType === 'credit_card' ? 'block' : 'none';
             
             // Initialize card form
             initializeCardForm();
