@@ -14,6 +14,7 @@ use Classiebit\Eventmie\Models\User;
 use Classiebit\Eventmie\Models\Commission;
 use Classiebit\Eventmie\Models\Transaction;
 use Classiebit\Eventmie\Models\Tax;
+use App\Models\MercadoPagoTransaction;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
@@ -2222,25 +2223,30 @@ class BookingsController extends Controller
      */
     public function mercadopagoWebhook(Request $request)
     {
-        \Log::info('=== WEBHOOK MERCADO PAGO RECEBIDO - CONTROLLER CHAMADO ===');
+        \Log::info('=== WEBHOOK MERCADO PAGO RECEBIDO ===');
         \Log::info('Headers:', $request->headers->all());
-        \Log::info('Dados brutos do webhook:', $request->all());
-        \Log::info('JSON decodificado:', json_decode($request->getContent(), true));
+        \Log::info('Body:', $request->all());
         
         try {
             // Mercado Pago envia o tipo de evento em 'type' e o ID do recurso em 'data.id'
             $type = $request->input('type');
             $dataId = $request->input('data.id');
             
-            \Log::info('Tipo de evento:', ['type' => $type]);
-            \Log::info('Data ID:', ['id' => $dataId]);
+            \Log::info('Webhook Info:', [
+                'type' => $type,
+                'data_id' => $dataId,
+                'all_keys' => array_keys($request->all())
+            ]);
             
-            // Log de todas as chaves disponíveis
-            \Log::info('Chaves disponíveis no request:', array_keys($request->all()));
+            // Validar se é um evento de pagamento
+            if (!$type || !$dataId) {
+                \Log::warning('⚠️ Webhook inválido - type ou data.id vazio');
+                return response()->json(['status' => 'success'], 200);
+            }
             
             // Se for um pagamento, processar
-            if ($type === 'payment' && $dataId) {
-                \Log::info('Procurando transação com payment_id:', ['payment_id' => $dataId]);
+            if ($type === 'payment') {
+                \Log::info('🔵 Processando pagamento com ID:', ['payment_id' => $dataId]);
                 
                 $transaction = MercadoPagoTransaction::where('payment_id', $dataId)->first();
                 
@@ -2256,51 +2262,45 @@ class BookingsController extends Controller
                     $transaction->status = 'approved';
                     $transaction->save();
                     
-                    \Log::info('✅ Transação atualizada para approved:', ['transaction_id' => $transaction->id]);
+                    \Log::info('✅ Transação atualizada para approved');
                     
                     // Atualizar booking se existir
                     if ($transaction->booking_id) {
                         $booking = Booking::find($transaction->booking_id);
                         if ($booking) {
-                            \Log::info('Booking encontrado:', [
-                                'id' => $booking->id,
-                                'is_paid_antes' => $booking->is_paid
-                            ]);
+                            \Log::info('📦 Booking encontrado - atualizando is_paid');
                             
                             $booking->is_paid = 1;
                             $booking->save();
                             
                             \Log::info('✅ Booking atualizado para paid:', [
-                                'booking_id' => $booking->id,
-                                'is_paid_depois' => $booking->is_paid
+                                'booking_id' => $booking->id
                             ]);
                         } else {
                             \Log::warning('❌ Booking não encontrado:', ['booking_id' => $transaction->booking_id]);
                         }
                     } else {
-                        \Log::warning('❌ Transação não tem booking_id associado');
+                        \Log::warning('⚠️ Transação não tem booking_id');
                     }
                 } else {
                     \Log::warning('❌ Transação não encontrada para payment_id:', ['payment_id' => $dataId]);
-                    
-                    // Log de todas as transações para debug
-                    $allTransactions = MercadoPagoTransaction::limit(10)->get();
-                    \Log::info('Últimas 10 transações no banco:', $allTransactions->toArray());
                 }
             } else {
-                \Log::warning('❌ Tipo de evento não é payment ou dataId vazio:', [
-                    'type' => $type,
-                    'dataId' => $dataId
-                ]);
+                \Log::info('ℹ️ Evento não é payment, ignorando:', ['type' => $type]);
             }
             
+            // Sempre retornar 200 OK para Mercado Pago
             return response()->json(['status' => 'success'], 200);
+            
         } catch (\Exception $e) {
             \Log::error('❌ Erro ao processar webhook:', [
                 'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
                 'trace' => $e->getTraceAsString()
             ]);
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+            // Retornar 200 mesmo em caso de erro para não fazer retry infinito
+            return response()->json(['status' => 'success'], 200);
         }
     }
 

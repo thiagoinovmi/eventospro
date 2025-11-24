@@ -1,37 +1,37 @@
 
-.mercadopago-checkout-container[data-v-1b5458ee] {
+.mercadopago-checkout-container[data-v-6a489286] {
     background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     border: 2px solid #007bff;
 }
-.card[data-v-1b5458ee] {
+.card[data-v-6a489286] {
     border: 1px solid #dee2e6;
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
 }
-.form-control[data-v-1b5458ee]:focus,
-.form-select[data-v-1b5458ee]:focus {
+.form-control[data-v-6a489286]:focus,
+.form-select[data-v-6a489286]:focus {
     border-color: #007bff;
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
-.btn-primary[data-v-1b5458ee] {
+.btn-primary[data-v-6a489286] {
     background-color: #007bff;
     border-color: #007bff;
     transition: all 0.3s ease;
 }
-.btn-primary[data-v-1b5458ee]:hover:not(:disabled) {
+.btn-primary[data-v-6a489286]:hover:not(:disabled) {
     background-color: #0056b3;
     border-color: #0056b3;
     transform: translateY(-2px);
     box-shadow: 0 0.5rem 1rem rgba(0, 123, 255, 0.3);
 }
-.btn-primary[data-v-1b5458ee]:disabled {
+.btn-primary[data-v-6a489286]:disabled {
     opacity: 0.65;
     cursor: not-allowed;
 }
-.alert[data-v-1b5458ee] {
+.alert[data-v-6a489286] {
     border-radius: 0.5rem;
-    animation: slideIn-1b5458ee 0.3s ease;
+    animation: slideIn-6a489286 0.3s ease;
 }
-@keyframes slideIn-1b5458ee {
+@keyframes slideIn-6a489286 {
 from {
         opacity: 0;
         transform: translateY(-10px);
@@ -41,7 +41,7 @@ to {
         transform: translateY(0);
 }
 }
-.text-danger[data-v-1b5458ee] {
+.text-danger[data-v-6a489286] {
     font-size: 0.875rem;
     margin-top: 0.25rem;
 }
