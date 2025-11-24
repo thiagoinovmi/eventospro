@@ -2200,4 +2200,57 @@ class BookingsController extends Controller
         return $mpTransaction;
     }
 
+    /**
+     * Handle Mercado Pago Webhook
+     */
+    public function mercadopagoWebhook(Request $request)
+    {
+        \Log::info('=== WEBHOOK MERCADO PAGO RECEBIDO ===');
+        \Log::info('Dados do webhook:', $request->all());
+        
+        try {
+            // Mercado Pago envia o tipo de evento em 'type' e o ID do recurso em 'data.id'
+            $type = $request->input('type');
+            $dataId = $request->input('data.id');
+            
+            \Log::info('Tipo de evento:', ['type' => $type]);
+            \Log::info('Data ID:', ['id' => $dataId]);
+            
+            // Se for um pagamento, processar
+            if ($type === 'payment' && $dataId) {
+                $transaction = MercadoPagoTransaction::where('payment_id', $dataId)->first();
+                
+                if ($transaction) {
+                    \Log::info('Transação encontrada:', ['id' => $transaction->id]);
+                    
+                    // Atualizar status da transação para 'approved'
+                    $transaction->status = 'approved';
+                    $transaction->save();
+                    
+                    \Log::info('✅ Transação atualizada para approved:', ['transaction_id' => $transaction->id]);
+                    
+                    // Atualizar booking se existir
+                    if ($transaction->booking_id) {
+                        $booking = Booking::find($transaction->booking_id);
+                        if ($booking) {
+                            $booking->is_paid = 1;
+                            $booking->save();
+                            \Log::info('✅ Booking atualizado para paid:', ['booking_id' => $booking->id]);
+                        }
+                    }
+                } else {
+                    \Log::warning('Transação não encontrada para payment_id:', ['payment_id' => $dataId]);
+                }
+            }
+            
+            return response()->json(['status' => 'success'], 200);
+        } catch (\Exception $e) {
+            \Log::error('Erro ao processar webhook:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
 }

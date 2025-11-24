@@ -572,6 +572,9 @@ export default {
                             });
                             
                             console.log('⏳ Aguardando webhook do Mercado Pago para confirmação...');
+                            
+                            // Iniciar verificação de confirmação via webhook
+                            this.waitForWebhookConfirmation(response.data.booking_id);
                         } else {
                             console.error('❌ PIX selecionado mas qr_code não retornou!');
                             console.log('Resposta completa:', response.data);
@@ -589,6 +592,9 @@ export default {
                             window.open(response.data.barcode_url, '_blank');
                             
                             console.log('⏳ Aguardando webhook do Mercado Pago para confirmação...');
+                            
+                            // Iniciar verificação de confirmação via webhook
+                            this.waitForWebhookConfirmation(response.data.booking_id);
                         } else {
                             console.warn('Boleto selecionado mas barcode_url não retornou');
                             this.errorMessage = 'Falha ao gerar Boleto. Tente novamente.';
@@ -599,6 +605,9 @@ export default {
                         console.log('💳 Carteira Mercado Pago selecionada');
                         
                         console.log('⏳ Aguardando webhook do Mercado Pago para confirmação...');
+                        
+                        // Iniciar verificação de confirmação via webhook
+                        this.waitForWebhookConfirmation(response.data.booking_id);
                     }
                     // Cartão de Crédito/Débito
                     else if (response.data.payment_method === 'credit_card' || response.data.payment_method === 'debit_card') {
@@ -629,6 +638,53 @@ export default {
                 const errorMessage = error.response?.data?.message || 'Erro ao processar pagamento. Tente novamente.';
                 this.errorMessage = errorMessage;
             }
+        },
+
+        waitForWebhookConfirmation(bookingId) {
+            console.log('🔄 Aguardando confirmação do webhook para booking:', bookingId);
+            
+            // Verificar a cada 2 segundos se o booking foi marcado como pago
+            let attempts = 0;
+            const maxAttempts = 150; // 5 minutos (150 * 2 segundos)
+            
+            const checkInterval = setInterval(async () => {
+                attempts++;
+                
+                try {
+                    // Verificar se o booking foi marcado como pago
+                    const response = await axios.get(`/mybookings/api/get_mybookings`);
+                    
+                    // Procurar pelo booking na lista
+                    const booking = response.data.data.find(b => b.id === bookingId);
+                    
+                    if (booking && booking.is_paid === 1) {
+                        console.log('✅ Pagamento confirmado via webhook!');
+                        clearInterval(checkInterval);
+                        
+                        // Limpar estado
+                        this.isWaitingPayment = false;
+                        this.pixData = '';
+                        this.pixQrCode = '';
+                        
+                        // Mostrar mensagem de sucesso
+                        this.successMessage = 'Pagamento realizado com sucesso!';
+                        
+                        // Redirecionar após 2 segundos
+                        setTimeout(() => {
+                            window.location.href = '/mybookings';
+                        }, 2000);
+                    } else if (attempts >= maxAttempts) {
+                        console.warn('⏱️ Timeout aguardando confirmação do webhook');
+                        clearInterval(checkInterval);
+                        this.errorMessage = 'Timeout aguardando confirmação. Por favor, verifique seu pagamento em Minha Conta.';
+                    }
+                } catch (error) {
+                    console.error('Erro ao verificar confirmação:', error);
+                    if (attempts >= maxAttempts) {
+                        clearInterval(checkInterval);
+                    }
+                }
+            }, 2000);
         },
 
         showProcessingModal() {

@@ -267,6 +267,9 @@ Route::group([
     /* Mercado Pago Public API (sem autenticação) */
     Route::get('/api/mercadopago/public-key', $namespace.'\BookingsController@getMercadoPagoPublicKey');
     
+    /* Mercado Pago Webhook (sem autenticação) */
+    Route::post('/api/mercadopago/webhook', $namespace.'\BookingsController@mercadopagoWebhook')->name('eventmie.mercadopago_webhook');
+    
     /* My Bookings (customers) */
     Route::prefix('/mybookings')->group(function () use($namespace) {
         $controller = $namespace.'\MyBookingsController';
