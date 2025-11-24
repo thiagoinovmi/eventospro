@@ -1225,7 +1225,9 @@ class BookingsController extends Controller
                 'end_time' => 'required|string',
                 'payment_method' => 'required|string',
                 'selected_method' => 'required|string',
-                'total' => 'required|numeric'
+                'total' => 'required|numeric',
+                'ticket_id' => 'nullable|integer',
+                'ticket_title' => 'nullable|string'
             ]);
 
             \Log::info('VALIDAÇÃO PASSOU');
@@ -1295,7 +1297,14 @@ class BookingsController extends Controller
                 
                 // Get event and ticket information
                 $event = \Classiebit\Eventmie\Models\Event::find($validated['event_id']);
-                $ticket = \Classiebit\Eventmie\Models\Ticket::where('event_id', $validated['event_id'])->first();
+                
+                // If ticket_id is provided, use it; otherwise get first ticket
+                $ticket = null;
+                if ($validated['ticket_id']) {
+                    $ticket = \Classiebit\Eventmie\Models\Ticket::find($validated['ticket_id']);
+                } else {
+                    $ticket = \Classiebit\Eventmie\Models\Ticket::where('event_id', $validated['event_id'])->first();
+                }
                 
                 if (!$event) {
                     return response()->json([
@@ -1313,6 +1322,10 @@ class BookingsController extends Controller
                 
                 // Create booking in database with correct event and ticket information
                 $transactionId = 'MP_' . time() . '_' . Auth::id();
+                
+                // Use ticket_title from request if provided, otherwise use ticket model
+                $ticketTitle = $validated['ticket_title'] ?? $ticket->title;
+                
                 $bookingData = [
                     'event_id' => $validated['event_id'],
                     'customer_id' => Auth::id(),
@@ -1330,7 +1343,7 @@ class BookingsController extends Controller
                     'event_end_date' => $event->end_date,
                     'event_start_time' => $event->start_time,
                     'event_end_time' => $event->end_time,
-                    'ticket_title' => $ticket->title,
+                    'ticket_title' => $ticketTitle,
                     'ticket_price' => $ticket->price,
                     'event_category' => $event->category_id,
                     'currency' => 'BRL',

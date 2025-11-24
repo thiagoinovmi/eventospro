@@ -372,6 +372,7 @@ export default {
             console.log('=== PROCESS PAYMENT INICIADO ===');
             console.log('selectedMethod:', this.selectedMethod);
             console.log('cardData:', this.cardData);
+            console.log('tickets:', this.tickets);
             
             if (!this.validateForm()) {
                 this.$emit('error', 'Por favor, preencha todos os campos corretamente');
@@ -381,6 +382,12 @@ export default {
             this.errorMessage = '';
 
             try {
+                // Get first ticket with quantity > 0 (or first ticket if none selected)
+                let selectedTicket = null;
+                if (this.tickets && this.tickets.length > 0) {
+                    selectedTicket = this.tickets[0]; // Use first ticket for now
+                }
+
                 // Prepare payment data
                 const paymentData = {
                     event_id: this.event.id,
@@ -391,7 +398,9 @@ export default {
                     payment_method: 'mercadopago',
                     selected_method: this.selectedMethod,
                     card_data: ['credit_card', 'debit_card'].includes(this.selectedMethod) ? this.cardData : null,
-                    total: this.total
+                    total: this.total,
+                    ticket_id: selectedTicket ? selectedTicket.id : null,
+                    ticket_title: selectedTicket ? selectedTicket.title : null
                 };
 
                 const apiUrl = '/bookings/api/mercadopago/process';
