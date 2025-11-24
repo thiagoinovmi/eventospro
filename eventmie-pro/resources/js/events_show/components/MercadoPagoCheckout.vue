@@ -560,6 +560,14 @@ export default {
                             console.log('✅ QR Code encontrado!');
                             console.log('QR Code URL:', response.data.qr_code_url || 'null (será gerado dinamicamente)');
                             
+                            // Mostrar toast de sucesso
+                            this.$notify({
+                                group: 'foo',
+                                title: 'Sucesso!',
+                                text: response.data.message || 'QR Code PIX gerado com sucesso!',
+                                type: 'success'
+                            });
+                            
                             this.pixData = response.data.qr_code;
                             this.pixQrCode = response.data.qr_code_url || null;
                             this.pixExpiration = new Date(Date.now() + 30 * 60 * 1000); // 30 minutos
@@ -581,11 +589,18 @@ export default {
                     }
                     // Boleto
                     else if (response.data.payment_method === 'boleto' || this.selectedMethod === 'boleto') {
-                        console.log('Boleto selecionado - abrindo URL');
+                        console.log('📋 Boleto selecionado - abrindo URL');
                         
                         if (response.data.barcode_url) {
                             console.log('URL do boleto:', response.data.barcode_url);
-                            this.successMessage = 'Boleto gerado com sucesso! Abrindo em nova aba...';
+                            
+                            // Mostrar toast de sucesso
+                            this.$notify({
+                                group: 'foo',
+                                title: 'Sucesso!',
+                                text: response.data.message || 'Boleto gerado com sucesso! Abrindo em nova aba...',
+                                type: 'success'
+                            });
                             
                             // Abrir boleto em nova aba
                             window.open(response.data.barcode_url, '_blank');
@@ -599,22 +614,35 @@ export default {
                     }
                     // Carteira Mercado Pago
                     else if (response.data.payment_method === 'wallet' || this.selectedMethod === 'mercadopago_wallet') {
-                        console.log('Carteira Mercado Pago selecionada');
+                        console.log('💳 Carteira Mercado Pago selecionada');
                         
-                        this.successMessage = response.data.message || 'Processando pagamento via Carteira...';
+                        // Mostrar toast de sucesso
+                        this.$notify({
+                            group: 'foo',
+                            title: 'Sucesso!',
+                            text: response.data.message || 'Processando pagamento via Carteira...',
+                            type: 'success'
+                        });
                         
                         // Iniciar verificação de pagamento
                         this.startPaymentCheck(response.data.payment_id);
                     }
                     // Cartão de Crédito/Débito
                     else if (response.data.payment_method === 'credit_card' || response.data.payment_method === 'debit_card') {
-                        console.log('Cartão processado com sucesso');
+                        console.log('✅ Cartão processado com sucesso');
                         
-                        this.successMessage = response.data.message || 'Pagamento processado com sucesso!';
+                        // Mostrar toast de sucesso
+                        this.$notify({
+                            group: 'foo',
+                            title: 'Sucesso!',
+                            text: response.data.message || 'Pagamento processado com sucesso!',
+                            type: 'success'
+                        });
                         
+                        // Aguardar 1 segundo e depois mostrar modal de processamento
                         setTimeout(() => {
-                            window.location.href = '/mybookings';
-                        }, 2000);
+                            this.showProcessingModal();
+                        }, 1000);
                     }
                     // Fallback para outros casos
                     else {
@@ -640,7 +668,7 @@ export default {
         },
 
         startPaymentCheck(transactionId) {
-            console.log('Iniciando verificação de pagamento PIX para:', transactionId);
+            console.log('🔄 Iniciando verificação de pagamento para:', transactionId);
             
             // Verificar a cada 5 segundos
             this.paymentCheckInterval = setInterval(async () => {
@@ -648,20 +676,46 @@ export default {
                     const response = await axios.get(`/bookings/api/mercadopago/check-payment/${transactionId}`);
                     
                     if (response.data.status === 'approved') {
-                        console.log('Pagamento aprovado!');
+                        console.log('✅ Pagamento aprovado!');
                         clearInterval(this.paymentCheckInterval);
                         
-                        this.successMessage = 'Pagamento confirmado com sucesso!';
+                        // Mostrar toast de sucesso
+                        this.$notify({
+                            group: 'foo',
+                            title: 'Pagamento Confirmado!',
+                            text: 'Seu pagamento foi confirmado com sucesso!',
+                            type: 'success'
+                        });
+                        
                         this.isWaitingPayment = false;
                         
+                        // Aguardar 1 segundo e depois mostrar modal de processamento
                         setTimeout(() => {
-                            window.location.href = '/mybookings';
-                        }, 2000);
+                            this.showProcessingModal();
+                        }, 1000);
                     }
                 } catch (error) {
                     console.error('Erro ao verificar pagamento:', error);
                 }
             }, 5000);
+        },
+
+        showProcessingModal() {
+            console.log('📋 Mostrando modal de processamento...');
+            
+            // Usar Swal2 para mostrar o modal
+            this.$swal({
+                title: 'Processando...',
+                html: '<div class="spinner-border" role="status"><span class="visually-hidden">Carregando...</span></div>',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                    // Redirecionar após 2 segundos
+                    setTimeout(() => {
+                        window.location.href = '/mybookings';
+                    }, 2000);
+                }
+            });
         },
 
         copyToClipboard() {
