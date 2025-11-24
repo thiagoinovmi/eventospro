@@ -1424,9 +1424,8 @@ class BookingsController extends Controller
             // Configure Mercado Pago SDK
             \MercadoPago\MercadoPagoConfig::setAccessToken($accessToken);
 
-            // Create PIX payment request
-            $request = new \MercadoPago\Request\PaymentCreateRequest();
-            $request->setBody([
+            // Create PIX payment using direct API call
+            $paymentData = [
                 "transaction_amount" => (float)$amount,
                 "description" => "Pagamento de ingresso - Booking #{$bookingId}",
                 "payment_method_id" => "pix",
@@ -1435,22 +1434,38 @@ class BookingsController extends Controller
                     "first_name" => Auth::user()->name
                 ],
                 "date_of_expiration" => now()->addMinutes(30)->toIso8601String()
+            ];
+
+            // Use cURL to make the API request
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, 'https://api.mercadopago.com/v1/payments');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($paymentData));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . $accessToken
             ]);
 
-            $client = new \MercadoPago\Client\PaymentClient();
-            $response = $client->create($request);
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
 
-            if ($response && isset($response->id)) {
-                // Extract PIX data from response
-                $pixData = $response->point_of_interaction->transaction_data->qr_code ?? null;
-                $qrCodeUrl = $response->point_of_interaction->transaction_data->qr_code_url ?? null;
+            if ($httpCode === 201 || $httpCode === 200) {
+                $responseData = json_decode($response, true);
 
-                return [
-                    'pix_code' => $pixData,
-                    'qr_code' => $qrCodeUrl,
-                    'expiration' => now()->addMinutes(30)->toIso8601String(),
-                    'payment_id' => $response->id
-                ];
+                if (isset($responseData['id']) && isset($responseData['point_of_interaction']['transaction_data']['qr_code'])) {
+                    return [
+                        'pix_code' => $responseData['point_of_interaction']['transaction_data']['qr_code'],
+                        'qr_code' => $responseData['point_of_interaction']['transaction_data']['qr_code_url'] ?? null,
+                        'expiration' => now()->addMinutes(30)->toIso8601String(),
+                        'payment_id' => $responseData['id']
+                    ];
+                }
+            } else {
+                \Log::error('Erro ao gerar PIX - HTTP ' . $httpCode, [
+                    'response' => $response
+                ]);
             }
 
             return null;
