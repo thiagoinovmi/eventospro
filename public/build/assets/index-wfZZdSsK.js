@@ -68,7 +68,8 @@ const _sfc_main = {
       currency: null,
       booking_id: 0,
       timerInterval: null,
-      expandedBookingId: null
+      expandedBookingId: null,
+      timerCounter: 0
     };
   },
   computed: {
@@ -76,6 +77,9 @@ const _sfc_main = {
       if (typeof this.page === "undefined")
         return 1;
       return this.page;
+    },
+    timerTrigger() {
+      return this.timerCounter;
     }
   },
   methods: {
@@ -151,9 +155,7 @@ const _sfc_main = {
     this.getMyBookings();
     this.sendEmail();
     this.timerInterval = setInterval(() => {
-      if (this.bookings && this.bookings.length > 0) {
-        this.$forceUpdate();
-      }
+      this.timerCounter++;
     }, 1e3);
   },
   beforeUnmount() {
@@ -214,4 +216,4 @@ window.app = new Vue({
   el: "#eventmie_app",
   router: routes
 });
-//# sourceMappingURL=index-DeMI7fW0.js.map
+//# sourceMappingURL=index-wfZZdSsK.js.map

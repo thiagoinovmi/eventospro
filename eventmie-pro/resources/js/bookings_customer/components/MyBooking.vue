@@ -20,7 +20,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="booking in bookings" :key="booking.id" >
+                                <tr v-for="booking in bookings" v-if="bookings.length > 0" :key="booking.id" >
                                     <td :data-title="trans('em.event')">
                                         <div class="d-flex align-items-center">
                                             <a :href="eventSlug(booking.event_slug)"> 
