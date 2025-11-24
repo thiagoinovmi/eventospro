@@ -204,6 +204,7 @@ export default {
             booking_id : 0,
             timerInterval: null,
             expandedBookingId: null,
+            timerCounter: 0,
         }
     },
 
@@ -214,6 +215,10 @@ export default {
                 return 1;
             return this.page;
         },
+        timerTrigger() {
+            // Dummy computed property to trigger re-render
+            return this.timerCounter;
+        }
     },
 
     methods:{
@@ -308,9 +313,7 @@ export default {
         
         // Iniciar timer para atualizar contagem regressiva a cada segundo
         this.timerInterval = setInterval(() => {
-            if (this.bookings && this.bookings.length > 0) {
-                this.$forceUpdate();
-            }
+            this.timerCounter++;
         }, 1000);
     },
 
