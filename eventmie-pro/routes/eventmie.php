@@ -273,7 +273,8 @@ Route::group([
         ->withoutMiddleware([
             \Classiebit\Eventmie\Middleware\VerifyCsrfToken::class, 
             \App\Http\Middleware\VerifyCsrfToken::class,
-            \Classiebit\Eventmie\Middleware\Authenticate::class
+            \Classiebit\Eventmie\Middleware\Authenticate::class,
+            'common'
         ]);
     
     /* My Bookings (customers) */
