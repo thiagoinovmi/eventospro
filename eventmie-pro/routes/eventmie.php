@@ -607,4 +607,4 @@ Route::group([
 /* Mercado Pago Webhook (FORA DO GRUPO - sem middlewares) */
 Route::post(config('eventmie.route.prefix').'/mercadopago/webhook', $namespace.'\BookingsController@mercadopagoWebhook')
     ->name('mercadopago_webhook')
-    ->withoutMiddleware(['web', 'api']);
+    ->middleware([]);
