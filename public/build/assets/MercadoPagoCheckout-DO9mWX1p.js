@@ -8,13 +8,7 @@ const _sfc_main = {
     bookingData: Object,
     paymentMethods: {
       type: Object,
-      default: () => ({
-        credit_card: true,
-        debit_card: true,
-        boleto: true,
-        pix: true,
-        wallet: true
-      })
+      default: () => ({})
     },
     installmentOptions: {
       type: Array,
@@ -47,8 +41,12 @@ const _sfc_main = {
         cardCvv: ""
       },
       errorMessage: "",
-      successMessage: ""
+      successMessage: "",
+      loadedMethods: {}
     };
+  },
+  mounted() {
+    this.loadPaymentMethods();
   },
   computed: {
     subtotal() {
@@ -60,6 +58,46 @@ const _sfc_main = {
     }
   },
   methods: {
+    loadPaymentMethods() {
+      var _a, _b;
+      console.log("=== CARREGANDO MÉTODOS DE PAGAMENTO ===");
+      console.log("Event ID:", (_a = this.event) == null ? void 0 : _a.id);
+      if (!((_b = this.event) == null ? void 0 : _b.id)) {
+        console.error("Event ID não encontrado");
+        return;
+      }
+      const timestamp = (/* @__PURE__ */ new Date()).getTime();
+      const url = `/api/mercadopago/payment-methods/event/${this.event.id}?t=${timestamp}`;
+      console.log("Chamando API:", url);
+      axios.get(url, {
+        headers: {
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          "Pragma": "no-cache",
+          "Expires": "0"
+        }
+      }).then((response) => {
+        console.log("Resposta da API:", response.data);
+        if (response.data.status && response.data.data) {
+          const methods = response.data.data;
+          console.log("Métodos carregados:", methods.length, methods);
+          this.loadedMethods = {};
+          methods.forEach((method) => {
+            this.loadedMethods[method.type] = true;
+          });
+          console.log("Métodos processados:", this.loadedMethods);
+          const firstMethod = methods[0];
+          if (firstMethod) {
+            this.selectedMethod = firstMethod.type;
+          }
+        } else {
+          console.error("Erro na resposta:", response.data.message);
+          this.errorMessage = response.data.message || "Erro ao carregar métodos de pagamento";
+        }
+      }).catch((error) => {
+        console.error("Erro ao carregar métodos:", error);
+        this.errorMessage = "Erro ao carregar métodos de pagamento: " + error.message;
+      });
+    },
     formatCardNumber() {
       var _a;
       let value = this.cardData.number.replace(/\s/g, "");
@@ -157,16 +195,16 @@ const _sfc_main = {
 };
 var _sfc_render = function render() {
   var _vm = this, _c = _vm._self._c;
-  return _c("div", { staticClass: "mercadopago-checkout-container mt-4 p-4 border rounded bg-light" }, [_c("div", { staticClass: "mb-4" }, [_c("h5", { staticClass: "mb-3" }, [_c("i", { staticClass: "fas fa-credit-card me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.payment_details") || "Detalhes do Pagamento") + " ")]), _c("hr")]), _c("div", { staticClass: "row mb-4" }, [_c("div", { staticClass: "col-md-6" }, [_c("div", { staticClass: "card" }, [_c("div", { staticClass: "card-body" }, [_c("h6", { staticClass: "card-title mb-3" }, [_vm._v(_vm._s(_vm.trans("em.order_summary") || "Resumo do Pedido"))]), _c("div", { staticClass: "d-flex justify-content-between mb-2" }, [_c("span", [_vm._v(_vm._s(_vm.trans("em.subtotal") || "Subtotal") + ":")]), _c("strong", [_vm._v(_vm._s(_vm.subtotal) + " " + _vm._s(_vm.currency))])]), _c("div", { staticClass: "d-flex justify-content-between mb-2" }, [_c("span", [_vm._v(_vm._s(_vm.trans("em.tax") || "Taxa") + ":")]), _c("strong", [_vm._v(_vm._s(_vm.tax) + " " + _vm._s(_vm.currency))])]), _c("hr"), _c("div", { staticClass: "d-flex justify-content-between" }, [_c("span", { staticClass: "h6" }, [_vm._v(_vm._s(_vm.trans("em.total") || "Total") + ":")]), _c("strong", { staticClass: "h6" }, [_vm._v(_vm._s(_vm.total) + " " + _vm._s(_vm.currency))])])])])]), _c("div", { staticClass: "col-md-6" }, [_c("div", { staticClass: "card" }, [_c("div", { staticClass: "card-body" }, [_c("h6", { staticClass: "card-title mb-3" }, [_vm._v(_vm._s(_vm.trans("em.payment_method") || "Método de Pagamento"))]), _vm.paymentMethods.credit_card ? _c("div", { staticClass: "form-check mb-3" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.selectedMethod, expression: "selectedMethod" }], staticClass: "form-check-input", attrs: { "type": "radio", "id": "method_credit_card", "value": "credit_card" }, domProps: { "checked": _vm._q(_vm.selectedMethod, "credit_card") }, on: { "change": function($event) {
+  return _c("div", { staticClass: "mercadopago-checkout-container mt-4 p-4 border rounded bg-light" }, [_c("div", { staticClass: "mb-4" }, [_c("h5", { staticClass: "mb-3" }, [_c("i", { staticClass: "fas fa-credit-card me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.payment_details") || "Detalhes do Pagamento") + " ")]), _c("hr")]), _c("div", { staticClass: "row mb-4" }, [_c("div", { staticClass: "col-md-6" }, [_c("div", { staticClass: "card" }, [_c("div", { staticClass: "card-body" }, [_c("h6", { staticClass: "card-title mb-3" }, [_vm._v(_vm._s(_vm.trans("em.order_summary") || "Resumo do Pedido"))]), _c("div", { staticClass: "d-flex justify-content-between mb-2" }, [_c("span", [_vm._v(_vm._s(_vm.trans("em.subtotal") || "Subtotal") + ":")]), _c("strong", [_vm._v(_vm._s(_vm.subtotal) + " " + _vm._s(_vm.currency))])]), _c("div", { staticClass: "d-flex justify-content-between mb-2" }, [_c("span", [_vm._v(_vm._s(_vm.trans("em.tax") || "Taxa") + ":")]), _c("strong", [_vm._v(_vm._s(_vm.tax) + " " + _vm._s(_vm.currency))])]), _c("hr"), _c("div", { staticClass: "d-flex justify-content-between" }, [_c("span", { staticClass: "h6" }, [_vm._v(_vm._s(_vm.trans("em.total") || "Total") + ":")]), _c("strong", { staticClass: "h6" }, [_vm._v(_vm._s(_vm.total) + " " + _vm._s(_vm.currency))])])])])]), _c("div", { staticClass: "col-md-6" }, [_c("div", { staticClass: "card" }, [_c("div", { staticClass: "card-body" }, [_c("h6", { staticClass: "card-title mb-3" }, [_vm._v(_vm._s(_vm.trans("em.payment_method") || "Método de Pagamento"))]), _vm.loadedMethods.credit_card ? _c("div", { staticClass: "form-check mb-3" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.selectedMethod, expression: "selectedMethod" }], staticClass: "form-check-input", attrs: { "type": "radio", "id": "method_credit_card", "value": "credit_card" }, domProps: { "checked": _vm._q(_vm.selectedMethod, "credit_card") }, on: { "change": function($event) {
     _vm.selectedMethod = "credit_card";
-  } } }), _c("label", { staticClass: "form-check-label", attrs: { "for": "method_credit_card" } }, [_c("i", { staticClass: "fas fa-credit-card me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.credit_card") || "Cartão de Crédito") + " ")])]) : _vm._e(), _vm.paymentMethods.debit_card ? _c("div", { staticClass: "form-check mb-3" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.selectedMethod, expression: "selectedMethod" }], staticClass: "form-check-input", attrs: { "type": "radio", "id": "method_debit_card", "value": "debit_card" }, domProps: { "checked": _vm._q(_vm.selectedMethod, "debit_card") }, on: { "change": function($event) {
+  } } }), _c("label", { staticClass: "form-check-label", attrs: { "for": "method_credit_card" } }, [_c("i", { staticClass: "fas fa-credit-card me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.credit_card") || "Cartão de Crédito") + " ")])]) : _vm._e(), _vm.loadedMethods.debit_card ? _c("div", { staticClass: "form-check mb-3" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.selectedMethod, expression: "selectedMethod" }], staticClass: "form-check-input", attrs: { "type": "radio", "id": "method_debit_card", "value": "debit_card" }, domProps: { "checked": _vm._q(_vm.selectedMethod, "debit_card") }, on: { "change": function($event) {
     _vm.selectedMethod = "debit_card";
-  } } }), _c("label", { staticClass: "form-check-label", attrs: { "for": "method_debit_card" } }, [_c("i", { staticClass: "fas fa-credit-card me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.debit_card") || "Cartão de Débito") + " ")])]) : _vm._e(), _vm.paymentMethods.boleto ? _c("div", { staticClass: "form-check mb-3" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.selectedMethod, expression: "selectedMethod" }], staticClass: "form-check-input", attrs: { "type": "radio", "id": "method_boleto", "value": "boleto" }, domProps: { "checked": _vm._q(_vm.selectedMethod, "boleto") }, on: { "change": function($event) {
+  } } }), _c("label", { staticClass: "form-check-label", attrs: { "for": "method_debit_card" } }, [_c("i", { staticClass: "fas fa-credit-card me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.debit_card") || "Cartão de Débito") + " ")])]) : _vm._e(), _vm.loadedMethods.boleto ? _c("div", { staticClass: "form-check mb-3" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.selectedMethod, expression: "selectedMethod" }], staticClass: "form-check-input", attrs: { "type": "radio", "id": "method_boleto", "value": "boleto" }, domProps: { "checked": _vm._q(_vm.selectedMethod, "boleto") }, on: { "change": function($event) {
     _vm.selectedMethod = "boleto";
-  } } }), _c("label", { staticClass: "form-check-label", attrs: { "for": "method_boleto" } }, [_c("i", { staticClass: "fas fa-barcode me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.boleto") || "Boleto Bancário") + " ")])]) : _vm._e(), _vm.paymentMethods.pix ? _c("div", { staticClass: "form-check mb-3" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.selectedMethod, expression: "selectedMethod" }], staticClass: "form-check-input", attrs: { "type": "radio", "id": "method_pix", "value": "pix" }, domProps: { "checked": _vm._q(_vm.selectedMethod, "pix") }, on: { "change": function($event) {
+  } } }), _c("label", { staticClass: "form-check-label", attrs: { "for": "method_boleto" } }, [_c("i", { staticClass: "fas fa-barcode me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.boleto") || "Boleto Bancário") + " ")])]) : _vm._e(), _vm.loadedMethods.pix ? _c("div", { staticClass: "form-check mb-3" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.selectedMethod, expression: "selectedMethod" }], staticClass: "form-check-input", attrs: { "type": "radio", "id": "method_pix", "value": "pix" }, domProps: { "checked": _vm._q(_vm.selectedMethod, "pix") }, on: { "change": function($event) {
     _vm.selectedMethod = "pix";
-  } } }), _c("label", { staticClass: "form-check-label", attrs: { "for": "method_pix" } }, [_c("i", { staticClass: "fas fa-mobile-alt me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.pix") || "PIX") + " ")])]) : _vm._e(), _vm.paymentMethods.wallet ? _c("div", { staticClass: "form-check" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.selectedMethod, expression: "selectedMethod" }], staticClass: "form-check-input", attrs: { "type": "radio", "id": "method_wallet", "value": "wallet" }, domProps: { "checked": _vm._q(_vm.selectedMethod, "wallet") }, on: { "change": function($event) {
-    _vm.selectedMethod = "wallet";
+  } } }), _c("label", { staticClass: "form-check-label", attrs: { "for": "method_pix" } }, [_c("i", { staticClass: "fas fa-mobile-alt me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.pix") || "PIX") + " ")])]) : _vm._e(), _vm.loadedMethods.mercadopago_wallet ? _c("div", { staticClass: "form-check" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.selectedMethod, expression: "selectedMethod" }], staticClass: "form-check-input", attrs: { "type": "radio", "id": "method_wallet", "value": "mercadopago_wallet" }, domProps: { "checked": _vm._q(_vm.selectedMethod, "mercadopago_wallet") }, on: { "change": function($event) {
+    _vm.selectedMethod = "mercadopago_wallet";
   } } }), _c("label", { staticClass: "form-check-label", attrs: { "for": "method_wallet" } }, [_c("i", { staticClass: "fas fa-wallet me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.wallet") || "Carteira Mercado Pago") + " ")])]) : _vm._e()])])])]), ["credit_card", "debit_card"].includes(_vm.selectedMethod) ? _c("div", { staticClass: "row mb-4" }, [_c("div", { staticClass: "col-12" }, [_c("div", { staticClass: "card" }, [_c("div", { staticClass: "card-body" }, [_c("h6", { staticClass: "card-title mb-3" }, [_vm._v(_vm._s(_vm.trans("em.card_details") || "Dados do Cartão"))]), _c("div", { staticClass: "mb-3" }, [_c("label", { staticClass: "form-label", attrs: { "for": "cardholderName" } }, [_vm._v(_vm._s(_vm.trans("em.cardholder_name") || "Nome do Titular"))]), _c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.cardData.holderName, expression: "cardData.holderName" }], staticClass: "form-control", attrs: { "type": "text", "id": "cardholderName", "placeholder": "João Silva" }, domProps: { "value": _vm.cardData.holderName }, on: { "input": [function($event) {
     if ($event.target.composing) return;
     _vm.$set(_vm.cardData, "holderName", $event.target.value);
@@ -202,10 +240,10 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "291fd893"
+  "0adc4dab"
 );
 const MercadoPagoCheckout = __component__.exports;
 export {
   MercadoPagoCheckout as default
 };
-//# sourceMappingURL=MercadoPagoCheckout-Dklunexd.js.map
+//# sourceMappingURL=MercadoPagoCheckout-DO9mWX1p.js.map
