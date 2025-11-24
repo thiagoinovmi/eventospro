@@ -544,43 +544,84 @@ export default {
                 console.log('pix_data presente?', !!response.data.pix_data);
                 
                 if (response.data.status) {
-                    // Se for PIX, mostrar QR Code e aguardar pagamento
-                    if (this.selectedMethod === 'pix') {
-                        console.log('PIX selecionado - verificando dados');
+                    console.log('Pagamento processado com sucesso!');
+                    console.log('Método selecionado:', this.selectedMethod);
+                    console.log('Método retornado:', response.data.payment_method);
+                    console.log('Resposta completa:', response.data);
+                    
+                    // PIX
+                    if (response.data.payment_method === 'pix' || this.selectedMethod === 'pix') {
+                        console.log('PIX selecionado - processando QR Code');
                         
-                        if (response.data.pix_data) {
-                            console.log('PIX data encontrado:', response.data.pix_data);
-                            this.pixData = response.data.pix_data;
-                            this.pixQrCode = response.data.pix_qr_code;
-                            this.pixExpiration = new Date(response.data.pix_expiration);
+                        if (response.data.qr_code) {
+                            console.log('QR Code encontrado:', response.data.qr_code.substring(0, 50) + '...');
+                            this.pixData = response.data.qr_code;
+                            this.pixQrCode = response.data.qr_code_url;
+                            this.pixExpiration = new Date(Date.now() + 30 * 60 * 1000); // 30 minutos
                             this.isWaitingPayment = true;
                             
-                            console.log('Estado atualizado:', {
-                                pixData: this.pixData,
-                                pixQrCode: this.pixQrCode,
+                            console.log('Estado PIX atualizado:', {
+                                pixDataPresente: !!this.pixData,
+                                pixQrCodeUrl: this.pixQrCode,
                                 isWaitingPayment: this.isWaitingPayment
                             });
                             
                             // Iniciar verificação de pagamento a cada 5 segundos
-                            this.startPaymentCheck(response.data.transaction_id);
+                            this.startPaymentCheck(response.data.payment_id);
                         } else {
-                            console.warn('PIX selecionado mas pix_data não retornou');
-                            console.log('Resposta completa:', response.data);
-                            
-                            // Mostrar mensagem de erro
-                            this.errorMessage = 'Falha ao gerar PIX. Tente novamente.';
+                            console.warn('PIX selecionado mas qr_code não retornou');
+                            this.errorMessage = 'Falha ao gerar QR Code PIX. Tente novamente.';
                         }
-                    } else {
-                        // Para outros métodos, redirecionar direto
+                    }
+                    // Boleto
+                    else if (response.data.payment_method === 'boleto' || this.selectedMethod === 'boleto') {
+                        console.log('Boleto selecionado - abrindo URL');
+                        
+                        if (response.data.barcode_url) {
+                            console.log('URL do boleto:', response.data.barcode_url);
+                            this.successMessage = 'Boleto gerado com sucesso! Abrindo em nova aba...';
+                            
+                            // Abrir boleto em nova aba
+                            window.open(response.data.barcode_url, '_blank');
+                            
+                            // Iniciar verificação de pagamento
+                            this.startPaymentCheck(response.data.payment_id);
+                        } else {
+                            console.warn('Boleto selecionado mas barcode_url não retornou');
+                            this.errorMessage = 'Falha ao gerar Boleto. Tente novamente.';
+                        }
+                    }
+                    // Carteira Mercado Pago
+                    else if (response.data.payment_method === 'wallet' || this.selectedMethod === 'mercadopago_wallet') {
+                        console.log('Carteira Mercado Pago selecionada');
+                        
+                        this.successMessage = response.data.message || 'Processando pagamento via Carteira...';
+                        
+                        // Iniciar verificação de pagamento
+                        this.startPaymentCheck(response.data.payment_id);
+                    }
+                    // Cartão de Crédito/Débito
+                    else if (response.data.payment_method === 'credit_card' || response.data.payment_method === 'debit_card') {
+                        console.log('Cartão processado com sucesso');
+                        
                         this.successMessage = response.data.message || 'Pagamento processado com sucesso!';
-                        console.log('Pagamento confirmado com sucesso!');
                         
                         setTimeout(() => {
                             window.location.href = '/mybookings';
-                        }, 3000);
+                        }, 2000);
+                    }
+                    // Fallback para outros casos
+                    else {
+                        console.log('Método de pagamento:', response.data.payment_method);
+                        this.successMessage = response.data.message || 'Pagamento processado com sucesso!';
+                        
+                        setTimeout(() => {
+                            window.location.href = '/mybookings';
+                        }, 2000);
                     }
                 } else {
-                    this.$emit('error', response.data.message || 'Erro ao processar pagamento');
+                    console.error('Erro na resposta:', response.data);
+                    this.errorMessage = response.data.message || 'Erro ao processar pagamento';
                 }
             } catch (error) {
                 console.error('Payment error:', error);
