@@ -2205,7 +2205,7 @@ class BookingsController extends Controller
      */
     public function mercadopagoWebhook(Request $request)
     {
-        \Log::info('=== WEBHOOK MERCADO PAGO RECEBIDO ===');
+        \Log::info('=== WEBHOOK MERCADO PAGO RECEBIDO - CONTROLLER CHAMADO ===');
         \Log::info('Headers:', $request->headers->all());
         \Log::info('Dados brutos do webhook:', $request->all());
         \Log::info('JSON decodificado:', json_decode($request->getContent(), true));
