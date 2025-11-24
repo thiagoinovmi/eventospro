@@ -205,7 +205,7 @@
                         </div>
                         
                         <!-- Expiration Timer -->
-                        <div class="alert alert-info" v-if="pixExpiration">
+                        <div class="alert alert-info" v-if="pixExpiration" :key="timerTrigger">
                             <i class="fas fa-clock me-2"></i>
                             {{ trans('em.pix_expires_in') || 'PIX expira em' }}: 
                             <strong>{{ formatTimeRemaining(pixExpiration) }}</strong>
@@ -297,15 +297,36 @@ export default {
             pixQrCode: null,
             pixExpiration: null,
             isWaitingPayment: false,
-            paymentCheckInterval: null
+            paymentCheckInterval: null,
+            timerCounter: 0,
+            timerInterval: null
         }
     },
 
     mounted() {
         this.loadPaymentMethods();
+        
+        // Iniciar timer para atualizar contagem regressiva a cada segundo
+        this.timerInterval = setInterval(() => {
+            this.timerCounter++;
+        }, 1000);
+    },
+
+    beforeDestroy() {
+        // Limpar interval quando componente é destruído
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+        }
+        if (this.paymentCheckInterval) {
+            clearInterval(this.paymentCheckInterval);
+        }
     },
 
     computed: {
+        timerTrigger() {
+            // Dummy computed property to trigger re-render
+            return this.timerCounter;
+        },
         subtotal() {
             const total = parseFloat(this.total) || 0;
             return total.toFixed(2);

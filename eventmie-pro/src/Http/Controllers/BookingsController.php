@@ -1398,6 +1398,20 @@ class BookingsController extends Controller
                 $newBooking = $this->booking->create($bookingData);
                 \Log::info('Booking criado:', ['id' => $newBooking->id, 'transaction_id' => $transactionId]);
                 
+                // Agora registrar a transação com o booking_id correto
+                $validated['booking_id'] = $newBooking->id;
+                try {
+                    $this->registerMercadoPagoTransaction(
+                        $paymentResult['response_data'] ?? [],
+                        $validated,
+                        Auth::user(),
+                        $validated['selected_method']
+                    );
+                    \Log::info('Transação registrada com booking_id:', ['booking_id' => $newBooking->id]);
+                } catch (\Exception $e) {
+                    \Log::error('Erro ao registrar transação após criar booking:', ['message' => $e->getMessage()]);
+                }
+                
                 $response = [
                     'status' => true,
                     'message' => $paymentResult['message'] ?? 'Pagamento processado com sucesso!',
@@ -1589,31 +1603,13 @@ class BookingsController extends Controller
                         'approved' => $isApproved
                     ]);
 
-                    // Register transaction in mercadopago_transactions table
-                    try {
-                        $this->registerMercadoPagoTransaction(
-                            $responseData,
-                            $validated,
-                            $user,
-                            $paymentMethodId
-                        );
-                        
-                        \Log::info('Transação registrada na tabela mercadopago_transactions:', [
-                            'payment_id' => $responseData['id']
-                        ]);
-                    } catch (\Exception $e) {
-                        \Log::error('Erro ao registrar transação:', [
-                            'message' => $e->getMessage(),
-                            'payment_id' => $responseData['id']
-                        ]);
-                    }
-
                     return [
                         'status' => true,
                         'payment_id' => $responseData['id'],
                         'is_paid' => $isApproved ? 1 : 0,
                         'booking_status' => $isApproved ? 1 : 0,
-                        'message' => $isApproved ? 'Pagamento aprovado!' : 'Pagamento pendente de confirmação'
+                        'message' => $isApproved ? 'Pagamento aprovado!' : 'Pagamento pendente de confirmação',
+                        'response_data' => $responseData
                     ];
                 }
             }
@@ -1849,18 +1845,6 @@ class BookingsController extends Controller
                     'qr_code_url_presente' => !empty($qrCodeUrl)
                 ]);
 
-                // Register transaction
-                try {
-                    $this->registerMercadoPagoTransaction(
-                        $responseData,
-                        $validated,
-                        $user,
-                        'pix'
-                    );
-                } catch (\Exception $e) {
-                    \Log::error('Erro ao registrar transação PIX:', ['message' => $e->getMessage()]);
-                }
-
                 return [
                     'status' => true,
                     'payment_id' => $responseData['id'],
@@ -1868,7 +1852,8 @@ class BookingsController extends Controller
                     'pix_status' => $status,
                     'qr_code' => $qrCode,
                     'qr_code_url' => $qrCodeUrl,
-                    'message' => 'QR Code PIX gerado com sucesso'
+                    'message' => 'QR Code PIX gerado com sucesso',
+                    'response_data' => $responseData
                 ];
             }
         }
