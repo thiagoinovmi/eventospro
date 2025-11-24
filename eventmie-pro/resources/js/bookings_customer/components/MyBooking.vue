@@ -117,31 +117,6 @@
                                         </div>
                                     </td>
                                 </tr>
-                                <!-- PIX QR Code Row - DENTRO DO LOOP -->
-                                <tr v-if="expandedBookingId === booking.id && booking.payment_type === 'mercadopago' && booking.mercadopago_transaction && booking.mercadopago_transaction.qr_code_base64 && !booking.is_paid">
-                                    <td colspan="10" class="p-4 bg-light">
-                                        <div class="row">
-                                            <div class="col-md-4 text-center">
-                                                <h6 class="mb-3">{{ trans('em.pix_qr_code') }}</h6>
-                                                <img :src="booking.mercadopago_transaction.qr_code_base64" alt="PIX QR Code" class="img-fluid" style="max-width: 250px;">
-                                                <p class="text-muted small mt-2">
-                                                    <i class="fas fa-clock"></i> 
-                                                    {{ trans('em.expires_in') }}: <strong>{{ getTimeRemaining(booking.mercadopago_transaction.qr_code_expires_at) }}</strong>
-                                                </p>
-                                            </div>
-                                            <div class="col-md-8">
-                                                <h6 class="mb-3">{{ trans('em.pix_copy_paste') }}</h6>
-                                                <div class="input-group">
-                                                    <input type="text" class="form-control" :value="booking.mercadopago_transaction.qr_code" readonly>
-                                                    <button class="btn btn-outline-secondary" type="button" @click="copyToClipboard(booking.mercadopago_transaction.qr_code)">
-                                                        <i class="fas fa-copy"></i> {{ trans('em.copy') }}
-                                                    </button>
-                                                </div>
-                                                <small class="text-muted d-block mt-2">{{ trans('em.pix_instructions') }}</small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
 
                                 <tr v-if="bookings.length <= 0">
                                     <td colspan="10" class="text-center align-middle">{{ trans('em.no_bookings') }}</td>
