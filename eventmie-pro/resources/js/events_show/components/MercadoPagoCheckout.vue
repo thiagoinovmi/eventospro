@@ -610,7 +610,17 @@ export default {
                 const mp = new window.MercadoPago(publicKey);
 
                 // Prepare card data - IMPORTANT: cardNumber must be the FULL number without spaces
-                const cardNumber = this.cardData.number.replace(/\s/g, '');
+                // Remove ALL spaces and non-digit characters
+                const cardNumber = this.cardData.number.replace(/\D/g, '');
+                
+                console.log('DEBUG - Card data antes de gerar token:', {
+                    cardData_number_raw: this.cardData.number,
+                    cardNumber_cleaned: cardNumber,
+                    cardNumber_length: cardNumber.length,
+                    holderName: this.cardData.holderName,
+                    expiry: this.cardData.expiry,
+                    cvv: this.cardData.cvv
+                });
                 
                 const cardData = {
                     cardNumber: cardNumber,
