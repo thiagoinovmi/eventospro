@@ -1480,7 +1480,8 @@ class BookingsController extends Controller
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($paymentData));
             curl_setopt($ch, CURLOPT_HTTPHEADER, [
                 'Content-Type: application/json',
-                'Authorization: Bearer ' . $accessToken
+                'Authorization: Bearer ' . $accessToken,
+                'X-Idempotency-Key: ' . \Illuminate\Support\Str::uuid()
             ]);
 
             $response = curl_exec($ch);
@@ -1606,7 +1607,8 @@ class BookingsController extends Controller
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($paymentData));
             curl_setopt($ch, CURLOPT_HTTPHEADER, [
                 'Content-Type: application/json',
-                'Authorization: Bearer ' . $accessToken
+                'Authorization: Bearer ' . $accessToken,
+                'X-Idempotency-Key: ' . \Illuminate\Support\Str::uuid()
             ]);
 
             $response = curl_exec($ch);
