@@ -212,9 +212,9 @@
                         </div>
                         
                         <!-- Waiting Message -->
-                        <div class="alert alert-warning">
-                            <i class="fas fa-hourglass-half me-2"></i>
-                            {{ trans('em.waiting_payment_confirmation') || 'Aguardando confirmação do pagamento...' }}
+                        <div :class="['alert', paymentConfirmed ? 'alert-success' : 'alert-warning']">
+                            <i :class="[paymentConfirmed ? 'fas fa-check-circle' : 'fas fa-hourglass-half', 'me-2']"></i>
+                            {{ paymentConfirmed ? 'Pagamento recebido e confirmado!' : (trans('em.waiting_payment_confirmation') || 'Aguardando confirmação do pagamento...') }}
                         </div>
                     </div>
                 </div>
@@ -298,6 +298,7 @@ export default {
             pixExpiration: null,
             isWaitingPayment: false,
             paymentCheckInterval: null,
+            paymentConfirmed: false,
             timerCounter: 0,
             timerInterval: null
         }
@@ -667,9 +668,9 @@ export default {
         waitForWebhookConfirmation(bookingId) {
             console.log('🔄 Aguardando confirmação do webhook para booking:', bookingId);
             
-            // Verificar a cada 2 segundos se o booking foi marcado como pago
+            // Verificar a cada 1 segundo se o booking foi marcado como pago (mais rápido)
             let attempts = 0;
-            const maxAttempts = 150; // 5 minutos (150 * 2 segundos)
+            const maxAttempts = 300; // 5 minutos (300 * 1 segundo)
             
             const checkInterval = setInterval(async () => {
                 attempts++;
@@ -686,13 +687,19 @@ export default {
                         console.log('✅ Pagamento confirmado via webhook!');
                         clearInterval(checkInterval);
                         
+                        // 🎉 NOVO: Atualizar UI em tempo real
+                        this.paymentConfirmed = true;
+                        
                         // Limpar estado
                         this.isWaitingPayment = false;
                         this.pixData = '';
                         this.pixQrCode = '';
                         
+                        // 🎉 NOVO: Mostrar toast de sucesso
+                        this.showSuccessToast('Pagamento recebido e confirmado com sucesso!');
+                        
                         // Mostrar mensagem de sucesso
-                        this.successMessage = 'Pagamento realizado com sucesso!';
+                        this.successMessage = 'Pagamento realizado com sucesso! Redirecionando...';
                         
                         // Redirecionar após 2 segundos
                         setTimeout(() => {
@@ -710,7 +717,39 @@ export default {
                         clearInterval(checkInterval);
                     }
                 }
-            }, 2000);
+            }, 1000); // Verificar a cada 1 segundo (em vez de 2)
+        },
+        
+        // 🎉 NOVO: Mostrar toast de sucesso
+        showSuccessToast(message) {
+            // Usar Bootstrap Toast se disponível
+            if (typeof bootstrap !== 'undefined' && bootstrap.Toast) {
+                // Criar elemento toast dinamicamente
+                const toastHTML = `
+                    <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true" style="position: fixed; top: 20px; right: 20px; z-index: 9999;">
+                        <div class="toast-header bg-success text-white">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <strong class="me-auto">Sucesso</strong>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body bg-light">
+                            ${message}
+                        </div>
+                    </div>
+                `;
+                
+                const toastContainer = document.createElement('div');
+                toastContainer.innerHTML = toastHTML;
+                document.body.appendChild(toastContainer);
+                
+                // Remover após 5 segundos
+                setTimeout(() => {
+                    toastContainer.remove();
+                }, 5000);
+            } else {
+                // Fallback: usar alert
+                console.log('✅ ' + message);
+            }
         },
 
         copyToClipboard() {

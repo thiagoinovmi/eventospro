@@ -55,29 +55,54 @@ class MercadoPagoWebhookController extends Controller
                         'status_atual' => $transaction->status
                     ]);
                     
-                    // Atualizar status da transação para 'approved'
-                    $transaction->status = 'approved';
-                    $transaction->save();
+                    // 🔑 NOVO: Consultar API do Mercado Pago para validar status real
+                    $paymentDetails = $this->getPaymentDetailsFromAPI($dataId);
                     
-                    Log::info('✅ Transação atualizada para approved');
-                    
-                    // Atualizar booking se existir
-                    if ($transaction->booking_id) {
-                        $booking = Booking::find($transaction->booking_id);
-                        if ($booking) {
-                            Log::info('📦 Booking encontrado - atualizando is_paid');
-                            
-                            $booking->is_paid = 1;
-                            $booking->save();
-                            
-                            Log::info('✅ Booking atualizado para paid:', [
-                                'booking_id' => $booking->id
-                            ]);
+                    if ($paymentDetails && $paymentDetails['status'] === 'approved') {
+                        Log::info('✅ Pagamento validado na API do Mercado Pago:', [
+                            'status' => $paymentDetails['status'],
+                            'status_detail' => $paymentDetails['status_detail'] ?? null,
+                            'payment_method' => $paymentDetails['payment_method_id'] ?? null,
+                            'amount' => $paymentDetails['transaction_amount'] ?? null
+                        ]);
+                        
+                        // Atualizar status da transação para 'approved'
+                        $transaction->status = 'approved';
+                        $transaction->save();
+                        
+                        Log::info('✅ Transação atualizada para approved');
+                        
+                        // Atualizar booking se existir
+                        if ($transaction->booking_id) {
+                            $booking = Booking::find($transaction->booking_id);
+                            if ($booking) {
+                                Log::info('📦 Booking encontrado - atualizando is_paid');
+                                
+                                $booking->is_paid = 1;
+                                $booking->save();
+                                
+                                Log::info('✅ Booking atualizado para paid:', [
+                                    'booking_id' => $booking->id,
+                                    'payment_method' => $paymentDetails['payment_method_id'] ?? null
+                                ]);
+                            } else {
+                                Log::warning('❌ Booking não encontrado:', ['booking_id' => $transaction->booking_id]);
+                            }
                         } else {
-                            Log::warning('❌ Booking não encontrado:', ['booking_id' => $transaction->booking_id]);
+                            Log::warning('⚠️ Transação não tem booking_id');
                         }
                     } else {
-                        Log::warning('⚠️ Transação não tem booking_id');
+                        // Pagamento não foi aprovado
+                        Log::warning('⚠️ Pagamento não está aprovado:', [
+                            'status' => $paymentDetails['status'] ?? 'unknown',
+                            'status_detail' => $paymentDetails['status_detail'] ?? null
+                        ]);
+                        
+                        // Atualizar com status real da API
+                        if ($paymentDetails) {
+                            $transaction->status = $paymentDetails['status'] ?? 'pending';
+                            $transaction->save();
+                        }
                     }
                 } else {
                     Log::warning('❌ Transação não encontrada para payment_id:', ['payment_id' => $dataId]);
@@ -98,6 +123,55 @@ class MercadoPagoWebhookController extends Controller
             ]);
             // Retornar 200 mesmo em caso de erro para não fazer retry infinito
             return response()->json(['status' => 'ok'], 200);
+        }
+    }
+    
+    /**
+     * 🔑 NOVO: Consultar detalhes do pagamento na API do Mercado Pago
+     */
+    private function getPaymentDetailsFromAPI($paymentId)
+    {
+        try {
+            $accessToken = setting('mercadopago.access_token');
+            
+            if (!$accessToken) {
+                Log::error('❌ Access token do Mercado Pago não configurado');
+                return null;
+            }
+            
+            Log::info('🔍 Consultando detalhes do pagamento na API:', ['payment_id' => $paymentId]);
+            
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, "https://api.mercadopago.com/v1/payments/{$paymentId}");
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Authorization: Bearer ' . $accessToken,
+                'Content-Type: application/json'
+            ]);
+            
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            
+            $paymentData = json_decode($response, true);
+            
+            Log::info('📡 Resposta da API do Mercado Pago:', [
+                'http_code' => $httpCode,
+                'status' => $paymentData['status'] ?? null,
+                'status_detail' => $paymentData['status_detail'] ?? null
+            ]);
+            
+            if ($httpCode === 200 && isset($paymentData['status'])) {
+                return $paymentData;
+            }
+            
+            return null;
+            
+        } catch (\Exception $e) {
+            Log::error('❌ Erro ao consultar API do Mercado Pago:', [
+                'message' => $e->getMessage()
+            ]);
+            return null;
         }
     }
 }

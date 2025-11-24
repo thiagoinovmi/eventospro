@@ -51,6 +51,7 @@ const _sfc_main = {
       pixExpiration: null,
       isWaitingPayment: false,
       paymentCheckInterval: null,
+      paymentConfirmed: false,
       timerCounter: 0,
       timerInterval: null
     };
@@ -317,7 +318,7 @@ const _sfc_main = {
     waitForWebhookConfirmation(bookingId) {
       console.log("🔄 Aguardando confirmação do webhook para booking:", bookingId);
       let attempts = 0;
-      const maxAttempts = 150;
+      const maxAttempts = 300;
       const checkInterval = setInterval(async () => {
         attempts++;
         try {
@@ -327,10 +328,12 @@ const _sfc_main = {
           if (booking && booking.is_paid === 1) {
             console.log("✅ Pagamento confirmado via webhook!");
             clearInterval(checkInterval);
+            this.paymentConfirmed = true;
             this.isWaitingPayment = false;
             this.pixData = "";
             this.pixQrCode = "";
-            this.successMessage = "Pagamento realizado com sucesso!";
+            this.showSuccessToast("Pagamento recebido e confirmado com sucesso!");
+            this.successMessage = "Pagamento realizado com sucesso! Redirecionando...";
             setTimeout(() => {
               window.location.href = "/mybookings";
             }, 2e3);
@@ -344,7 +347,32 @@ const _sfc_main = {
             clearInterval(checkInterval);
           }
         }
-      }, 2e3);
+      }, 1e3);
+    },
+    // 🎉 NOVO: Mostrar toast de sucesso
+    showSuccessToast(message) {
+      if (typeof bootstrap !== "undefined" && bootstrap.Toast) {
+        const toastHTML = `
+                    <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true" style="position: fixed; top: 20px; right: 20px; z-index: 9999;">
+                        <div class="toast-header bg-success text-white">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <strong class="me-auto">Sucesso</strong>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body bg-light">
+                            ${message}
+                        </div>
+                    </div>
+                `;
+        const toastContainer = document.createElement("div");
+        toastContainer.innerHTML = toastHTML;
+        document.body.appendChild(toastContainer);
+        setTimeout(() => {
+          toastContainer.remove();
+        }, 5e3);
+      } else {
+        console.log("✅ " + message);
+      }
     },
     copyToClipboard() {
       const pixCode = document.getElementById("pixCode");
@@ -453,7 +481,7 @@ var _sfc_render = function render() {
     _vm.$set(_vm.cardData, "installments", $event.target.multiple ? $$selectedVal : $$selectedVal[0]);
   } } }, _vm._l(_vm.installmentOptions, function(option) {
     return _c("option", { key: option.value, domProps: { "value": option.value } }, [_vm._v(" " + _vm._s(option.label) + " ")]);
-  }), 0)]) : _vm._e()])])])]) : _vm._e(), _vm.isWaitingPayment && _vm.selectedMethod === "pix" ? _c("div", { staticClass: "row mb-4" }, [_c("div", { staticClass: "col-12" }, [_c("div", { staticClass: "card border-success" }, [_c("div", { staticClass: "card-body text-center" }, [_c("h6", { staticClass: "card-title mb-4" }, [_c("i", { staticClass: "fas fa-mobile-alt me-2 text-success" }), _vm._v(" " + _vm._s(_vm.trans("em.waiting_pix_payment") || "Aguardando Pagamento PIX") + " ")]), _vm.pixQrCode ? _c("div", { staticClass: "mb-4" }, [_c("img", { staticClass: "img-fluid", staticStyle: { "max-width": "300px" }, attrs: { "src": _vm.pixQrCode, "alt": "PIX QR Code" } })]) : _vm._e(), _vm.pixData ? _c("div", { staticClass: "mb-4" }, [_c("p", { staticClass: "text-muted mb-2" }, [_vm._v(_vm._s(_vm.trans("em.or_copy_code") || "Ou copie o código:"))]), _c("div", { staticClass: "input-group" }, [_c("input", { staticClass: "form-control", attrs: { "type": "text", "readonly": "", "id": "pixCode" }, domProps: { "value": _vm.pixData } }), _c("button", { staticClass: "btn btn-outline-primary", attrs: { "type": "button" }, on: { "click": _vm.copyToClipboard } }, [_c("i", { staticClass: "fas fa-copy me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.copy") || "Copiar") + " ")])])]) : _vm._e(), _vm.pixExpiration ? _c("div", { staticClass: "alert alert-info" }, [_c("i", { staticClass: "fas fa-clock me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.pix_expires_in") || "PIX expira em") + ": "), _c("strong", { key: _vm.timerTrigger }, [_vm._v(_vm._s(_vm.formatTimeRemaining(_vm.pixExpiration)))])]) : _vm._e(), _c("div", { staticClass: "alert alert-warning" }, [_c("i", { staticClass: "fas fa-hourglass-half me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.waiting_payment_confirmation") || "Aguardando confirmação do pagamento...") + " ")])])])])]) : _vm._e(), _vm.errorMessage ? _c("div", { staticClass: "alert alert-danger alert-dismissible fade show", attrs: { "role": "alert" } }, [_c("i", { staticClass: "fas fa-exclamation-circle me-2" }), _vm._v(" " + _vm._s(_vm.errorMessage) + " "), _c("button", { staticClass: "btn-close", attrs: { "type": "button", "aria-label": "Close" }, on: { "click": function($event) {
+  }), 0)]) : _vm._e()])])])]) : _vm._e(), _vm.isWaitingPayment && _vm.selectedMethod === "pix" ? _c("div", { staticClass: "row mb-4" }, [_c("div", { staticClass: "col-12" }, [_c("div", { staticClass: "card border-success" }, [_c("div", { staticClass: "card-body text-center" }, [_c("h6", { staticClass: "card-title mb-4" }, [_c("i", { staticClass: "fas fa-mobile-alt me-2 text-success" }), _vm._v(" " + _vm._s(_vm.trans("em.waiting_pix_payment") || "Aguardando Pagamento PIX") + " ")]), _vm.pixQrCode ? _c("div", { staticClass: "mb-4" }, [_c("img", { staticClass: "img-fluid", staticStyle: { "max-width": "300px" }, attrs: { "src": _vm.pixQrCode, "alt": "PIX QR Code" } })]) : _vm._e(), _vm.pixData ? _c("div", { staticClass: "mb-4" }, [_c("p", { staticClass: "text-muted mb-2" }, [_vm._v(_vm._s(_vm.trans("em.or_copy_code") || "Ou copie o código:"))]), _c("div", { staticClass: "input-group" }, [_c("input", { staticClass: "form-control", attrs: { "type": "text", "readonly": "", "id": "pixCode" }, domProps: { "value": _vm.pixData } }), _c("button", { staticClass: "btn btn-outline-primary", attrs: { "type": "button" }, on: { "click": _vm.copyToClipboard } }, [_c("i", { staticClass: "fas fa-copy me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.copy") || "Copiar") + " ")])])]) : _vm._e(), _vm.pixExpiration ? _c("div", { staticClass: "alert alert-info" }, [_c("i", { staticClass: "fas fa-clock me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.pix_expires_in") || "PIX expira em") + ": "), _c("strong", { key: _vm.timerTrigger }, [_vm._v(_vm._s(_vm.formatTimeRemaining(_vm.pixExpiration)))])]) : _vm._e(), _c("div", { class: ["alert", _vm.paymentConfirmed ? "alert-success" : "alert-warning"] }, [_c("i", { class: [_vm.paymentConfirmed ? "fas fa-check-circle" : "fas fa-hourglass-half", "me-2"] }), _vm._v(" " + _vm._s(_vm.paymentConfirmed ? "Pagamento recebido e confirmado!" : _vm.trans("em.waiting_payment_confirmation") || "Aguardando confirmação do pagamento...") + " ")])])])])]) : _vm._e(), _vm.errorMessage ? _c("div", { staticClass: "alert alert-danger alert-dismissible fade show", attrs: { "role": "alert" } }, [_c("i", { staticClass: "fas fa-exclamation-circle me-2" }), _vm._v(" " + _vm._s(_vm.errorMessage) + " "), _c("button", { staticClass: "btn-close", attrs: { "type": "button", "aria-label": "Close" }, on: { "click": function($event) {
     _vm.errorMessage = "";
   } } })]) : _vm._e(), _vm.successMessage ? _c("div", { staticClass: "alert alert-success alert-dismissible fade show", attrs: { "role": "alert" } }, [_c("i", { staticClass: "fas fa-check-circle me-2" }), _vm._v(" " + _vm._s(_vm.successMessage) + " "), _c("button", { staticClass: "btn-close", attrs: { "type": "button", "aria-label": "Close" }, on: { "click": function($event) {
     _vm.successMessage = "";
@@ -466,10 +494,10 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "6a489286"
+  "02ac335a"
 );
 const MercadoPagoCheckout = __component__.exports;
 export {
   MercadoPagoCheckout as default
 };
-//# sourceMappingURL=MercadoPagoCheckout-ayhqi_s7.js.map
+//# sourceMappingURL=MercadoPagoCheckout-PBd7udpc.js.map
