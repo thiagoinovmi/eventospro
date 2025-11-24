@@ -416,13 +416,6 @@ Route::group([
         })->name('mercadopago_user_transactions');
     });
 
-    /* Mercado Pago Checkout Page */
-    Route::middleware('auth')->group(function () use ($namespace) {
-        // Checkout page - event_id is stored in session from booking request
-        Route::get('/mercadopago/checkout', function() {
-            return view('eventmie::mercadopago.checkout');
-        })->name('mercadopago_checkout');
-    });
     
     /* Notification */
     Route::prefix('/notifications')->group(function () use ($namespace)  {
