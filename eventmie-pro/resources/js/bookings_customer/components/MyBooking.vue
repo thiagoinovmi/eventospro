@@ -53,7 +53,11 @@
                                             <small class="text-white" v-if="booking.is_paid">{{ trans('em.paid') }}</small>
                                             <small class="text-white" v-else>{{ trans('em.unpaid') }}</small>
                                         </span>
-                                        <span class="badge bg-success text-white" v-else>{{ booking.payment_type }} <hr class="small"><small class="text-small">{{ booking.is_paid ? trans('em.paid') : trans('em.unpaid') }}</small></span>
+                                        <span class="badge" :class="booking.is_paid ? 'bg-success' : 'bg-danger'" v-else>
+                                            {{ booking.payment_type }} 
+                                            <hr class="small p-0 m-0">
+                                            <small class="text-white">{{ booking.is_paid ? trans('em.paid') : trans('em.unpaid') }}</small>
+                                        </span>
                                     </td>
                                     <td class="align-middle" :data-title="trans('em.checked_in')">
                                         <p v-if="booking.checkins.length > 0"> 
@@ -87,6 +91,14 @@
                                     </td>
 
                                     <td class="align-middle text-nowrap" :data-title="trans('em.actions')" v-else>
+                                        <!-- Botão para expandir QR Code PIX -->
+                                        <div v-if="booking.payment_type === 'mercadopago' && booking.mercadopago_transaction && booking.mercadopago_transaction.qr_code_base64 && !booking.is_paid" class="mb-2">
+                                            <button type="button" class="btn btn-sm btn-warning text-white" @click="expandedBookingId = expandedBookingId === booking.id ? null : booking.id">
+                                                <i :class="expandedBookingId === booking.id ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"></i>
+                                                {{ expandedBookingId === booking.id ? trans('em.hide') : 'PIX QR Code' }}
+                                            </button>
+                                        </div>
+
                                         <div v-if="hide_ticket_download == null" class="mb-2">
                                             <a v-if="booking.is_paid == 1 && booking.status == 1 && booking.order_number" class="btn btn-sm bg-danger text-white" :href="downloadURL(booking.id, booking.order_number)"><i class="fas fa-download"></i> {{trans('em.ticket')}}</a>
                                             <span class="badge bg-danger text-white" v-else>
@@ -107,7 +119,7 @@
                                 </tr>
 
                                 <!-- PIX QR Code Row -->
-                                <tr v-if="booking && booking.payment_type === 'mercadopago' && booking.mercadopago_transaction && booking.mercadopago_transaction.qr_code_base64 && !booking.is_paid">
+                                <tr v-if="booking && expandedBookingId === booking.id && booking.payment_type === 'mercadopago' && booking.mercadopago_transaction && booking.mercadopago_transaction.qr_code_base64 && !booking.is_paid">
                                     <td colspan="10" class="p-4 bg-light">
                                         <div class="row">
                                             <div class="col-md-4 text-center">
@@ -192,6 +204,7 @@ export default {
             currency : null,
             booking_id : 0,
             timerInterval: null,
+            expandedBookingId: null,
         }
     },
 
