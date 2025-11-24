@@ -679,11 +679,31 @@ export default {
                     // Verificar se o booking foi marcado como pago
                     const response = await axios.get(`/mybookings/api/get_mybookings`);
                     
-                    // Procurar pelo booking na lista (response.data pode ser um array ou ter propriedade data)
-                    const bookings = Array.isArray(response.data) ? response.data : (response.data.data || []);
+                    console.log('📊 Resposta da API:', response.data);
+                    
+                    // Procurar pelo booking na lista
+                    // A resposta tem a estrutura: { bookings: { data: [...], ... }, currency: ... }
+                    let bookings = [];
+                    
+                    if (response.data.bookings) {
+                        // Se tem propriedade bookings (paginado)
+                        bookings = Array.isArray(response.data.bookings.data) ? response.data.bookings.data : [];
+                    } else if (Array.isArray(response.data)) {
+                        // Se é um array direto
+                        bookings = response.data;
+                    }
+                    
+                    console.log('📋 Bookings encontrados:', bookings.length);
+                    
                     const booking = bookings.find(b => b.id === bookingId);
                     
-                    if (booking && booking.is_paid === 1) {
+                    if (booking) {
+                        console.log('🔍 Booking encontrado:', booking);
+                        console.log('💰 is_paid:', booking.is_paid, 'Tipo:', typeof booking.is_paid);
+                    }
+                    
+                    // Verificar se o booking foi pago (is_paid pode ser 1, "1", true, etc)
+                    if (booking && (booking.is_paid === 1 || booking.is_paid === '1' || booking.is_paid === true)) {
                         console.log('✅ Pagamento confirmado via webhook!');
                         clearInterval(checkInterval);
                         
@@ -712,7 +732,8 @@ export default {
                         // O usuário pode voltar para Minha Conta para verificar o status
                     }
                 } catch (error) {
-                    console.error('Erro ao verificar confirmação:', error);
+                    console.error('❌ Erro ao verificar confirmação:', error);
+                    console.error('Detalhes do erro:', error.response?.data || error.message);
                     if (attempts >= maxAttempts) {
                         clearInterval(checkInterval);
                     }

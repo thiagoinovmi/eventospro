@@ -320,12 +320,24 @@ const _sfc_main = {
       let attempts = 0;
       const maxAttempts = 300;
       const checkInterval = setInterval(async () => {
+        var _a;
         attempts++;
         try {
           const response = await axios.get(`/mybookings/api/get_mybookings`);
-          const bookings = Array.isArray(response.data) ? response.data : response.data.data || [];
+          console.log("📊 Resposta da API:", response.data);
+          let bookings = [];
+          if (response.data.bookings) {
+            bookings = Array.isArray(response.data.bookings.data) ? response.data.bookings.data : [];
+          } else if (Array.isArray(response.data)) {
+            bookings = response.data;
+          }
+          console.log("📋 Bookings encontrados:", bookings.length);
           const booking = bookings.find((b) => b.id === bookingId);
-          if (booking && booking.is_paid === 1) {
+          if (booking) {
+            console.log("🔍 Booking encontrado:", booking);
+            console.log("💰 is_paid:", booking.is_paid, "Tipo:", typeof booking.is_paid);
+          }
+          if (booking && (booking.is_paid === 1 || booking.is_paid === "1" || booking.is_paid === true)) {
             console.log("✅ Pagamento confirmado via webhook!");
             clearInterval(checkInterval);
             this.paymentConfirmed = true;
@@ -342,7 +354,8 @@ const _sfc_main = {
             clearInterval(checkInterval);
           }
         } catch (error) {
-          console.error("Erro ao verificar confirmação:", error);
+          console.error("❌ Erro ao verificar confirmação:", error);
+          console.error("Detalhes do erro:", ((_a = error.response) == null ? void 0 : _a.data) || error.message);
           if (attempts >= maxAttempts) {
             clearInterval(checkInterval);
           }
@@ -494,10 +507,10 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "02ac335a"
+  "fe2af170"
 );
 const MercadoPagoCheckout = __component__.exports;
 export {
   MercadoPagoCheckout as default
 };
-//# sourceMappingURL=MercadoPagoCheckout-PBd7udpc.js.map
+//# sourceMappingURL=MercadoPagoCheckout-DlHD3jGu.js.map
