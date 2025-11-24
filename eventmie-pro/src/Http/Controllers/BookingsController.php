@@ -1519,19 +1519,34 @@ class BookingsController extends Controller
                 'response' => $response
             ]);
 
-            return [
-                'status' => false,
-                'message' => 'Erro ao processar pagamento: ' . ($responseData['message'] ?? 'Erro desconhecido')
-            ];
+            $errorMsg = 'Erro desconhecido';
+            if (isset($responseData['message'])) {
+                $errorMsg = $responseData['message'];
+            }
+            if (isset($responseData['cause'])) {
+                $errorMsg = json_encode($responseData['cause']);
+            }
 
-        } catch (\Exception $e) {
-            \Log::error('Exceção ao processar pagamento de cartão:', [
-                'message' => $e->getMessage()
+            \Log::error('Erro ao processar pagamento de cartão:', [
+                'httpCode' => $httpCode,
+                'response' => $response,
+                'errorMsg' => $errorMsg
             ]);
 
             return [
                 'status' => false,
-                'message' => 'Erro ao processar pagamento'
+                'message' => 'Erro ao processar pagamento: ' . $errorMsg
+            ];
+
+        } catch (\Exception $e) {
+            \Log::error('Exceção ao processar pagamento de cartão:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return [
+                'status' => false,
+                'message' => 'Erro ao processar pagamento: ' . $e->getMessage()
             ];
         }
     }
