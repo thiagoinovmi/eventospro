@@ -60,7 +60,7 @@ class MercadoPagoPaymentMethodController extends \App\Http\Controllers\Controlle
 
     /**
      * Update a payment method (global)
-     * Also syncs with settings table for backward compatibility
+     * Note: This method is deprecated. Use settings directly instead.
      */
     public function update(Request $request, $id)
     {
@@ -75,9 +75,6 @@ class MercadoPagoPaymentMethodController extends \App\Http\Controllers\Controlle
 
             $method = MercadoPagoPaymentMethod::findOrFail($id);
             $method->update($validated);
-
-            // Sync with settings table for backward compatibility
-            $this->syncMethodToSettings($method);
 
             return response()->json([
                 'status' => true,
@@ -107,70 +104,60 @@ class MercadoPagoPaymentMethodController extends \App\Http\Controllers\Controlle
     }
 
     /**
-     * Sync payment method to settings table
-     */
-    private function syncMethodToSettings($method)
-    {
-        try {
-            $methodType = $method->method_type;
-            
-            // Update settings table with the same values
-            \Illuminate\Support\Facades\DB::table('settings')->updateOrInsert(
-                ['key' => "mercadopago.payment_methods.{$methodType}.enabled"],
-                ['value' => $method->enabled ? '1' : '0']
-            );
-            
-            \Illuminate\Support\Facades\DB::table('settings')->updateOrInsert(
-                ['key' => "mercadopago.payment_methods.{$methodType}.installments_enabled"],
-                ['value' => $method->installments_enabled ? '1' : '0']
-            );
-            
-            \Illuminate\Support\Facades\DB::table('settings')->updateOrInsert(
-                ['key' => "mercadopago.payment_methods.{$methodType}.max_installments"],
-                ['value' => (string)$method->max_installments]
-            );
-        } catch (\Exception $e) {
-            Log::warning('Error syncing payment method to settings: ' . $e->getMessage());
-            // Don't fail the update if sync fails
-        }
-    }
-
-    /**
      * Get payment methods for a specific event
-     * Only returns methods that are enabled globally AND enabled for the event
+     * Only returns methods that are enabled globally (in settings) AND enabled for the event
      */
     public function getEventMethods($eventId)
     {
         try {
             $event = Event::findOrFail($eventId);
             
-            // Get event payment methods with global payment method data
-            $methods = EventPaymentMethod::where('event_id', $eventId)
-                ->with('paymentMethod')
-                ->get()
-                ->filter(function ($method) {
-                    // Only return if both global AND event method are enabled
-                    return $method->paymentMethod && 
-                           $method->paymentMethod->enabled && 
-                           $method->enabled;
-                })
-                ->values(); // Reset array keys
-
-            // Transform to include all necessary data
-            $formattedMethods = $methods->map(function ($method) {
-                return [
-                    'id' => $method->id,
-                    'payment_method_id' => $method->payment_method_id,
-                    'event_id' => $method->event_id,
-                    'name' => $method->paymentMethod->display_name,
-                    'type' => $method->paymentMethod->method_type,
-                    'description' => $method->paymentMethod->description,
-                    'enabled' => $method->enabled,
-                    'installments_enabled' => $method->installments_enabled && $method->paymentMethod->installments_enabled,
-                    'max_installments' => $method->max_installments,
-                    'global_enabled' => $method->paymentMethod->enabled
-                ];
-            });
+            // Define available payment methods
+            $paymentMethodTypes = [
+                'credit_card' => 'Cartão de Crédito',
+                'debit_card' => 'Cartão de Débito',
+                'boleto' => 'Boleto Bancário',
+                'pix' => 'PIX',
+                'mercadopago_wallet' => 'Carteira Mercado Pago'
+            ];
+            
+            // Get event payment methods
+            $eventMethods = EventPaymentMethod::where('event_id', $eventId)->get()->keyBy('payment_method_id');
+            
+            $formattedMethods = [];
+            $methodId = 1;
+            
+            foreach ($paymentMethodTypes as $type => $name) {
+                // Check if globally enabled in settings
+                $globalEnabled = setting("mercadopago.payment_methods.{$type}.enabled") === '1' || 
+                                setting("mercadopago.payment_methods.{$type}.enabled") === 1;
+                
+                // Check if enabled for this event
+                $eventMethod = $eventMethods->get($methodId);
+                $eventEnabled = $eventMethod ? $eventMethod->enabled : false;
+                
+                // Only include if both global AND event are enabled
+                if ($globalEnabled && $eventEnabled) {
+                    $installmentsGlobal = setting("mercadopago.payment_methods.{$type}.installments_enabled") === '1' || 
+                                         setting("mercadopago.payment_methods.{$type}.installments_enabled") === 1;
+                    $installmentsEvent = $eventMethod ? $eventMethod->installments_enabled : false;
+                    
+                    $formattedMethods[] = [
+                        'id' => $eventMethod->id ?? $methodId,
+                        'payment_method_id' => $methodId,
+                        'event_id' => $eventId,
+                        'name' => $name,
+                        'type' => $type,
+                        'description' => '',
+                        'enabled' => $eventEnabled,
+                        'installments_enabled' => $installmentsGlobal && $installmentsEvent,
+                        'max_installments' => $eventMethod ? $eventMethod->max_installments : (int)setting("mercadopago.payment_methods.{$type}.max_installments", 1),
+                        'global_enabled' => $globalEnabled
+                    ];
+                }
+                
+                $methodId++;
+            }
 
             return response()->json([
                 'status' => true,
