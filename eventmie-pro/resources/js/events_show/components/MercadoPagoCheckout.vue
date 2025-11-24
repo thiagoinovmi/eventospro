@@ -654,16 +654,27 @@ export default {
                         }, 2000);
                     }
                 } else {
-                    console.error('Erro na resposta:', response.data);
-                    this.errorMessage = response.data.message || 'Erro ao processar pagamento';
+                    console.error('❌ Erro na resposta:', response.data);
+                    // Mostrar toast de erro
+                    this.$notify({
+                        group: 'foo',
+                        title: 'Erro!',
+                        text: response.data.message || 'Erro ao processar pagamento',
+                        type: 'error'
+                    });
                 }
             } catch (error) {
-                console.error('Payment error:', error);
+                console.error('❌ Payment error:', error);
                 console.error('Resposta de erro:', error.response);
                 
                 const errorMessage = error.response?.data?.message || 'Erro ao processar pagamento. Tente novamente.';
-                this.errorMessage = errorMessage;
-                console.error('Mensagem de erro:', errorMessage);
+                // Mostrar toast de erro
+                this.$notify({
+                    group: 'foo',
+                    title: 'Erro!',
+                    text: errorMessage,
+                    type: 'error'
+                });
             }
         },
 
