@@ -138,13 +138,14 @@
 
     <!-- Modais PIX QR Code - FORA DO CARD -->
     <div v-for="booking in bookings" :key="'modal-' + booking.id">
-        <div v-if="booking.payment_type === 'mercadopago' && booking.mercadopago_transaction && booking.mercadopago_transaction.qr_code_base64 && !booking.is_paid" 
+        <div v-if="booking.payment_type === 'mercadopago' && booking.mercadopago_transaction && booking.mercadopago_transaction.qr_code_base64" 
              class="modal fade" :id="'pixModal-' + booking.id" tabindex="-1" aria-labelledby="pixModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg" style="max-height: 90vh;">
                 <div class="modal-content">
-                    <div class="modal-header bg-warning">
-                        <h5 class="modal-title" id="pixModalLabel">
-                            <i class="fas fa-qrcode"></i> {{ trans('em.pix_qr_code') }}
+                    <div :class="['modal-header', booking.is_paid ? 'bg-success' : 'bg-warning']">
+                        <h5 class="modal-title text-white" id="pixModalLabel">
+                            <i :class="booking.is_paid ? 'fas fa-check-circle' : 'fas fa-qrcode'"></i> 
+                            {{ booking.is_paid ? trans('em.paid') : trans('em.pix_qr_code') }}
                         </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
@@ -155,7 +156,34 @@
                                 <h6 class="mb-3">{{ trans('em.scan_qr_code') }}</h6>
                                 <img :src="'data:image/png;base64,' + getCleanBase64(booking.mercadopago_transaction.qr_code_base64)" 
                                      alt="PIX QR Code" class="img-fluid border rounded" style="max-width: 300px;">
-                                <div class="mt-4 p-4 rounded" style="background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%); border: 2px solid #ffc107;">
+                                <!-- Se Pago -->
+                                <div v-if="booking.is_paid" class="mt-4 p-4 rounded" style="background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); border: 2px solid #28a745;">
+                                    <div class="d-flex align-items-center justify-content-center mb-2">
+                                        <i class="fas fa-check-circle text-success me-2" style="font-size: 1.2rem;"></i>
+                                        <span class="text-dark fw-bold">{{ trans('em.paid') }}</span>
+                                    </div>
+                                    <div class="text-center">
+                                        <span class="fw-bold" style="font-size: 1.5rem; color: #28a745; font-family: 'Courier New', monospace;">
+                                            {{ userTimezone(booking.mercadopago_transaction.created_at, 'YYYY-MM-DD HH:mm:ss').format('DD/MM/YYYY HH:mm:ss') }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Se Expirado -->
+                                <div v-else-if="isQrCodeExpired(booking.mercadopago_transaction.qr_code_expires_at)" class="mt-4 p-4 rounded" style="background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%); border: 2px solid #dc3545;">
+                                    <div class="d-flex align-items-center justify-content-center mb-2">
+                                        <i class="fas fa-times-circle text-danger me-2" style="font-size: 1.2rem;"></i>
+                                        <span class="text-dark fw-bold">{{ trans('em.expired') }}</span>
+                                    </div>
+                                    <div class="text-center">
+                                        <span class="fw-bold" style="font-size: 1.5rem; color: #dc3545;">
+                                            QR Code Expirado
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Se Pendente -->
+                                <div v-else class="mt-4 p-4 rounded" style="background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%); border: 2px solid #ffc107;">
                                     <div class="d-flex align-items-center justify-content-center mb-2">
                                         <i class="fas fa-hourglass-end text-warning me-2" style="font-size: 1.2rem;"></i>
                                         <span class="text-dark fw-bold">{{ trans('em.expires_in') }}</span>
@@ -171,12 +199,14 @@
                             <div class="col-md-6">
                                 <h6 class="mb-3">{{ trans('em.pix_copy_paste') }}</h6>
                                 <div class="input-group mb-3">
-                                    <input type="text" class="form-control" :value="booking.mercadopago_transaction.qr_code" readonly>
-                                    <button class="btn btn-outline-primary" type="button" @click="copyToClipboard(booking.mercadopago_transaction.qr_code)">
+                                    <input type="text" class="form-control" :value="booking.mercadopago_transaction.qr_code" readonly :disabled="booking.is_paid || isQrCodeExpired(booking.mercadopago_transaction.qr_code_expires_at)">
+                                    <button class="btn btn-outline-primary" type="button" @click="copyToClipboard(booking.mercadopago_transaction.qr_code)" :disabled="booking.is_paid || isQrCodeExpired(booking.mercadopago_transaction.qr_code_expires_at)">
                                         <i class="fas fa-copy"></i> {{ trans('em.copy') }}
                                     </button>
                                 </div>
-                                <small class="text-muted d-block">{{ trans('em.pix_instructions') }}</small>
+                                <small class="text-muted d-block" v-if="!booking.is_paid && !isQrCodeExpired(booking.mercadopago_transaction.qr_code_expires_at)">{{ trans('em.pix_instructions') }}</small>
+                                <small class="text-danger d-block fw-bold" v-else-if="isQrCodeExpired(booking.mercadopago_transaction.qr_code_expires_at)">QR Code expirado - não é possível copiar</small>
+                                <small class="text-success d-block fw-bold" v-else>Pagamento já foi realizado</small>
 
                                 <!-- Informações do Pedido -->
                                 <div class="mt-4 p-3 bg-light rounded">
@@ -367,6 +397,14 @@ export default {
             } else {
                 console.error('Modal não encontrado:', 'pixModal-' + bookingId);
             }
+        },
+
+        // Verificar se QR Code expirou
+        isQrCodeExpired(expiresAt) {
+            if (!expiresAt) return false;
+            const now = moment();
+            const expiration = moment(expiresAt);
+            return now.isAfter(expiration);
         },
     },
     mounted() {
