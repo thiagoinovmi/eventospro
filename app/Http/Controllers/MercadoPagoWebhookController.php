@@ -66,24 +66,36 @@ class MercadoPagoWebhookController extends Controller
                             'amount' => $paymentDetails['transaction_amount'] ?? null
                         ]);
                         
-                        // Atualizar status da transação para 'approved'
+                        // 🔑 NOVO: Atualizar status e status_detail da transação
                         $transaction->status = 'approved';
+                        $transaction->status_detail = $paymentDetails['status_detail'] ?? 'accredited';
                         $transaction->save();
                         
-                        Log::info('✅ Transação atualizada para approved');
+                        Log::info('✅ Transação atualizada para approved:', [
+                            'transaction_id' => $transaction->id,
+                            'status' => $transaction->status,
+                            'status_detail' => $transaction->status_detail
+                        ]);
                         
-                        // Atualizar booking se existir
+                        // 🔑 NOVO: Atualizar booking com log detalhado
                         if ($transaction->booking_id) {
                             $booking = Booking::find($transaction->booking_id);
                             if ($booking) {
-                                Log::info('📦 Booking encontrado - atualizando is_paid');
+                                Log::info('📦 Booking encontrado - atualizando is_paid:', [
+                                    'booking_id' => $booking->id,
+                                    'is_paid_antes' => $booking->is_paid,
+                                    'payment_method' => $paymentDetails['payment_method_id'] ?? null
+                                ]);
                                 
                                 $booking->is_paid = 1;
                                 $booking->save();
                                 
                                 Log::info('✅ Booking atualizado para paid:', [
                                     'booking_id' => $booking->id,
-                                    'payment_method' => $paymentDetails['payment_method_id'] ?? null
+                                    'is_paid_depois' => $booking->is_paid,
+                                    'transaction_id' => $transaction->id,
+                                    'payment_method' => $paymentDetails['payment_method_id'] ?? null,
+                                    'amount' => $paymentDetails['transaction_amount'] ?? null
                                 ]);
                             } else {
                                 Log::warning('❌ Booking não encontrado:', ['booking_id' => $transaction->booking_id]);
@@ -98,10 +110,17 @@ class MercadoPagoWebhookController extends Controller
                             'status_detail' => $paymentDetails['status_detail'] ?? null
                         ]);
                         
-                        // Atualizar com status real da API
+                        // 🔑 NOVO: Atualizar com status real da API (incluindo status_detail)
                         if ($paymentDetails) {
                             $transaction->status = $paymentDetails['status'] ?? 'pending';
+                            $transaction->status_detail = $paymentDetails['status_detail'] ?? null;
                             $transaction->save();
+                            
+                            Log::info('⚠️ Transação atualizada com status real:', [
+                                'transaction_id' => $transaction->id,
+                                'status' => $transaction->status,
+                                'status_detail' => $transaction->status_detail
+                            ]);
                         }
                     }
                 } else {
