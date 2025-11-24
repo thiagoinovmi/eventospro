@@ -1787,6 +1787,22 @@ class BookingsController extends Controller
 
         $responseData = json_decode($response, true);
 
+        // Log completo da resposta do Mercado Pago
+        \Log::info('=== RESPOSTA COMPLETA DO MERCADO PAGO (PIX) ===');
+        \Log::info('HTTP Code: ' . $httpCode);
+        \Log::info('Response Raw:', ['response' => $response]);
+        \Log::info('Response Decoded:', $responseData);
+        
+        // Log detalhado de cada campo importante
+        \Log::info('Campos Importantes:', [
+            'payment_id' => $responseData['id'] ?? null,
+            'status' => $responseData['status'] ?? null,
+            'point_of_interaction' => $responseData['point_of_interaction'] ?? null,
+            'transaction_details' => $responseData['transaction_details'] ?? null,
+            'qr_code' => $responseData['point_of_interaction']['transaction_data']['qr_code'] ?? null,
+            'qr_code_url' => $responseData['point_of_interaction']['transaction_data']['qr_code_url'] ?? null,
+        ]);
+        
         \Log::info('Resposta PIX recebida:', [
             'httpCode' => $httpCode,
             'status' => $responseData['status'] ?? null,
@@ -1925,6 +1941,12 @@ class BookingsController extends Controller
 
         $responseData = json_decode($response, true);
 
+        // Log completo da resposta do Mercado Pago
+        \Log::info('=== RESPOSTA COMPLETA DO MERCADO PAGO (BOLETO) ===');
+        \Log::info('HTTP Code: ' . $httpCode);
+        \Log::info('Response Raw:', ['response' => $response]);
+        \Log::info('Response Decoded:', $responseData);
+        
         \Log::info('Resposta Boleto recebida:', [
             'httpCode' => $httpCode,
             'status' => $responseData['status'] ?? null,
@@ -2052,6 +2074,12 @@ class BookingsController extends Controller
 
         $responseData = json_decode($response, true);
 
+        // Log completo da resposta do Mercado Pago
+        \Log::info('=== RESPOSTA COMPLETA DO MERCADO PAGO (CARTEIRA) ===');
+        \Log::info('HTTP Code: ' . $httpCode);
+        \Log::info('Response Raw:', ['response' => $response]);
+        \Log::info('Response Decoded:', $responseData);
+        
         \Log::info('Resposta Carteira recebida:', [
             'httpCode' => $httpCode,
             'status' => $responseData['status'] ?? null,
