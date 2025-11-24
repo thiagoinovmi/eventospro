@@ -613,10 +613,13 @@ export default {
                     else if (response.data.payment_method === 'credit_card' || response.data.payment_method === 'debit_card') {
                         console.log('✅ Cartão processado com sucesso');
                         
-                        // Aguardar 1 segundo e depois mostrar modal de processamento
+                        // Mostrar mensagem de sucesso
+                        this.successMessage = 'Pagamento realizado com sucesso!';
+                        
+                        // Redirecionar após 2 segundos
                         setTimeout(() => {
-                            this.showProcessingModal();
-                        }, 1000);
+                            window.location.href = '/mybookings';
+                        }, 2000);
                     }
                     // Fallback para outros casos
                     else {
@@ -654,8 +657,9 @@ export default {
                     // Verificar se o booking foi marcado como pago
                     const response = await axios.get(`/mybookings/api/get_mybookings`);
                     
-                    // Procurar pelo booking na lista
-                    const booking = response.data.data.find(b => b.id === bookingId);
+                    // Procurar pelo booking na lista (response.data pode ser um array ou ter propriedade data)
+                    const bookings = Array.isArray(response.data) ? response.data : (response.data.data || []);
+                    const booking = bookings.find(b => b.id === bookingId);
                     
                     if (booking && booking.is_paid === 1) {
                         console.log('✅ Pagamento confirmado via webhook!');
@@ -685,24 +689,6 @@ export default {
                     }
                 }
             }, 2000);
-        },
-
-        showProcessingModal() {
-            console.log('📋 Mostrando modal de processamento...');
-            
-            // Usar Swal2 para mostrar o modal
-            this.$swal.fire({
-                title: 'Processando...',
-                html: '<div class="spinner-border" role="status"><span class="visually-hidden">Carregando...</span></div>',
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                didOpen: () => {
-                    // Redirecionar após 2 segundos
-                    setTimeout(() => {
-                        window.location.href = '/mybookings';
-                    }, 2000);
-                }
-            });
         },
 
         copyToClipboard() {
