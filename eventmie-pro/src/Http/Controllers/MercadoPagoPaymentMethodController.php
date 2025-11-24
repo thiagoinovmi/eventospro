@@ -60,6 +60,7 @@ class MercadoPagoPaymentMethodController extends \App\Http\Controllers\Controlle
 
     /**
      * Update a payment method (global)
+     * Also syncs with settings table for backward compatibility
      */
     public function update(Request $request, $id)
     {
@@ -75,11 +76,16 @@ class MercadoPagoPaymentMethodController extends \App\Http\Controllers\Controlle
             $method = MercadoPagoPaymentMethod::findOrFail($id);
             $method->update($validated);
 
+            // Sync with settings table for backward compatibility
+            $this->syncMethodToSettings($method);
+
             return response()->json([
                 'status' => true,
                 'message' => 'Método de pagamento atualizado com sucesso',
                 'data' => $method
-            ]);
+            ])->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+              ->header('Pragma', 'no-cache')
+              ->header('Expires', '0');
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'status' => false,
@@ -97,6 +103,35 @@ class MercadoPagoPaymentMethodController extends \App\Http\Controllers\Controlle
                 'status' => false,
                 'message' => 'Erro ao atualizar método de pagamento'
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Sync payment method to settings table
+     */
+    private function syncMethodToSettings($method)
+    {
+        try {
+            $methodType = $method->method_type;
+            
+            // Update settings table with the same values
+            \Illuminate\Support\Facades\DB::table('settings')->updateOrInsert(
+                ['key' => "mercadopago.payment_methods.{$methodType}.enabled"],
+                ['value' => $method->enabled ? '1' : '0']
+            );
+            
+            \Illuminate\Support\Facades\DB::table('settings')->updateOrInsert(
+                ['key' => "mercadopago.payment_methods.{$methodType}.installments_enabled"],
+                ['value' => $method->installments_enabled ? '1' : '0']
+            );
+            
+            \Illuminate\Support\Facades\DB::table('settings')->updateOrInsert(
+                ['key' => "mercadopago.payment_methods.{$methodType}.max_installments"],
+                ['value' => (string)$method->max_installments]
+            );
+        } catch (\Exception $e) {
+            Log::warning('Error syncing payment method to settings: ' . $e->getMessage());
+            // Don't fail the update if sync fails
         }
     }
 
