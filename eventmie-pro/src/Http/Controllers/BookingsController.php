@@ -2224,6 +2224,7 @@ class BookingsController extends Controller
     public function mercadopagoWebhook(Request $request)
     {
         \Log::info('=== WEBHOOK MERCADO PAGO RECEBIDO ===');
+        \Log::info('Webhook chamado com sucesso!');
         \Log::info('Headers:', $request->headers->all());
         \Log::info('Body:', $request->all());
         
