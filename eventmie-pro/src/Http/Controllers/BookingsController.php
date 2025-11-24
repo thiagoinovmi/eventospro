@@ -1490,7 +1490,7 @@ class BookingsController extends Controller
                     "last_name" => "User",
                     "identification" => [
                         "type" => "CPF",
-                        "number" => str_replace(['.', '-'], '', $user->document ?? '11144477735')
+                        "number" => str_replace(['.', '-'], '', $user->document ?? '12345678909')
                     ]
                 ],
                 "external_reference" => "BOOKING-" . time() . "-" . $user->id,
@@ -1635,7 +1635,7 @@ class BookingsController extends Controller
                     "last_name" => "User",
                     "identification" => [
                         "type" => "CPF",
-                        "number" => str_replace(['.', '-'], '', $user->document ?? '11144477735')
+                        "number" => str_replace(['.', '-'], '', $user->document ?? '12345678909')
                     ]
                 ],
                 "external_reference" => "BOOKING-" . time() . "-" . $user->id,
