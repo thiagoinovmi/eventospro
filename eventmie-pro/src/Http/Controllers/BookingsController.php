@@ -1487,9 +1487,17 @@ class BookingsController extends Controller
             $curlError = curl_error($ch);
             curl_close($ch);
 
+            \Log::info('DEBUG - Requisição enviada para Mercado Pago:', [
+                'url' => 'https://api.mercadopago.com/v1/payments',
+                'token_length' => strlen($accessToken),
+                'token_preview' => substr($accessToken, 0, 20) . '...',
+                'payment_data' => $paymentData
+            ]);
+
             \Log::info('Resposta do Mercado Pago (cartão):', [
                 'httpCode' => $httpCode,
-                'response' => substr($response, 0, 500)
+                'response' => $response,
+                'curlError' => $curlError
             ]);
 
             if ($httpCode === 201 || $httpCode === 200) {
