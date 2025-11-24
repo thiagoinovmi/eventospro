@@ -267,10 +267,14 @@ Route::group([
     /* Mercado Pago Public API (sem autenticação) */
     Route::get('/api/mercadopago/public-key', $namespace.'\BookingsController@getMercadoPagoPublicKey');
     
-    /* Mercado Pago Webhook (sem CSRF) */
+    /* Mercado Pago Webhook (sem CSRF e sem autenticação) */
     Route::post('/mercadopago/webhook', $namespace.'\BookingsController@mercadopagoWebhook')
         ->name('mercadopago_webhook')
-        ->withoutMiddleware([\Classiebit\Eventmie\Middleware\VerifyCsrfToken::class, \App\Http\Middleware\VerifyCsrfToken::class]);
+        ->withoutMiddleware([
+            \Classiebit\Eventmie\Middleware\VerifyCsrfToken::class, 
+            \App\Http\Middleware\VerifyCsrfToken::class,
+            \Classiebit\Eventmie\Middleware\Authenticate::class
+        ]);
     
     /* My Bookings (customers) */
     Route::prefix('/mybookings')->group(function () use($namespace) {
