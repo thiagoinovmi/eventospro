@@ -1363,13 +1363,20 @@ class BookingsController extends Controller
                 
                 // Se for PIX, gerar QR Code
                 if ($validated['selected_method'] === 'pix') {
+                    \Log::info('Iniciando geração de PIX para booking:', ['booking_id' => $newBooking->id, 'amount' => $validated['total']]);
+                    
                     // Gerar PIX com duração de 30 minutos
                     $pixData = $this->generatePixPayment($validated['total'], $newBooking->id);
+                    
+                    \Log::info('Resultado da geração de PIX:', ['pixData' => $pixData]);
                     
                     if ($pixData) {
                         $response['pix_data'] = $pixData['pix_code'];
                         $response['pix_qr_code'] = $pixData['qr_code'];
                         $response['pix_expiration'] = $pixData['expiration'];
+                        \Log::info('PIX gerado com sucesso:', ['response' => $response]);
+                    } else {
+                        \Log::warning('Falha ao gerar PIX - pixData é null');
                     }
                 }
                 
@@ -1415,14 +1422,15 @@ class BookingsController extends Controller
     private function generatePixPayment($amount, $bookingId)
     {
         try {
+            \Log::info('=== INICIANDO GERAÇÃO DE PIX ===');
+            
             $accessToken = setting('mercadopago.access_token');
+            \Log::info('Access token obtido:', ['token_length' => strlen($accessToken ?? '')]);
+            
             if (!$accessToken) {
                 \Log::error('Access token do Mercado Pago não configurado');
                 return null;
             }
-
-            // Configure Mercado Pago SDK
-            \MercadoPago\MercadoPagoConfig::setAccessToken($accessToken);
 
             // Create PIX payment using direct API call
             $paymentData = [
@@ -1435,6 +1443,8 @@ class BookingsController extends Controller
                 ],
                 "date_of_expiration" => now()->addMinutes(30)->toIso8601String()
             ];
+
+            \Log::info('Dados do PIX a enviar:', $paymentData);
 
             // Use cURL to make the API request
             $ch = curl_init();
@@ -1449,22 +1459,45 @@ class BookingsController extends Controller
 
             $response = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curlError = curl_error($ch);
             curl_close($ch);
+
+            \Log::info('Resposta da API Mercado Pago:', [
+                'httpCode' => $httpCode,
+                'curlError' => $curlError,
+                'response' => $response
+            ]);
 
             if ($httpCode === 201 || $httpCode === 200) {
                 $responseData = json_decode($response, true);
+                
+                \Log::info('Dados decodificados:', $responseData);
 
-                if (isset($responseData['id']) && isset($responseData['point_of_interaction']['transaction_data']['qr_code'])) {
-                    return [
-                        'pix_code' => $responseData['point_of_interaction']['transaction_data']['qr_code'],
-                        'qr_code' => $responseData['point_of_interaction']['transaction_data']['qr_code_url'] ?? null,
-                        'expiration' => now()->addMinutes(30)->toIso8601String(),
-                        'payment_id' => $responseData['id']
-                    ];
+                if (isset($responseData['id'])) {
+                    \Log::info('Payment ID encontrado:', ['id' => $responseData['id']]);
+                    
+                    // Verificar se tem QR code
+                    if (isset($responseData['point_of_interaction']['transaction_data']['qr_code'])) {
+                        \Log::info('QR Code encontrado!');
+                        
+                        return [
+                            'pix_code' => $responseData['point_of_interaction']['transaction_data']['qr_code'],
+                            'qr_code' => $responseData['point_of_interaction']['transaction_data']['qr_code_url'] ?? null,
+                            'expiration' => now()->addMinutes(30)->toIso8601String(),
+                            'payment_id' => $responseData['id']
+                        ];
+                    } else {
+                        \Log::warning('QR Code não encontrado na resposta', [
+                            'point_of_interaction' => $responseData['point_of_interaction'] ?? 'não existe'
+                        ]);
+                    }
+                } else {
+                    \Log::warning('Payment ID não encontrado na resposta');
                 }
             } else {
                 \Log::error('Erro ao gerar PIX - HTTP ' . $httpCode, [
-                    'response' => $response
+                    'response' => $response,
+                    'curlError' => $curlError
                 ]);
             }
 
