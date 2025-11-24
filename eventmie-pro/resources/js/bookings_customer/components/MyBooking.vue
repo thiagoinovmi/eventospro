@@ -106,6 +106,32 @@
                                     </td>
                                 </tr>
 
+                                <!-- PIX QR Code Row -->
+                                <tr v-if="booking.payment_type === 'mercadopago' && booking.mercadopago_transaction && booking.mercadopago_transaction.qr_code_base64 && !booking.is_paid">
+                                    <td colspan="10" class="p-4 bg-light">
+                                        <div class="row">
+                                            <div class="col-md-4 text-center">
+                                                <h6 class="mb-3">{{ trans('em.pix_qr_code') }}</h6>
+                                                <img :src="booking.mercadopago_transaction.qr_code_base64" alt="PIX QR Code" class="img-fluid" style="max-width: 250px;">
+                                                <p class="text-muted small mt-2">
+                                                    <i class="fas fa-clock"></i> 
+                                                    {{ trans('em.expires_in') }}: <strong>{{ getTimeRemaining(booking.mercadopago_transaction.qr_code_expires_at) }}</strong>
+                                                </p>
+                                            </div>
+                                            <div class="col-md-8">
+                                                <h6 class="mb-3">{{ trans('em.pix_copy_paste') }}</h6>
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control" :value="booking.mercadopago_transaction.qr_code" readonly>
+                                                    <button class="btn btn-outline-secondary" type="button" @click="copyToClipboard(booking.mercadopago_transaction.qr_code)">
+                                                        <i class="fas fa-copy"></i> {{ trans('em.copy') }}
+                                                    </button>
+                                                </div>
+                                                <small class="text-muted d-block mt-2">{{ trans('em.pix_instructions') }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+
                                 <tr v-if="bookings.length <= 0">
                                     <td colspan="10" class="text-center align-middle">{{ trans('em.no_bookings') }}</td>
                                 </tr>
@@ -165,6 +191,7 @@ export default {
             },
             currency : null,
             booking_id : 0,
+            timerInterval: null,
         }
     },
 
@@ -234,12 +261,50 @@ export default {
                 return route('eventmie.downloads_index',[id, order_number]);
             }
         },
+
+        // Calcular tempo restante para expiração do QR Code
+        getTimeRemaining(expiresAt) {
+            if (!expiresAt) return '00:00:00';
+            
+            const now = moment();
+            const expiration = moment(expiresAt);
+            const diff = expiration.diff(now);
+            
+            if (diff <= 0) return 'Expirado';
+            
+            const duration = moment.duration(diff);
+            const minutes = Math.floor(duration.asMinutes());
+            const seconds = duration.seconds();
+            
+            return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        },
+
+        // Copiar código PIX para clipboard
+        copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                this.showNotification('success', trans('em.copied_to_clipboard'));
+            }).catch(() => {
+                alert('Erro ao copiar para a área de transferência');
+            });
+        },
     },
     mounted() {
         this.getMyBookings();
         
         // send email after successful bookings
         this.sendEmail();
+        
+        // Iniciar timer para atualizar contagem regressiva a cada segundo
+        this.timerInterval = setInterval(() => {
+            this.$forceUpdate();
+        }, 1000);
+    },
+
+    beforeUnmount() {
+        // Limpar timer ao desmontar o componente
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+        }
     }
 }
 </script>

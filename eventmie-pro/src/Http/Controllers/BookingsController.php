@@ -2183,6 +2183,13 @@ class BookingsController extends Controller
         $mpTransaction->webhook_received = false;
         $mpTransaction->webhook_data = null;
         
+        // Salvar QR Code se for PIX
+        if ($paymentMethodId === 'pix' && isset($responseData['qr_code'])) {
+            $mpTransaction->qr_code = $responseData['qr_code'];
+            $mpTransaction->qr_code_base64 = $responseData['qr_code_url'] ?? null; // data:image/png;base64,...
+            $mpTransaction->qr_code_expires_at = now()->addMinutes(30);
+        }
+        
         // Se houver um booking, associar
         if (isset($validated['booking_id'])) {
             $mpTransaction->booking_id = $validated['booking_id'];
