@@ -20,7 +20,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="(booking, index) in bookings" :key="index" >
+                                <tr v-for="booking in bookings" :key="booking.id" >
                                     <td :data-title="trans('em.event')">
                                         <div class="d-flex align-items-center">
                                             <a :href="eventSlug(booking.event_slug)"> 
@@ -117,7 +117,6 @@
                                         </div>
                                     </td>
                                 </tr>
-
                                 <!-- PIX QR Code Row - DENTRO DO LOOP -->
                                 <tr v-if="expandedBookingId === booking.id && booking.payment_type === 'mercadopago' && booking.mercadopago_transaction && booking.mercadopago_transaction.qr_code_base64 && !booking.is_paid">
                                     <td colspan="10" class="p-4 bg-light">
