@@ -1497,6 +1497,15 @@ class BookingsController extends Controller
                 "statement_descriptor" => "EVENTO"
             ];
 
+            // Validate token
+            if (empty($paymentData['token'])) {
+                \Log::error('Token do cartão está vazio!');
+                return [
+                    'status' => false,
+                    'message' => 'Token do cartão não foi gerado. Verifique os dados do cartão.'
+                ];
+            }
+            
             \Log::info('Dados do pagamento preparados:', [
                 'amount' => $paymentData['transaction_amount'],
                 'method' => $paymentData['payment_method_id'],
@@ -1506,7 +1515,9 @@ class BookingsController extends Controller
                 'token_length' => strlen($paymentData['token'] ?? ''),
                 'token_preview' => substr($paymentData['token'] ?? '', 0, 20),
                 'token_completo' => $paymentData['token'],
-                'cpf' => $paymentData['payer']['identification']['number']
+                'cpf' => $paymentData['payer']['identification']['number'],
+                'payer_email' => $paymentData['payer']['email'],
+                'payer_name' => $paymentData['payer']['first_name'] . ' ' . $paymentData['payer']['last_name']
             ]);
             
             // Log the complete payment data as JSON
@@ -1569,15 +1580,29 @@ class BookingsController extends Controller
             }
 
             \Log::error('Erro ao processar pagamento de cartão - HTTP ' . $httpCode, [
-                'response' => $response
+                'response' => $response,
+                'responseData' => $responseData
             ]);
 
             $errorMsg = 'Erro desconhecido';
+            
+            // Handle specific error messages
             if (isset($responseData['message'])) {
                 $errorMsg = $responseData['message'];
+                
+                // Provide user-friendly messages for common errors
+                if ($responseData['message'] === 'bin_not_found') {
+                    $errorMsg = 'Cartão inválido ou não reconhecido. Verifique o número do cartão.';
+                } elseif ($responseData['message'] === 'diff_param_bins') {
+                    $errorMsg = 'Os dados do cartão não correspondem ao token gerado. Tente novamente.';
+                } elseif ($responseData['message'] === 'invalid_token') {
+                    $errorMsg = 'Token do cartão inválido ou expirado. Tente novamente.';
+                }
             }
-            if (isset($responseData['cause'])) {
-                $errorMsg = json_encode($responseData['cause']);
+            
+            if (isset($responseData['cause']) && is_array($responseData['cause'])) {
+                $causes = array_map(function($c) { return $c['description'] ?? ''; }, $responseData['cause']);
+                \Log::error('Causas do erro:', $causes);
             }
 
             \Log::error('Erro ao processar pagamento de cartão:', [
