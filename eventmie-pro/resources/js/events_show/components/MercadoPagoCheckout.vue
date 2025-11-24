@@ -39,7 +39,7 @@
                         <h6 class="card-title mb-3">{{ trans('em.payment_method') || 'Método de Pagamento' }}</h6>
                         
                         <!-- Credit Card -->
-                        <div class="form-check mb-3" v-if="paymentMethods.credit_card">
+                        <div class="form-check mb-3" v-if="loadedMethods.credit_card">
                             <input class="form-check-input" type="radio" id="method_credit_card" v-model="selectedMethod" value="credit_card">
                             <label class="form-check-label" for="method_credit_card">
                                 <i class="fas fa-credit-card me-2"></i>
@@ -48,7 +48,7 @@
                         </div>
 
                         <!-- Debit Card -->
-                        <div class="form-check mb-3" v-if="paymentMethods.debit_card">
+                        <div class="form-check mb-3" v-if="loadedMethods.debit_card">
                             <input class="form-check-input" type="radio" id="method_debit_card" v-model="selectedMethod" value="debit_card">
                             <label class="form-check-label" for="method_debit_card">
                                 <i class="fas fa-credit-card me-2"></i>
@@ -57,7 +57,7 @@
                         </div>
 
                         <!-- Boleto -->
-                        <div class="form-check mb-3" v-if="paymentMethods.boleto">
+                        <div class="form-check mb-3" v-if="loadedMethods.boleto">
                             <input class="form-check-input" type="radio" id="method_boleto" v-model="selectedMethod" value="boleto">
                             <label class="form-check-label" for="method_boleto">
                                 <i class="fas fa-barcode me-2"></i>
@@ -66,7 +66,7 @@
                         </div>
 
                         <!-- PIX -->
-                        <div class="form-check mb-3" v-if="paymentMethods.pix">
+                        <div class="form-check mb-3" v-if="loadedMethods.pix">
                             <input class="form-check-input" type="radio" id="method_pix" v-model="selectedMethod" value="pix">
                             <label class="form-check-label" for="method_pix">
                                 <i class="fas fa-mobile-alt me-2"></i>
@@ -75,8 +75,8 @@
                         </div>
 
                         <!-- Wallet -->
-                        <div class="form-check" v-if="paymentMethods.wallet">
-                            <input class="form-check-input" type="radio" id="method_wallet" v-model="selectedMethod" value="wallet">
+                        <div class="form-check" v-if="loadedMethods.mercadopago_wallet">
+                            <input class="form-check-input" type="radio" id="method_wallet" v-model="selectedMethod" value="mercadopago_wallet">
                             <label class="form-check-label" for="method_wallet">
                                 <i class="fas fa-wallet me-2"></i>
                                 {{ trans('em.wallet') || 'Carteira Mercado Pago' }}
@@ -201,13 +201,7 @@ export default {
         bookingData: Object,
         paymentMethods: {
             type: Object,
-            default: () => ({
-                credit_card: true,
-                debit_card: true,
-                boleto: true,
-                pix: true,
-                wallet: true
-            })
+            default: () => ({})
         },
         installmentOptions: {
             type: Array,
@@ -241,8 +235,13 @@ export default {
                 cardCvv: ''
             },
             errorMessage: '',
-            successMessage: ''
+            successMessage: '',
+            loadedMethods: {}
         }
+    },
+
+    mounted() {
+        this.loadPaymentMethods();
     },
 
     computed: {
@@ -256,6 +255,57 @@ export default {
     },
 
     methods: {
+        loadPaymentMethods() {
+            console.log('=== CARREGANDO MÉTODOS DE PAGAMENTO ===');
+            console.log('Event ID:', this.event?.id);
+            
+            if (!this.event?.id) {
+                console.error('Event ID não encontrado');
+                return;
+            }
+
+            const timestamp = new Date().getTime();
+            const url = `/api/mercadopago/payment-methods/event/${this.event.id}?t=${timestamp}`;
+            console.log('Chamando API:', url);
+
+            axios.get(url, {
+                headers: {
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache',
+                    'Expires': '0'
+                }
+            })
+            .then(response => {
+                console.log('Resposta da API:', response.data);
+                
+                if (response.data.status && response.data.data) {
+                    const methods = response.data.data;
+                    console.log('Métodos carregados:', methods.length, methods);
+                    
+                    // Build payment methods object
+                    this.loadedMethods = {};
+                    methods.forEach(method => {
+                        this.loadedMethods[method.type] = true;
+                    });
+                    
+                    console.log('Métodos processados:', this.loadedMethods);
+                    
+                    // Set first available method as selected
+                    const firstMethod = methods[0];
+                    if (firstMethod) {
+                        this.selectedMethod = firstMethod.type;
+                    }
+                } else {
+                    console.error('Erro na resposta:', response.data.message);
+                    this.errorMessage = response.data.message || 'Erro ao carregar métodos de pagamento';
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao carregar métodos:', error);
+                this.errorMessage = 'Erro ao carregar métodos de pagamento: ' + error.message;
+            });
+        },
+
         formatCardNumber() {
             let value = this.cardData.number.replace(/\s/g, '');
             let formatted = value.match(/.{1,4}/g)?.join(' ') || value;
