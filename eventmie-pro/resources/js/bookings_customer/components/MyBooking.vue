@@ -161,8 +161,8 @@
                                         <span class="text-dark fw-bold">{{ trans('em.expires_in') }}</span>
                                     </div>
                                     <div class="text-center">
-                                        <span class="fw-bold" style="font-size: 2.5rem; color: #d32f2f; font-family: 'Courier New', monospace;">
-                                            {{ timerTrigger, getTimeRemaining(booking.mercadopago_transaction.qr_code_expires_at) }}
+                                        <span class="fw-bold" style="font-size: 2.5rem; color: #d32f2f; font-family: 'Courier New', monospace;" :key="timerTrigger">
+                                            {{ getTimeRemaining(booking.mercadopago_transaction.qr_code_expires_at) }}
                                         </span>
                                     </div>
                                 </div>
