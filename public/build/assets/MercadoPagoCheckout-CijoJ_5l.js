@@ -188,13 +188,29 @@ const _sfc_main = {
         console.log("Dados:", paymentData);
         const response = await axios.post(apiUrl, paymentData);
         console.log("Resposta recebida:", response.data);
+        console.log("Response data completo:", response.data);
+        console.log("selectedMethod:", this.selectedMethod);
+        console.log("pix_data presente?", !!response.data.pix_data);
         if (response.data.status) {
-          if (this.selectedMethod === "pix" && response.data.pix_data) {
-            this.pixData = response.data.pix_data;
-            this.pixQrCode = response.data.pix_qr_code;
-            this.pixExpiration = new Date(response.data.pix_expiration);
-            this.isWaitingPayment = true;
-            this.startPaymentCheck(response.data.transaction_id);
+          if (this.selectedMethod === "pix") {
+            console.log("PIX selecionado - verificando dados");
+            if (response.data.pix_data) {
+              console.log("PIX data encontrado:", response.data.pix_data);
+              this.pixData = response.data.pix_data;
+              this.pixQrCode = response.data.pix_qr_code;
+              this.pixExpiration = new Date(response.data.pix_expiration);
+              this.isWaitingPayment = true;
+              console.log("Estado atualizado:", {
+                pixData: this.pixData,
+                pixQrCode: this.pixQrCode,
+                isWaitingPayment: this.isWaitingPayment
+              });
+              this.startPaymentCheck(response.data.transaction_id);
+            } else {
+              console.warn("PIX selecionado mas pix_data não retornou");
+              console.log("Resposta completa:", response.data);
+              this.errorMessage = "Falha ao gerar PIX. Tente novamente.";
+            }
           } else {
             this.successMessage = response.data.message || "Pagamento processado com sucesso!";
             console.log("Pagamento confirmado com sucesso!");
@@ -299,10 +315,10 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "cc7dab89"
+  "e42fd260"
 );
 const MercadoPagoCheckout = __component__.exports;
 export {
   MercadoPagoCheckout as default
 };
-//# sourceMappingURL=MercadoPagoCheckout-Ch41Jdst.js.map
+//# sourceMappingURL=MercadoPagoCheckout-CijoJ_5l.js.map
