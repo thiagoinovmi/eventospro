@@ -244,7 +244,7 @@ export default{
                 Swal.fire({
                     title: trans('em.are_you_sure'),
                     text: text,
-                    type: 'error',
+                    icon: 'error',
                     showCancelButton: true,
                     confirmButtonText: trans('em.yes'),
                     cancelButtonText: trans('em.no'),
@@ -310,7 +310,7 @@ export default{
             }
 
             Toast.fire({
-                type: type,
+                icon: type,
                 html: `<i class="far ${iconClass} fs-5 me-1 icon-position mt-0"></i>${message}`
             })
         },
@@ -337,7 +337,7 @@ export default{
                     cancelButton: 'custom-swal-cancel-button',
                     footer: 'custom-swal-footer'
                 },
-                onBeforeOpen: () => {
+                didOpen: () => {
                     Swal.showLoading ()
                 }
             })
