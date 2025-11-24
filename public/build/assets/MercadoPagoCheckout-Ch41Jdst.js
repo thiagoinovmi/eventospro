@@ -27,6 +27,7 @@ const _sfc_main = {
   data() {
     return {
       selectedMethod: "credit_card",
+      selectedTicket: null,
       cardData: {
         holderName: "",
         number: "",
@@ -42,7 +43,12 @@ const _sfc_main = {
       },
       errorMessage: "",
       successMessage: "",
-      loadedMethods: {}
+      loadedMethods: {},
+      pixData: null,
+      pixQrCode: null,
+      pixExpiration: null,
+      isWaitingPayment: false,
+      paymentCheckInterval: null
     };
   },
   mounted() {
@@ -58,6 +64,10 @@ const _sfc_main = {
     }
   },
   methods: {
+    setSelectedTicket(ticket) {
+      console.log("Ticket selecionado no MercadoPagoCheckout:", ticket);
+      this.selectedTicket = ticket;
+    },
     loadPaymentMethods() {
       var _a, _b;
       console.log("=== CARREGANDO MÉTODOS DE PAGAMENTO ===");
@@ -151,18 +161,15 @@ const _sfc_main = {
       var _a, _b;
       console.log("=== PROCESS PAYMENT INICIADO ===");
       console.log("selectedMethod:", this.selectedMethod);
-      console.log("cardData:", this.cardData);
-      console.log("tickets:", this.tickets);
+      console.log("selectedTicket:", this.selectedTicket);
       if (!this.validateForm()) {
         this.$emit("error", "Por favor, preencha todos os campos corretamente");
         return;
       }
       this.errorMessage = "";
       try {
-        let selectedTicket = null;
-        if (this.tickets && this.tickets.length > 0) {
-          selectedTicket = this.tickets[0];
-        }
+        const ticketToUse = this.selectedTicket || (this.tickets && this.tickets.length > 0 ? this.tickets[0] : null);
+        console.log("Ticket a ser usado:", ticketToUse);
         const paymentData = {
           event_id: this.event.id,
           booking_date: this.bookingData.booking_date,
@@ -173,8 +180,8 @@ const _sfc_main = {
           selected_method: this.selectedMethod,
           card_data: ["credit_card", "debit_card"].includes(this.selectedMethod) ? this.cardData : null,
           total: this.total,
-          ticket_id: selectedTicket ? selectedTicket.id : null,
-          ticket_title: selectedTicket ? selectedTicket.title : null
+          ticket_id: ticketToUse ? ticketToUse.id : null,
+          ticket_title: ticketToUse ? ticketToUse.title : null
         };
         const apiUrl = "/bookings/api/mercadopago/process";
         console.log("Enviando dados para:", apiUrl);
@@ -182,11 +189,19 @@ const _sfc_main = {
         const response = await axios.post(apiUrl, paymentData);
         console.log("Resposta recebida:", response.data);
         if (response.data.status) {
-          this.successMessage = response.data.message || "Pagamento processado com sucesso!";
-          console.log("Pagamento confirmado com sucesso!");
-          setTimeout(() => {
-            window.location.href = "/mybookings";
-          }, 3e3);
+          if (this.selectedMethod === "pix" && response.data.pix_data) {
+            this.pixData = response.data.pix_data;
+            this.pixQrCode = response.data.pix_qr_code;
+            this.pixExpiration = new Date(response.data.pix_expiration);
+            this.isWaitingPayment = true;
+            this.startPaymentCheck(response.data.transaction_id);
+          } else {
+            this.successMessage = response.data.message || "Pagamento processado com sucesso!";
+            console.log("Pagamento confirmado com sucesso!");
+            setTimeout(() => {
+              window.location.href = "/mybookings";
+            }, 3e3);
+          }
         } else {
           this.$emit("error", response.data.message || "Erro ao processar pagamento");
         }
@@ -197,6 +212,43 @@ const _sfc_main = {
         this.errorMessage = errorMessage;
         console.error("Mensagem de erro:", errorMessage);
       }
+    },
+    startPaymentCheck(transactionId) {
+      console.log("Iniciando verificação de pagamento PIX para:", transactionId);
+      this.paymentCheckInterval = setInterval(async () => {
+        try {
+          const response = await axios.get(`/bookings/api/mercadopago/check-payment/${transactionId}`);
+          if (response.data.status === "approved") {
+            console.log("Pagamento aprovado!");
+            clearInterval(this.paymentCheckInterval);
+            this.successMessage = "Pagamento confirmado com sucesso!";
+            this.isWaitingPayment = false;
+            setTimeout(() => {
+              window.location.href = "/mybookings";
+            }, 2e3);
+          }
+        } catch (error) {
+          console.error("Erro ao verificar pagamento:", error);
+        }
+      }, 5e3);
+    },
+    copyToClipboard() {
+      const pixCode = document.getElementById("pixCode");
+      if (pixCode) {
+        pixCode.select();
+        document.execCommand("copy");
+        alert("Código PIX copiado para a área de transferência!");
+      }
+    },
+    formatTimeRemaining(expirationTime) {
+      const now = /* @__PURE__ */ new Date();
+      const diff = expirationTime - now;
+      if (diff <= 0) {
+        return "Expirado";
+      }
+      const minutes = Math.floor(diff / 6e4);
+      const seconds = Math.floor(diff % 6e4 / 1e3);
+      return `${minutes}m ${seconds}s`;
     }
   }
 };
@@ -234,7 +286,7 @@ var _sfc_render = function render() {
     _vm.$set(_vm.cardData, "installments", $event.target.multiple ? $$selectedVal : $$selectedVal[0]);
   } } }, _vm._l(_vm.installmentOptions, function(option) {
     return _c("option", { key: option.value, domProps: { "value": option.value } }, [_vm._v(" " + _vm._s(option.label) + " ")]);
-  }), 0)]) : _vm._e()])])])]) : _vm._e(), _vm.errorMessage ? _c("div", { staticClass: "alert alert-danger alert-dismissible fade show", attrs: { "role": "alert" } }, [_c("i", { staticClass: "fas fa-exclamation-circle me-2" }), _vm._v(" " + _vm._s(_vm.errorMessage) + " "), _c("button", { staticClass: "btn-close", attrs: { "type": "button", "aria-label": "Close" }, on: { "click": function($event) {
+  }), 0)]) : _vm._e()])])])]) : _vm._e(), _vm.isWaitingPayment && _vm.selectedMethod === "pix" ? _c("div", { staticClass: "row mb-4" }, [_c("div", { staticClass: "col-12" }, [_c("div", { staticClass: "card border-success" }, [_c("div", { staticClass: "card-body text-center" }, [_c("h6", { staticClass: "card-title mb-4" }, [_c("i", { staticClass: "fas fa-mobile-alt me-2 text-success" }), _vm._v(" " + _vm._s(_vm.trans("em.waiting_pix_payment") || "Aguardando Pagamento PIX") + " ")]), _vm.pixQrCode ? _c("div", { staticClass: "mb-4" }, [_c("img", { staticClass: "img-fluid", staticStyle: { "max-width": "300px" }, attrs: { "src": _vm.pixQrCode, "alt": "PIX QR Code" } })]) : _vm._e(), _vm.pixData ? _c("div", { staticClass: "mb-4" }, [_c("p", { staticClass: "text-muted mb-2" }, [_vm._v(_vm._s(_vm.trans("em.or_copy_code") || "Ou copie o código:"))]), _c("div", { staticClass: "input-group" }, [_c("input", { staticClass: "form-control", attrs: { "type": "text", "readonly": "", "id": "pixCode" }, domProps: { "value": _vm.pixData } }), _c("button", { staticClass: "btn btn-outline-primary", attrs: { "type": "button" }, on: { "click": _vm.copyToClipboard } }, [_c("i", { staticClass: "fas fa-copy me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.copy") || "Copiar") + " ")])])]) : _vm._e(), _vm.pixExpiration ? _c("div", { staticClass: "alert alert-info" }, [_c("i", { staticClass: "fas fa-clock me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.pix_expires_in") || "PIX expira em") + ": "), _c("strong", [_vm._v(_vm._s(_vm.formatTimeRemaining(_vm.pixExpiration)))])]) : _vm._e(), _c("div", { staticClass: "alert alert-warning" }, [_c("i", { staticClass: "fas fa-hourglass-half me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.waiting_payment_confirmation") || "Aguardando confirmação do pagamento...") + " ")])])])])]) : _vm._e(), _vm.errorMessage ? _c("div", { staticClass: "alert alert-danger alert-dismissible fade show", attrs: { "role": "alert" } }, [_c("i", { staticClass: "fas fa-exclamation-circle me-2" }), _vm._v(" " + _vm._s(_vm.errorMessage) + " "), _c("button", { staticClass: "btn-close", attrs: { "type": "button", "aria-label": "Close" }, on: { "click": function($event) {
     _vm.errorMessage = "";
   } } })]) : _vm._e(), _vm.successMessage ? _c("div", { staticClass: "alert alert-success alert-dismissible fade show", attrs: { "role": "alert" } }, [_c("i", { staticClass: "fas fa-check-circle me-2" }), _vm._v(" " + _vm._s(_vm.successMessage) + " "), _c("button", { staticClass: "btn-close", attrs: { "type": "button", "aria-label": "Close" }, on: { "click": function($event) {
     _vm.successMessage = "";
@@ -247,10 +299,10 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "7ce9b013"
+  "cc7dab89"
 );
 const MercadoPagoCheckout = __component__.exports;
 export {
   MercadoPagoCheckout as default
 };
-//# sourceMappingURL=MercadoPagoCheckout-MMfID2UN.js.map
+//# sourceMappingURL=MercadoPagoCheckout-Ch41Jdst.js.map

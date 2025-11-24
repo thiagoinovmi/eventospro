@@ -1,4 +1,4 @@
-const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/MercadoPagoCheckout-MMfID2UN.js","assets/mixins-DsimpN2H.js","assets/MercadoPagoCheckout-1i0bK8hs.css"])))=>i.map(i=>d[i]);
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/MercadoPagoCheckout-Ch41Jdst.js","assets/mixins-DsimpN2H.js","assets/MercadoPagoCheckout-Q_ZZK8Yx.css"])))=>i.map(i=>d[i]);
 import { g as getDefaultExportFromCjs, b as getAugmentedNamespace, _, n as normalizeComponent, m as mixinsFilters, c as moment$1 } from "./mixins-DsimpN2H.js";
 import { m as mapMutations, a as mapState, i as index } from "./vuex.esm-BLukzcBM.js";
 import { v as vSelect } from "./vue-select-rC5MlIUN.js";
@@ -2331,7 +2331,7 @@ const _sfc_main$3 = {
     mixinsFilters
   ],
   components: {
-    "mercadopago-checkout": () => __vitePreload(() => import("./MercadoPagoCheckout-MMfID2UN.js"), true ? __vite__mapDeps([0,1,2]) : void 0)
+    "mercadopago-checkout": () => __vitePreload(() => import("./MercadoPagoCheckout-Ch41Jdst.js"), true ? __vite__mapDeps([0,1,2]) : void 0)
   },
   props: [
     "tickets",
@@ -2442,7 +2442,16 @@ const _sfc_main$3 = {
       if (this.payment_method == 2) {
         console.log("Mercado Pago selecionado - processando pagamento");
         Swal.hideLoading();
+        let selectedTicket = null;
+        for (let i = 0; i < this.tickets.length; i++) {
+          if (this.quantity[i] && parseInt(this.quantity[i]) > 0) {
+            selectedTicket = this.tickets[i];
+            console.log("Ticket selecionado:", selectedTicket);
+            break;
+          }
+        }
         if (this.$refs.mercadoPagoCheckout) {
+          this.$refs.mercadoPagoCheckout.setSelectedTicket(selectedTicket);
           this.$refs.mercadoPagoCheckout.processPayment();
         } else {
           console.error("MercadoPagoCheckout ref não encontrado");
@@ -3640,4 +3649,4 @@ window.app = new Vue({
     GComponent
   }
 });
-//# sourceMappingURL=index-BFE9c7Gm.js.map
+//# sourceMappingURL=index-D2QNfFUv.js.map
