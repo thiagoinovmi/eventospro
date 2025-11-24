@@ -606,5 +606,4 @@ Route::group([
 
 /* Mercado Pago Webhook (fora do grupo para evitar CSRF) */
 Route::post('/mercadopago/webhook', $namespace.'\BookingsController@mercadopagoWebhook')
-    ->name('eventmie.mercadopago_webhook')
-    ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+    ->name('eventmie.mercadopago_webhook');
