@@ -544,23 +544,28 @@ export default {
                 console.log('pix_data presente?', !!response.data.pix_data);
                 
                 if (response.data.status) {
-                    console.log('Pagamento processado com sucesso!');
+                    console.log('✅ Pagamento processado com sucesso!');
                     console.log('Método selecionado:', this.selectedMethod);
                     console.log('Método retornado:', response.data.payment_method);
-                    console.log('Resposta completa:', response.data);
+                    console.log('Resposta completa:', JSON.stringify(response.data, null, 2));
                     
                     // PIX
                     if (response.data.payment_method === 'pix' || this.selectedMethod === 'pix') {
-                        console.log('PIX selecionado - processando QR Code');
+                        console.log('🔵 PIX selecionado - processando QR Code');
+                        console.log('qr_code presente?', !!response.data.qr_code);
+                        console.log('qr_code valor:', response.data.qr_code ? response.data.qr_code.substring(0, 50) + '...' : 'VAZIO');
                         
+                        // PIX sempre retorna qr_code, mesmo que qr_code_url seja null
                         if (response.data.qr_code) {
-                            console.log('QR Code encontrado:', response.data.qr_code.substring(0, 50) + '...');
+                            console.log('✅ QR Code encontrado!');
+                            console.log('QR Code URL:', response.data.qr_code_url || 'null (será gerado dinamicamente)');
+                            
                             this.pixData = response.data.qr_code;
-                            this.pixQrCode = response.data.qr_code_url;
+                            this.pixQrCode = response.data.qr_code_url || null;
                             this.pixExpiration = new Date(Date.now() + 30 * 60 * 1000); // 30 minutos
                             this.isWaitingPayment = true;
                             
-                            console.log('Estado PIX atualizado:', {
+                            console.log('✅ Estado PIX atualizado:', {
                                 pixDataPresente: !!this.pixData,
                                 pixQrCodeUrl: this.pixQrCode,
                                 isWaitingPayment: this.isWaitingPayment
@@ -569,7 +574,8 @@ export default {
                             // Iniciar verificação de pagamento a cada 5 segundos
                             this.startPaymentCheck(response.data.payment_id);
                         } else {
-                            console.warn('PIX selecionado mas qr_code não retornou');
+                            console.error('❌ PIX selecionado mas qr_code não retornou!');
+                            console.log('Resposta completa:', response.data);
                             this.errorMessage = 'Falha ao gerar QR Code PIX. Tente novamente.';
                         }
                     }

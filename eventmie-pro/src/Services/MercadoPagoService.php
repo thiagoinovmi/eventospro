@@ -44,9 +44,10 @@ class MercadoPagoService
 
         // Initialize Mercado Pago SDK
         MercadoPagoConfig::setAccessToken($this->accessToken);
-        MercadoPagoConfig::setRuntimeEnv(
-            $this->mode === 'production' ? 'production' : 'sandbox'
-        );
+        
+        // Note: setRuntimeEnv não existe na versão atual do SDK
+        // O SDK detecta automaticamente o ambiente baseado no token
+        // (TEST- para sandbox, APP_USR- para production)
 
         $this->paymentClient = new PaymentClient();
     }
