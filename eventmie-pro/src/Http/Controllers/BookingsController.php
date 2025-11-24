@@ -1333,12 +1333,28 @@ class BookingsController extends Controller
                 // Process payment based on method
                 $paymentResult = null;
                 
-                if ($validated['selected_method'] === 'credit_card' || $validated['selected_method'] === 'debit_card') {
-                    // Process card payment
-                    $paymentResult = $this->processCardPayment($validated, Auth::user());
-                } else if ($validated['selected_method'] === 'pix') {
-                    // Process PIX payment
-                    $paymentResult = $this->processPixPayment($validated, Auth::user());
+                try {
+                    if ($validated['selected_method'] === 'credit_card' || $validated['selected_method'] === 'debit_card') {
+                        // Process card payment
+                        \Log::info('Chamando processCardPayment...');
+                        $paymentResult = $this->processCardPayment($validated, Auth::user());
+                        \Log::info('Resultado de processCardPayment:', ['result' => $paymentResult]);
+                    } else if ($validated['selected_method'] === 'pix') {
+                        // Process PIX payment
+                        \Log::info('Chamando processPixPayment...');
+                        $paymentResult = $this->processPixPayment($validated, Auth::user());
+                        \Log::info('Resultado de processPixPayment:', ['result' => $paymentResult]);
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('Exceção ao processar pagamento:', [
+                        'message' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
+                    ]);
+                    
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Erro ao processar pagamento: ' . $e->getMessage()
+                    ], 500);
                 }
                 
                 if (!$paymentResult || !$paymentResult['status']) {
