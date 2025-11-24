@@ -1392,7 +1392,7 @@ class BookingsController extends Controller
                     'event_category' => $event->category_id,
                     'currency' => 'BRL',
                     'is_paid' => $paymentResult['is_paid'] ?? 0,
-                    'payment_type' => 'online'
+                    'payment_type' => 'mercadopago'
                 ];
                 
                 $newBooking = $this->booking->create($bookingData);
