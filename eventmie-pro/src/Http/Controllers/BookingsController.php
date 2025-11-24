@@ -1478,8 +1478,14 @@ class BookingsController extends Controller
 
             // Prepare payment data for card payment
             // According to Mercado Pago API v1 documentation
-            // Use payment_method_id from frontend if provided (visa, master, etc), otherwise use selected_method
-            $paymentMethodId = $validated['payment_method_id'] ?? $validated['selected_method'];
+            // CRITICAL: Use payment_method_id from frontend (visa, master, amex, etc)
+            // NOT the generic "credit_card" - this causes diff_param_bins error
+            $paymentMethodId = $validated['payment_method_id'] ?? 'visa';
+            
+            \Log::info('Payment method ID being used:', [
+                'from_validated' => $validated['payment_method_id'] ?? 'not provided',
+                'final_payment_method_id' => $paymentMethodId
+            ]);
             
             $paymentData = [
                 "transaction_amount" => (float)$validated['total'],
@@ -1530,63 +1536,22 @@ class BookingsController extends Controller
                 'json' => json_encode($paymentData, JSON_PRETTY_PRINT)
             ]);
 
-            // Use Mercado Pago SDK v3.7.1 to create payment
-            try {
-                \MercadoPago\SDK::setAccessToken($accessToken);
-                
-                $payment = new \MercadoPago\Payment();
-                $payment->transaction_amount = $paymentData['transaction_amount'];
-                $payment->description = $paymentData['description'];
-                $payment->payment_method_id = $paymentData['payment_method_id'];
-                $payment->installments = $paymentData['installments'];
-                $payment->token = $paymentData['token'];
-                $payment->external_reference = $paymentData['external_reference'];
-                $payment->statement_descriptor = $paymentData['statement_descriptor'];
-                
-                // Set payer information
-                $payer = new \MercadoPago\Payer();
-                $payer->email = $paymentData['payer']['email'];
-                $payer->first_name = $paymentData['payer']['first_name'];
-                $payer->last_name = $paymentData['payer']['last_name'];
-                
-                // Set identification
-                $identification = new \stdClass();
-                $identification->type = $paymentData['payer']['identification']['type'];
-                $identification->number = $paymentData['payer']['identification']['number'];
-                $payer->identification = $identification;
-                
-                $payment->payer = $payer;
-                
-                \Log::info('Enviando pagamento via SDK Mercado Pago:', [
-                    'transaction_amount' => $payment->transaction_amount,
-                    'payment_method_id' => $payment->payment_method_id,
-                    'token_preview' => substr($payment->token, 0, 10) . '...',
-                    'payer_email' => $payer->email
-                ]);
-                
-                // Save payment
-                $payment->save();
-                
-                $httpCode = $payment->status_code;
-                $response = json_encode($payment);
-                $curlError = '';
-                
-                \Log::info('Resposta do SDK Mercado Pago:', [
-                    'httpCode' => $httpCode,
-                    'payment_id' => $payment->id ?? null,
-                    'status' => $payment->status ?? null
-                ]);
-                
-            } catch (\Exception $e) {
-                \Log::error('Erro ao usar SDK Mercado Pago:', [
-                    'message' => $e->getMessage(),
-                    'code' => $e->getCode()
-                ]);
-                
-                $httpCode = 500;
-                $response = json_encode(['error' => $e->getMessage()]);
-                $curlError = $e->getMessage();
-            }
+            // Make cURL request to Mercado Pago API with correct payment_method_id
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, 'https://api.mercadopago.com/v1/payments');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($paymentData));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . $accessToken,
+                'X-Idempotency-Key: ' . \Illuminate\Support\Str::uuid()
+            ]);
+
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curlError = curl_error($ch);
+            curl_close($ch);
 
             \Log::info('DEBUG - Requisição enviada para Mercado Pago:', [
                 'url' => 'https://api.mercadopago.com/v1/payments',
