@@ -29,6 +29,9 @@ class MercadoPagoTransaction extends Model
         'refund_id',
         'refund_amount',
         'refund_status',
+        'qr_code',
+        'qr_code_base64',
+        'qr_code_expires_at',
     ];
 
     protected $casts = [
