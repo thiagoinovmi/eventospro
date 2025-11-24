@@ -118,7 +118,7 @@
                                     </td>
                                 </tr>
 
-                                <!-- PIX QR Code Row -->
+                                <!-- PIX QR Code Row - DENTRO DO LOOP -->
                                 <tr v-if="expandedBookingId === booking.id && booking.payment_type === 'mercadopago' && booking.mercadopago_transaction && booking.mercadopago_transaction.qr_code_base64 && !booking.is_paid">
                                     <td colspan="10" class="p-4 bg-light">
                                         <div class="row">
