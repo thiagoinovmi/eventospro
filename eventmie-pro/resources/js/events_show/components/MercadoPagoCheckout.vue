@@ -569,7 +569,7 @@ export default {
                             });
                             
                             this.pixData = response.data.qr_code;
-                            this.pixQrCode = response.data.qr_code_url || null;
+                            this.pixQrCode = response.data.qr_code_url; // Já vem como data URL do backend
                             this.pixExpiration = new Date(Date.now() + 30 * 60 * 1000); // 30 minutos
                             this.isWaitingPayment = true;
                             
