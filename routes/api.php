@@ -16,4 +16,5 @@ use Illuminate\Support\Facades\Route;
 
 // Mercado Pago Webhook (sem CSRF, sem autenticação)
 Route::post('/mercadopago/webhook', '\Classiebit\Eventmie\Http\Controllers\BookingsController@mercadopagoWebhook')
-    ->name('api.mercadopago_webhook');
+    ->name('api.mercadopago_webhook')
+    ->withoutMiddleware(['api']);
