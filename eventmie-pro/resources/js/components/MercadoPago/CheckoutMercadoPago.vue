@@ -265,12 +265,19 @@ export default {
   },
   methods: {
     initializeCheckout() {
+      console.log('=== INICIANDO CHECKOUT ===')
+      console.log('Event ID:', this.eventId)
+      console.log('Booking Data:', this.bookingData)
+      
       this.loading = true
       this.loadingMessage = 'Carregando métodos de pagamento...'
       
       // Load payment methods for this event with cache busting
       const timestamp = new Date().getTime()
-      axios.get(`/api/mercadopago/payment-methods/event/${this.eventId}?t=${timestamp}`, {
+      const url = `/api/mercadopago/payment-methods/event/${this.eventId}?t=${timestamp}`
+      console.log('Chamando API:', url)
+      
+      axios.get(url, {
         headers: {
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache',
@@ -278,9 +285,11 @@ export default {
         }
       })
         .then(response => {
+          console.log('Resposta da API:', response.data)
           if (response.data.status) {
             this.availableMethods = response.data.data
-            console.log('Métodos carregados:', this.availableMethods.length, this.availableMethods)
+            console.log('Métodos carregados:', this.availableMethods.length)
+            console.log('Métodos:', this.availableMethods)
             
             // Set order data from booking
             this.orderData = {
@@ -291,11 +300,14 @@ export default {
             
             // Initialize Mercado Pago SDK
             this.initializeMercadoPago()
+          } else {
+            console.error('Erro na resposta:', response.data.message)
+            this.errorMessage = response.data.message || 'Erro ao carregar métodos'
           }
         })
         .catch(error => {
-          this.errorMessage = 'Erro ao carregar métodos de pagamento'
-          console.error(error)
+          console.error('Erro na requisição:', error)
+          this.errorMessage = 'Erro ao carregar métodos de pagamento: ' + error.message
         })
         .finally(() => {
           this.loading = false
