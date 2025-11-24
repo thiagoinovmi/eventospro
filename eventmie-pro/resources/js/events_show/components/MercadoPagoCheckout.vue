@@ -475,16 +475,37 @@ export default {
 
                 console.log('Resposta recebida:', response.data);
 
+                console.log('Response data completo:', response.data);
+                console.log('selectedMethod:', this.selectedMethod);
+                console.log('pix_data presente?', !!response.data.pix_data);
+                
                 if (response.data.status) {
                     // Se for PIX, mostrar QR Code e aguardar pagamento
-                    if (this.selectedMethod === 'pix' && response.data.pix_data) {
-                        this.pixData = response.data.pix_data;
-                        this.pixQrCode = response.data.pix_qr_code;
-                        this.pixExpiration = new Date(response.data.pix_expiration);
-                        this.isWaitingPayment = true;
+                    if (this.selectedMethod === 'pix') {
+                        console.log('PIX selecionado - verificando dados');
                         
-                        // Iniciar verificação de pagamento a cada 5 segundos
-                        this.startPaymentCheck(response.data.transaction_id);
+                        if (response.data.pix_data) {
+                            console.log('PIX data encontrado:', response.data.pix_data);
+                            this.pixData = response.data.pix_data;
+                            this.pixQrCode = response.data.pix_qr_code;
+                            this.pixExpiration = new Date(response.data.pix_expiration);
+                            this.isWaitingPayment = true;
+                            
+                            console.log('Estado atualizado:', {
+                                pixData: this.pixData,
+                                pixQrCode: this.pixQrCode,
+                                isWaitingPayment: this.isWaitingPayment
+                            });
+                            
+                            // Iniciar verificação de pagamento a cada 5 segundos
+                            this.startPaymentCheck(response.data.transaction_id);
+                        } else {
+                            console.warn('PIX selecionado mas pix_data não retornou');
+                            console.log('Resposta completa:', response.data);
+                            
+                            // Mostrar mensagem de erro
+                            this.errorMessage = 'Falha ao gerar PIX. Tente novamente.';
+                        }
                     } else {
                         // Para outros métodos, redirecionar direto
                         this.successMessage = response.data.message || 'Pagamento processado com sucesso!';
