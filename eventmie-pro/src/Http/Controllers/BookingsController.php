@@ -1275,12 +1275,19 @@ class BookingsController extends Controller
                 // Configure Mercado Pago SDK
                 \MercadoPago\MercadoPagoConfig::setAccessToken($accessToken);
                 
-                \Log::info('Enviando pagamento para Mercado Pago:', [
+                $logData = [
                     'amount' => $validated['total'],
-                    'installments' => $cardData['installments'] ?? 1,
-                    'email' => Auth::user()->email,
-                    'card_last4' => substr($cardData['number'], -4)
-                ]);
+                    'method' => $validated['selected_method'],
+                    'email' => Auth::user()->email
+                ];
+                
+                // Add card-specific info only if card_data exists
+                if ($cardData) {
+                    $logData['installments'] = $cardData['installments'] ?? 1;
+                    $logData['card_last4'] = substr($cardData['number'] ?? '', -4);
+                }
+                
+                \Log::info('Enviando pagamento para Mercado Pago:', $logData);
                 
                 // For now, create booking directly without actual payment processing
                 // TODO: Implement proper Mercado Pago payment tokenization on frontend
