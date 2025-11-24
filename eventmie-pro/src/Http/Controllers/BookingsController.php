@@ -1502,7 +1502,13 @@ class BookingsController extends Controller
                 'token' => $paymentData['token'] ?? 'VAZIO',
                 'token_length' => strlen($paymentData['token'] ?? ''),
                 'token_preview' => substr($paymentData['token'] ?? '', 0, 20),
+                'token_completo' => $paymentData['token'],
                 'cpf' => $paymentData['payer']['identification']['number']
+            ]);
+            
+            // Log the complete payment data as JSON
+            \Log::info('Payment data JSON:', [
+                'json' => json_encode($paymentData, JSON_PRETTY_PRINT)
             ]);
 
             // Make cURL request to Mercado Pago API
