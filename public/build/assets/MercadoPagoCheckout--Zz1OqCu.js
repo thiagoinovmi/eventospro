@@ -33,7 +33,9 @@ const _sfc_main = {
         number: "",
         expiry: "",
         cvv: "",
-        installments: 1
+        installments: 1,
+        paymentMethodId: "credit_card"
+        // Will be updated based on card brand
       },
       errors: {
         cardholderName: "",
@@ -113,6 +115,30 @@ const _sfc_main = {
       let value = this.cardData.number.replace(/\s/g, "");
       let formatted = ((_a = value.match(/.{1,4}/g)) == null ? void 0 : _a.join(" ")) || value;
       this.cardData.number = formatted;
+      this.detectCardBrand(value);
+    },
+    detectCardBrand(cardNumber) {
+      const cleanNumber = cardNumber.replace(/\D/g, "");
+      if (!cleanNumber) {
+        this.cardData.paymentMethodId = "credit_card";
+        return;
+      }
+      if (/^4/.test(cleanNumber)) {
+        this.cardData.paymentMethodId = "visa";
+      } else if (/^5[1-5]/.test(cleanNumber)) {
+        this.cardData.paymentMethodId = "master";
+      } else if (/^3[47]/.test(cleanNumber)) {
+        this.cardData.paymentMethodId = "amex";
+      } else if (/^636[3-9]/.test(cleanNumber)) {
+        this.cardData.paymentMethodId = "elo";
+      } else if (/^3[689]/.test(cleanNumber)) {
+        this.cardData.paymentMethodId = "diners";
+      } else if (/^6(?:011|5)/.test(cleanNumber)) {
+        this.cardData.paymentMethodId = "discover";
+      } else {
+        this.cardData.paymentMethodId = "credit_card";
+      }
+      console.log("Card brand detected:", this.cardData.paymentMethodId);
     },
     formatCardExpiry() {
       let value = this.cardData.expiry.replace(/\D/g, "");
@@ -190,6 +216,12 @@ const _sfc_main = {
           }
           paymentData.card_token = cardToken;
           paymentData.installments = this.cardData.installments || 1;
+          paymentData.payment_method_id = this.cardData.paymentMethodId;
+          console.log("Card payment data:", {
+            card_token: cardToken,
+            installments: paymentData.installments,
+            payment_method_id: paymentData.payment_method_id
+          });
         }
         const apiUrl = "/bookings/api/mercadopago/process";
         console.log("Enviando dados para:", apiUrl);
@@ -376,10 +408,10 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "35e2060a"
+  "536b1bed"
 );
 const MercadoPagoCheckout = __component__.exports;
 export {
   MercadoPagoCheckout as default
 };
-//# sourceMappingURL=MercadoPagoCheckout-n_RU_9I7.js.map
+//# sourceMappingURL=MercadoPagoCheckout--Zz1OqCu.js.map
