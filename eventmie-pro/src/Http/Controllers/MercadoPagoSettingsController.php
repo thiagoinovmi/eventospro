@@ -48,6 +48,7 @@ class MercadoPagoSettingsController extends \App\Http\Controllers\Controller
 
     /**
      * Update Mercado Pago settings
+     * Saves to the 'settings' table (Voyager default)
      */
     public function updateSettings(Request $request)
     {
@@ -62,32 +63,29 @@ class MercadoPagoSettingsController extends \App\Http\Controllers\Controller
                 'enabled' => 'boolean'
             ]);
 
-            // Buscar ou criar setting
-            $setting = MercadoPagoSetting::firstOrCreate([]);
-
-            // Atualizar apenas os campos fornecidos
-            if ($request->has('access_token') && !empty($validated['access_token'])) {
-                $setting->access_token = $validated['access_token'];
+            // Save to settings table (Voyager)
+            // These will NOT be encrypted
+            if (!empty($validated['access_token'])) {
+                setting(['mercadopago.access_token' => $validated['access_token']]);
             }
 
-            if ($request->has('public_key') && !empty($validated['public_key'])) {
-                $setting->public_key = $validated['public_key'];
+            if (!empty($validated['public_key'])) {
+                setting(['mercadopago.public_key' => $validated['public_key']]);
             }
 
-            $setting->mode = $validated['mode'];
-            $setting->webhook_url = $validated['webhook_url'] ?? $setting->webhook_url;
-            $setting->webhook_token = $validated['webhook_token'] ?? $setting->webhook_token;
-            $setting->enabled = $validated['enabled'] ?? false;
-
-            $setting->save();
+            setting([
+                'mercadopago.mode' => $validated['mode'],
+                'mercadopago.webhook_url' => $validated['webhook_url'] ?? '',
+                'mercadopago.webhook_token' => $validated['webhook_token'] ?? '',
+                'mercadopago.enabled' => $validated['enabled'] ?? false
+            ]);
 
             return response()->json([
                 'status' => true,
                 'message' => 'Configurações atualizadas com sucesso',
                 'data' => [
-                    'id' => $setting->id,
-                    'mode' => $setting->mode,
-                    'enabled' => $setting->enabled
+                    'mode' => $validated['mode'],
+                    'enabled' => $validated['enabled'] ?? false
                 ]
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
