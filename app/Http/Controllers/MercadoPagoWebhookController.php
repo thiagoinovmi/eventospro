@@ -12,6 +12,15 @@ class MercadoPagoWebhookController extends Controller
     public function handle(Request $request)
     {
         // Logar tudo que o Mercado Pago mandar, pra debug
+        $logFile = storage_path('logs/webhook_debug.log');
+        $timestamp = date('Y-m-d H:i:s');
+        
+        file_put_contents($logFile, "\n[$timestamp] === WEBHOOK MERCADO PAGO RECEBIDO ===\n", FILE_APPEND);
+        file_put_contents($logFile, "[$timestamp] Method: " . $request->method() . "\n", FILE_APPEND);
+        file_put_contents($logFile, "[$timestamp] URL: " . $request->url() . "\n", FILE_APPEND);
+        file_put_contents($logFile, "[$timestamp] Payload: " . json_encode($request->all()) . "\n", FILE_APPEND);
+        file_put_contents($logFile, "[$timestamp] Headers: " . json_encode($request->headers->all()) . "\n", FILE_APPEND);
+        
         Log::info('=== WEBHOOK MERCADO PAGO RECEBIDO - CONTROLLER CHAMADO ===');
         Log::info('Payload:', $request->all());
         Log::info('Headers:', $request->headers->all());
