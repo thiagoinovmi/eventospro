@@ -280,6 +280,7 @@ export default {
         .then(response => {
           if (response.data.status) {
             this.availableMethods = response.data.data
+            console.log('Métodos carregados:', this.availableMethods.length, this.availableMethods)
             
             // Set order data from booking
             this.orderData = {
