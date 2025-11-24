@@ -417,9 +417,6 @@ export default {
             console.log('=== BOOK TICKETS INICIADO ===');
             console.log('payment_method:', this.payment_method);
             console.log('total:', this.total);
-            
-            // show loader
-            this.showLoaderNotification(trans('em.processing'));
 
             // prepare form data for post request
             this.disable = true;
@@ -435,8 +432,6 @@ export default {
             // Se for Mercado Pago, processar pagamento
             if(this.payment_method == 2) {
                 console.log('Mercado Pago selecionado - processando pagamento');
-                // hide loader
-                Swal.hideLoading();
                 
                 // Find the selected ticket (the one with quantity > 0)
                 let selectedTicket = null;
