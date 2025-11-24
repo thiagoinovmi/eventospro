@@ -142,7 +142,7 @@
                                             <!-- QR Code -->
                                             <div class="col-md-6 text-center mb-4">
                                                 <h6 class="mb-3">{{ trans('em.scan_qr_code') }}</h6>
-                                                <img :src="'data:image/png;base64,' + booking.mercadopago_transaction.qr_code_base64" 
+                                                <img :src="'data:image/png;base64,' + getCleanBase64(booking.mercadopago_transaction.qr_code_base64)" 
                                                      alt="PIX QR Code" class="img-fluid border rounded" style="max-width: 300px;">
                                                 <p class="text-muted small mt-3">
                                                     <i class="fas fa-clock text-danger"></i> 
@@ -338,6 +338,15 @@ export default {
             }).catch(() => {
                 alert('Erro ao copiar para a área de transferência');
             });
+        },
+
+        // Limpar base64 removendo prefixo data:image se existir
+        getCleanBase64(base64String) {
+            if (!base64String) return '';
+            if (base64String.startsWith('data:image')) {
+                return base64String.replace(/^data:image\/[^;]+;base64,/, '');
+            }
+            return base64String;
         },
     },
     mounted() {
