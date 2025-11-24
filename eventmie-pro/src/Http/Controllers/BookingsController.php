@@ -1577,9 +1577,13 @@ class BookingsController extends Controller
                 'message' => 'Erro ao processar pagamento: ' . $errorMsg
             ];
 
-        } catch (\Exception $e) {
-            \Log::error('Exceção ao processar pagamento de cartão:', [
+        } catch (\Throwable $e) {
+            \Log::error('EXCEÇÃO CAPTURADA ao processar pagamento de cartão:', [
+                'exception_class' => get_class($e),
                 'message' => $e->getMessage(),
+                'code' => $e->getCode(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
                 'trace' => $e->getTraceAsString()
             ]);
 
@@ -1681,14 +1685,19 @@ class BookingsController extends Controller
                 'message' => 'Erro ao gerar PIX'
             ];
 
-        } catch (\Exception $e) {
-            \Log::error('Exceção ao processar PIX:', [
-                'message' => $e->getMessage()
+        } catch (\Throwable $e) {
+            \Log::error('EXCEÇÃO CAPTURADA ao processar PIX:', [
+                'exception_class' => get_class($e),
+                'message' => $e->getMessage(),
+                'code' => $e->getCode(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
             ]);
 
             return [
                 'status' => false,
-                'message' => 'Erro ao processar PIX'
+                'message' => 'Erro ao processar PIX: ' . $e->getMessage()
             ];
         }
     }
