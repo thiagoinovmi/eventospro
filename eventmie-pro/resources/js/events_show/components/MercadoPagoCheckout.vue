@@ -460,11 +460,16 @@ export default {
                     end_time: this.bookingData.end_time,
                     payment_method: 'mercadopago',
                     selected_method: this.selectedMethod,
-                    card_data: ['credit_card', 'debit_card'].includes(this.selectedMethod) ? this.cardData : null,
                     total: this.total,
                     ticket_id: ticketToUse ? ticketToUse.id : null,
                     ticket_title: ticketToUse ? ticketToUse.title : null
                 };
+                
+                // Add card-specific data for credit/debit cards
+                if (['credit_card', 'debit_card'].includes(this.selectedMethod)) {
+                    paymentData.card_token = this.cardData.token || null;
+                    paymentData.installments = this.cardData.installments || 1;
+                }
 
                 const apiUrl = '/bookings/api/mercadopago/process';
                 console.log('Enviando dados para:', apiUrl);
