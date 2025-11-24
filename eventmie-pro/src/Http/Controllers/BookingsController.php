@@ -2206,7 +2206,9 @@ class BookingsController extends Controller
     public function mercadopagoWebhook(Request $request)
     {
         \Log::info('=== WEBHOOK MERCADO PAGO RECEBIDO ===');
-        \Log::info('Dados do webhook:', $request->all());
+        \Log::info('Headers:', $request->headers->all());
+        \Log::info('Dados brutos do webhook:', $request->all());
+        \Log::info('JSON decodificado:', json_decode($request->getContent(), true));
         
         try {
             // Mercado Pago envia o tipo de evento em 'type' e o ID do recurso em 'data.id'
@@ -2216,12 +2218,22 @@ class BookingsController extends Controller
             \Log::info('Tipo de evento:', ['type' => $type]);
             \Log::info('Data ID:', ['id' => $dataId]);
             
+            // Log de todas as chaves disponíveis
+            \Log::info('Chaves disponíveis no request:', array_keys($request->all()));
+            
             // Se for um pagamento, processar
             if ($type === 'payment' && $dataId) {
+                \Log::info('Procurando transação com payment_id:', ['payment_id' => $dataId]);
+                
                 $transaction = MercadoPagoTransaction::where('payment_id', $dataId)->first();
                 
                 if ($transaction) {
-                    \Log::info('Transação encontrada:', ['id' => $transaction->id]);
+                    \Log::info('✅ Transação encontrada:', [
+                        'id' => $transaction->id,
+                        'payment_id' => $transaction->payment_id,
+                        'booking_id' => $transaction->booking_id,
+                        'status_atual' => $transaction->status
+                    ]);
                     
                     // Atualizar status da transação para 'approved'
                     $transaction->status = 'approved';
@@ -2233,19 +2245,41 @@ class BookingsController extends Controller
                     if ($transaction->booking_id) {
                         $booking = Booking::find($transaction->booking_id);
                         if ($booking) {
+                            \Log::info('Booking encontrado:', [
+                                'id' => $booking->id,
+                                'is_paid_antes' => $booking->is_paid
+                            ]);
+                            
                             $booking->is_paid = 1;
                             $booking->save();
-                            \Log::info('✅ Booking atualizado para paid:', ['booking_id' => $booking->id]);
+                            
+                            \Log::info('✅ Booking atualizado para paid:', [
+                                'booking_id' => $booking->id,
+                                'is_paid_depois' => $booking->is_paid
+                            ]);
+                        } else {
+                            \Log::warning('❌ Booking não encontrado:', ['booking_id' => $transaction->booking_id]);
                         }
+                    } else {
+                        \Log::warning('❌ Transação não tem booking_id associado');
                     }
                 } else {
-                    \Log::warning('Transação não encontrada para payment_id:', ['payment_id' => $dataId]);
+                    \Log::warning('❌ Transação não encontrada para payment_id:', ['payment_id' => $dataId]);
+                    
+                    // Log de todas as transações para debug
+                    $allTransactions = MercadoPagoTransaction::limit(10)->get();
+                    \Log::info('Últimas 10 transações no banco:', $allTransactions->toArray());
                 }
+            } else {
+                \Log::warning('❌ Tipo de evento não é payment ou dataId vazio:', [
+                    'type' => $type,
+                    'dataId' => $dataId
+                ]);
             }
             
             return response()->json(['status' => 'success'], 200);
         } catch (\Exception $e) {
-            \Log::error('Erro ao processar webhook:', [
+            \Log::error('❌ Erro ao processar webhook:', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
