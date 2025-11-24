@@ -12,10 +12,9 @@ class MercadoPagoWebhookController extends Controller
     public function handle(Request $request)
     {
         // Logar tudo que o Mercado Pago mandar, pra debug
-        Log::info('=== WEBHOOK MERCADO PAGO RECEBIDO ===', [
-            'payload' => $request->all(),
-            'headers' => $request->headers->all(),
-        ]);
+        Log::info('=== WEBHOOK MERCADO PAGO RECEBIDO - CONTROLLER CHAMADO ===');
+        Log::info('Payload:', $request->all());
+        Log::info('Headers:', $request->headers->all());
 
         try {
             // Mercado Pago envia o tipo de evento em 'type' e o ID do recurso em 'data.id'
