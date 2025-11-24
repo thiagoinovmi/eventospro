@@ -81,6 +81,7 @@ class Booking extends Model
                 ->leftJoin('events as E', 'E.id', '=', 'bookings.event_id')
                 ->selectRaw("(SELECT E.online_location FROM events E WHERE E.id = bookings.event_id AND bookings.is_paid = 1  AND bookings.status = 1) online_location")
                 ->with('checkins')
+                ->with('mercadopago_transaction')
                 ->where(['bookings.customer_id' => $params['customer_id'] ])
                 ->orderBy('bookings.id', 'desc')
                 ->paginate(20);
@@ -312,5 +313,13 @@ class Booking extends Model
     {
         return $this->hasMany(Checkin::class);
         
+    }
+
+    /**
+     * Get the Mercado Pago transaction for the booking.
+     */
+    public function mercadopago_transaction()
+    {
+        return $this->hasOne(\Classiebit\Eventmie\Models\MercadoPagoTransaction::class, 'booking_id');
     }
 }
