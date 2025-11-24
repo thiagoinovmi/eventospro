@@ -140,7 +140,7 @@
     <div v-for="booking in bookings" :key="'modal-' + booking.id">
         <div v-if="booking.payment_type === 'mercadopago' && booking.mercadopago_transaction && booking.mercadopago_transaction.qr_code_base64 && !booking.is_paid" 
              class="modal fade" :id="'pixModal-' + booking.id" tabindex="-1" aria-labelledby="pixModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
+            <div class="modal-dialog modal-lg" style="max-height: 90vh;">
                 <div class="modal-content">
                     <div class="modal-header bg-warning">
                         <h5 class="modal-title" id="pixModalLabel">
@@ -162,7 +162,7 @@
                                     </div>
                                     <div class="text-center">
                                         <span class="fw-bold" style="font-size: 2.5rem; color: #d32f2f; font-family: 'Courier New', monospace;">
-                                            {{ getTimeRemaining(booking.mercadopago_transaction.qr_code_expires_at) }}
+                                            {{ timerTrigger, getTimeRemaining(booking.mercadopago_transaction.qr_code_expires_at) }}
                                         </span>
                                     </div>
                                 </div>
