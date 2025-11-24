@@ -1795,13 +1795,26 @@ class BookingsController extends Controller
         ]);
 
         if ($httpCode === 201 || $httpCode === 200) {
-            if (isset($responseData['id']) && isset($responseData['status'])) {
-                $status = $responseData['status'];
+            if (isset($responseData['id'])) {
+                $status = $responseData['status'] ?? 'pending';
+                
+                // Extrair QR Code do PIX
+                $qrCode = null;
+                $qrCodeUrl = null;
+                
+                if (isset($responseData['point_of_interaction']['transaction_data']['qr_code'])) {
+                    $qrCode = $responseData['point_of_interaction']['transaction_data']['qr_code'];
+                }
+                
+                if (isset($responseData['point_of_interaction']['transaction_data']['qr_code_url'])) {
+                    $qrCodeUrl = $responseData['point_of_interaction']['transaction_data']['qr_code_url'];
+                }
                 
                 \Log::info('PIX processado com sucesso:', [
                     'payment_id' => $responseData['id'],
                     'status' => $status,
-                    'qr_code' => $responseData['point_of_interaction']['transaction_data']['qr_code'] ?? null
+                    'qr_code_presente' => !empty($qrCode),
+                    'qr_code_url_presente' => !empty($qrCodeUrl)
                 ]);
 
                 // Register transaction
@@ -1820,8 +1833,9 @@ class BookingsController extends Controller
                     'status' => true,
                     'payment_id' => $responseData['id'],
                     'payment_method' => 'pix',
-                    'qr_code' => $responseData['point_of_interaction']['transaction_data']['qr_code'] ?? null,
-                    'qr_code_url' => $responseData['point_of_interaction']['transaction_data']['qr_code_url'] ?? null,
+                    'pix_status' => $status,
+                    'qr_code' => $qrCode,
+                    'qr_code_url' => $qrCodeUrl,
                     'message' => 'QR Code PIX gerado com sucesso'
                 ];
             }
@@ -1918,13 +1932,19 @@ class BookingsController extends Controller
         ]);
 
         if ($httpCode === 201 || $httpCode === 200) {
-            if (isset($responseData['id']) && isset($responseData['status'])) {
-                $status = $responseData['status'];
+            if (isset($responseData['id'])) {
+                $status = $responseData['status'] ?? 'pending';
+                
+                // Extrair URL do boleto
+                $barcodeUrl = null;
+                if (isset($responseData['transaction_details']['external_resource_url'])) {
+                    $barcodeUrl = $responseData['transaction_details']['external_resource_url'];
+                }
                 
                 \Log::info('Boleto processado com sucesso:', [
                     'payment_id' => $responseData['id'],
                     'status' => $status,
-                    'barcode' => $responseData['transaction_details']['external_resource_url'] ?? null
+                    'barcode_url_presente' => !empty($barcodeUrl)
                 ]);
 
                 // Register transaction
@@ -1943,7 +1963,8 @@ class BookingsController extends Controller
                     'status' => true,
                     'payment_id' => $responseData['id'],
                     'payment_method' => 'boleto',
-                    'barcode_url' => $responseData['transaction_details']['external_resource_url'] ?? null,
+                    'boleto_status' => $status,
+                    'barcode_url' => $barcodeUrl,
                     'message' => 'Boleto gerado com sucesso'
                 ];
             }
@@ -2038,8 +2059,8 @@ class BookingsController extends Controller
         ]);
 
         if ($httpCode === 201 || $httpCode === 200) {
-            if (isset($responseData['id']) && isset($responseData['status'])) {
-                $status = $responseData['status'];
+            if (isset($responseData['id'])) {
+                $status = $responseData['status'] ?? 'pending';
                 
                 \Log::info('Carteira processada com sucesso:', [
                     'payment_id' => $responseData['id'],
@@ -2062,6 +2083,7 @@ class BookingsController extends Controller
                     'status' => true,
                     'payment_id' => $responseData['id'],
                     'payment_method' => 'wallet',
+                    'wallet_status' => $status,
                     'message' => 'Pagamento via Carteira Mercado Pago processado'
                 ];
             }
