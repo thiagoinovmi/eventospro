@@ -603,8 +603,3 @@ Route::group([
 
 
 });
-
-/* Mercado Pago Webhook (FORA DO GRUPO - sem middlewares) */
-Route::post('/mercadopago/webhook', $namespace.'\BookingsController@mercadopagoWebhook')
-    ->name('mercadopago_webhook')
-    ->middleware([]);
