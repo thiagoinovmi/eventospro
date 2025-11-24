@@ -20,11 +20,25 @@ class MercadoPagoService
      */
     public function __construct($settings = [])
     {
-        $this->accessToken = $settings['access_token'] ?? null;
-        $this->publicKey = $settings['public_key'] ?? null;
-        $this->mode = $settings['mode'] ?? 'test';
+        // Try to get token from settings array first, then from Voyager settings, then from env
+        $this->accessToken = $settings['access_token'] 
+            ?? setting('mercadopago.access_token')
+            ?? env('MERCADOPAGO_ACCESS_TOKEN')
+            ?? null;
+            
+        $this->publicKey = $settings['public_key'] 
+            ?? setting('mercadopago.public_key')
+            ?? env('MERCADOPAGO_PUBLIC_KEY')
+            ?? null;
+            
+        $this->mode = $settings['mode'] ?? 'production';
 
         if (!$this->accessToken) {
+            \Log::error('Mercado Pago access token not configured', [
+                'from_settings' => !empty($settings['access_token']),
+                'from_voyager' => !empty(setting('mercadopago.access_token')),
+                'from_env' => !empty(env('MERCADOPAGO_ACCESS_TOKEN'))
+            ]);
             throw new \Exception('Mercado Pago access token not configured');
         }
 

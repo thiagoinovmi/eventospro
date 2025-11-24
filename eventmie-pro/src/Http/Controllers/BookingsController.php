@@ -1738,7 +1738,16 @@ class BookingsController extends Controller
     {
         \Log::info('=== INICIANDO PROCESSAMENTO DE PIX ===');
         
-        $accessToken = setting('apps.mercadopago_access_token');
+        // Use o mesmo token do cartão (mercadopago.access_token)
+        $accessToken = setting('mercadopago.access_token');
+        
+        if (!$accessToken) {
+            \Log::error('Access token do Mercado Pago não configurado para PIX');
+            return [
+                'status' => false,
+                'message' => 'Mercado Pago não está configurado para PIX'
+            ];
+        }
         
         $paymentData = [
             "transaction_amount" => (float)$validated['total'],
@@ -1853,7 +1862,16 @@ class BookingsController extends Controller
     {
         \Log::info('=== INICIANDO PROCESSAMENTO DE BOLETO ===');
         
-        $accessToken = setting('apps.mercadopago_access_token');
+        // Use o mesmo token do cartão (mercadopago.access_token)
+        $accessToken = setting('mercadopago.access_token');
+        
+        if (!$accessToken) {
+            \Log::error('Access token do Mercado Pago não configurado para Boleto');
+            return [
+                'status' => false,
+                'message' => 'Mercado Pago não está configurado para Boleto'
+            ];
+        }
         
         $paymentData = [
             "transaction_amount" => (float)$validated['total'],
@@ -1964,7 +1982,16 @@ class BookingsController extends Controller
     {
         \Log::info('=== INICIANDO PROCESSAMENTO DE CARTEIRA MERCADO PAGO ===');
         
-        $accessToken = setting('apps.mercadopago_access_token');
+        // Use o mesmo token do cartão (mercadopago.access_token)
+        $accessToken = setting('mercadopago.access_token');
+        
+        if (!$accessToken) {
+            \Log::error('Access token do Mercado Pago não configurado para Carteira');
+            return [
+                'status' => false,
+                'message' => 'Mercado Pago não está configurado para Carteira'
+            ];
+        }
         
         $paymentData = [
             "transaction_amount" => (float)$validated['total'],
