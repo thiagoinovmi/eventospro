@@ -288,15 +288,18 @@ const _sfc_main = {
           return null;
         }
         const mp = new window.MercadoPago(publicKey);
+        const cardNumber = this.cardData.number.replace(/\s/g, "");
         const cardData = {
-          cardNumber: this.cardData.number.replace(/\s/g, ""),
+          cardNumber,
           cardholderName: this.cardData.holderName,
           cardExpirationMonth: this.cardData.expiry.split("/")[0],
           cardExpirationYear: "20" + this.cardData.expiry.split("/")[1],
           securityCode: this.cardData.cvv
         };
         console.log("Gerando token com dados:", {
-          cardNumber: cardData.cardNumber.slice(-4),
+          cardNumber,
+          cardNumberLength: cardNumber.length,
+          cardNumberPreview: cardNumber.substring(0, 6) + "****" + cardNumber.slice(-4),
           cardholderName: cardData.cardholderName,
           cardExpirationMonth: cardData.cardExpirationMonth,
           cardExpirationYear: cardData.cardExpirationYear
@@ -365,10 +368,10 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "906cbfa2"
+  "6cde20bf"
 );
 const MercadoPagoCheckout = __component__.exports;
 export {
   MercadoPagoCheckout as default
 };
-//# sourceMappingURL=MercadoPagoCheckout-DxYPFwo2.js.map
+//# sourceMappingURL=MercadoPagoCheckout-C6juWU2c.js.map
