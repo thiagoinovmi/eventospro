@@ -44,5 +44,10 @@ Route::get('/api/pages/{id}', function ($id) {
 })->name('api.pages.show');
 
 if(file_exists(storage_path()."/installed")) {
+    // Mercado Pago Webhook (sem CSRF)
+    Route::post('/mercadopago/webhook', 'Classiebit\Eventmie\Http\Controllers\BookingsController@mercadopagoWebhook')
+        ->name('mercadopago.webhook')
+        ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+    
     Eventmie::routes();
 }

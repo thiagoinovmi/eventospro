@@ -603,8 +603,3 @@ Route::group([
 
 
 });
-
-/* Mercado Pago Webhook (sem CSRF) - Fora do grupo principal */
-Route::post('/mercadopago/webhook', $namespace.'\BookingsController@mercadopagoWebhook')
-    ->name('eventmie.mercadopago_webhook')
-    ->middleware(['api']);
