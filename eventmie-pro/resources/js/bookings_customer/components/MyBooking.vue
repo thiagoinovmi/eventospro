@@ -94,7 +94,7 @@
                                     <td class="align-middle text-nowrap" :data-title="trans('em.actions')" v-else>
                                         <!-- Botão para abrir Modal do QR Code PIX -->
                                         <div v-if="booking.payment_type === 'mercadopago' && booking.mercadopago_transaction && booking.mercadopago_transaction.qr_code_base64 && !booking.is_paid" class="mb-2">
-                                            <button type="button" class="btn btn-sm btn-warning text-white" data-bs-toggle="modal" :data-bs-target="'#pixModal-' + booking.id">
+                                            <button type="button" class="btn btn-sm btn-warning text-white" @click="openPixModal(booking.id)">
                                                 <i class="fas fa-qrcode"></i> PIX QR Code
                                             </button>
                                         </div>
@@ -349,6 +349,17 @@ export default {
                 return base64String.replace(/^data:image\/[^;]+;base64,/, '');
             }
             return base64String;
+        },
+
+        // Abrir modal do PIX
+        openPixModal(bookingId) {
+            const modalElement = document.getElementById('pixModal-' + bookingId);
+            if (modalElement) {
+                const modal = new bootstrap.Modal(modalElement);
+                modal.show();
+            } else {
+                console.error('Modal não encontrado:', 'pixModal-' + bookingId);
+            }
         },
     },
     mounted() {
