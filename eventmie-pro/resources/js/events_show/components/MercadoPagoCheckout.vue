@@ -648,10 +648,10 @@ export default {
                         
                         this.isWaitingPayment = false;
                         
-                        // Aguardar 1 segundo e depois mostrar modal de processamento
+                        // Redirecionar para mybookings
                         setTimeout(() => {
-                            this.showProcessingModal();
-                        }, 1000);
+                            window.location.href = '/mybookings';
+                        }, 2000);
                     }
                 } catch (error) {
                     console.error('Erro ao verificar pagamento:', error);
@@ -663,7 +663,7 @@ export default {
             console.log('📋 Mostrando modal de processamento...');
             
             // Usar Swal2 para mostrar o modal
-            this.$swal({
+            this.$swal.fire({
                 title: 'Processando...',
                 html: '<div class="spinner-border" role="status"><span class="visually-hidden">Carregando...</span></div>',
                 allowOutsideClick: false,
