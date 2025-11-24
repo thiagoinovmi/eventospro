@@ -27,11 +27,6 @@ Route::get('/52cab7070ba5124895a63a3703f66893232', function() {
     header('location:install');die;
 });
 
-// Mercado Pago Webhook (sem CSRF e sem autenticação)
-Route::post('/mercadopago/webhook', '\Classiebit\Eventmie\Http\Controllers\BookingsController@mercadopagoWebhook')
-    ->name('mercadopago_webhook')
-    ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class, \Illuminate\Auth\Middleware\Authenticate::class]);
-
 // API route para buscar páginas (Política de Privacidade e Termos)
 Route::get('/api/pages/{id}', function ($id) {
     $page = Page::find($id);
