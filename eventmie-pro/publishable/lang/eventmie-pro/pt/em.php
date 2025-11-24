@@ -905,4 +905,11 @@ return [
     'date_to'                           => 'Data Até',
     'search'                            => 'Buscar',
     'user'                              => 'Usuário',
+    'copied_to_clipboard'               => 'Copiado para a área de transferência',
+    'pix_qr_code'                       => 'QR Code PIX',
+    'scan_qr_code'                      => 'Escaneie o QR Code',
+    'pix_copy_paste'                    => 'Código PIX (Copia e Cola)',
+    'pix_instructions'                  => 'Cole este código no seu app bancário para fazer o pagamento',
+    'order_details'                     => 'Detalhes do Pedido',
+    'expires_in'                        => 'Expira em',
 ];
