@@ -14,7 +14,7 @@ $webhookData = [
 ];
 
 // URL do webhook
-$webhookUrl = 'https://eventos.inovmi.com.br/mercadopago/webhook';
+$webhookUrl = 'https://eventos.inovmi.com.br/api/mercadopago/webhook';
 
 // Fazer requisição POST
 $ch = curl_init();

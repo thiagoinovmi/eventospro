@@ -393,9 +393,6 @@ Route::group([
         Route::get('/transactions', "$controller@listTransactions")->name('mercadopago_list_transactions');
     });
 
-    /* Mercado Pago Webhook */
-    Route::post('/webhooks/mercadopago', $namespace.'\MercadoPagoController@webhook')->name('mercadopago_webhook');
-
     /* Mercado Pago Admin Dashboard */
     Route::middleware(['auth', 'admin'])->prefix('/dashboard/mercadopago')->group(function () use ($namespace) {
         $controller = $namespace.'\MercadoPagoController';

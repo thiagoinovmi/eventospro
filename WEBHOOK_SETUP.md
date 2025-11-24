@@ -3,9 +3,9 @@
 ## 📋 Resumo
 
 O webhook do Mercado Pago está configurado em:
-- **URL**: `https://eventos.inovmi.com.br/mercadopago/webhook`
+- **URL**: `https://eventos.inovmi.com.br/api/mercadopago/webhook`
 - **Método**: POST
-- **Rota Laravel**: `/mercadopago/webhook` (sem autenticação, sem CSRF)
+- **Rota Laravel**: `/api/mercadopago/webhook` (sem autenticação, sem CSRF)
 
 ## 🔧 Configuração no Mercado Pago
 
@@ -19,7 +19,7 @@ O webhook do Mercado Pago está configurado em:
 
 1. Clique em **Adicionar novo webhook**
 2. Preencha com:
-   - **URL**: `https://eventos.inovmi.com.br/mercadopago/webhook`
+   - **URL**: `https://eventos.inovmi.com.br/api/mercadopago/webhook`
    - **Eventos**: Selecione `payment.created` e `payment.updated`
 
 ### 3. Testar o Webhook
@@ -33,7 +33,7 @@ php test_webhook.php
 
 #### Opção B: Usar cURL
 ```bash
-curl -X POST https://eventos.inovmi.com.br/mercadopago/webhook \
+curl -X POST https://eventos.inovmi.com.br/api/mercadopago/webhook \
   -H "Content-Type: application/json" \
   -d '{"type":"payment","data":{"id":123456789}}'
 ```
@@ -43,7 +43,7 @@ curl -X POST https://eventos.inovmi.com.br/mercadopago/webhook \
 ```
 1. Usuário faz pagamento (PIX, Cartão, Boleto)
 2. Mercado Pago processa o pagamento
-3. Mercado Pago envia POST para /mercadopago/webhook
+3. Mercado Pago envia POST para /api/mercadopago/webhook
 4. Sistema recebe o webhook
 5. Sistema busca a transação no banco (payment_id)
 6. Sistema atualiza status da transação para 'approved'
