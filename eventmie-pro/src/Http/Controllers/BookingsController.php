@@ -1198,7 +1198,8 @@ class BookingsController extends Controller
      */
     public function getMercadoPagoPublicKey()
     {
-        $publicKey = setting('mercadopago.public_key');
+        $mpSetting = \App\Models\MercadoPagoSetting::first();
+        $publicKey = $mpSetting ? $mpSetting->public_key : null;
         
         return response()->json([
             'public_key' => $publicKey
@@ -1438,13 +1439,16 @@ class BookingsController extends Controller
     private function processCardPayment($validated, $user)
     {
         try {
-            $accessToken = setting('mercadopago.access_token');
-            if (!$accessToken) {
+            // Get token from MercadoPagoSetting model, not from settings table
+            $mpSetting = \App\Models\MercadoPagoSetting::first();
+            if (!$mpSetting || !$mpSetting->access_token) {
                 return [
                     'status' => false,
                     'message' => 'Mercado Pago não está configurado'
                 ];
             }
+            
+            $accessToken = $mpSetting->access_token;
 
             // Prepare payment data for card payment
             $paymentData = [
@@ -1565,13 +1569,16 @@ class BookingsController extends Controller
     private function processPixPayment($validated, $user)
     {
         try {
-            $accessToken = setting('mercadopago.access_token');
-            if (!$accessToken) {
+            // Get token from MercadoPagoSetting model, not from settings table
+            $mpSetting = \App\Models\MercadoPagoSetting::first();
+            if (!$mpSetting || !$mpSetting->access_token) {
                 return [
                     'status' => false,
                     'message' => 'Mercado Pago não está configurado'
                 ];
             }
+            
+            $accessToken = $mpSetting->access_token;
 
             // Prepare PIX payment data
             $paymentData = [
