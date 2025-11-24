@@ -1493,7 +1493,8 @@ class BookingsController extends Controller
                 'url' => 'https://api.mercadopago.com/v1/payments',
                 'token_length' => strlen($accessToken),
                 'token_preview' => substr($accessToken, 0, 20) . '...',
-                'payment_data' => $paymentData
+                'payment_data' => $paymentData,
+                'payment_data_json' => json_encode($paymentData)
             ]);
 
             \Log::info('Resposta do Mercado Pago (cartão):', [
