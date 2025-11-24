@@ -203,6 +203,7 @@
 
 <script>
 
+import { Modal } from 'bootstrap';
 import PaginationComponent from '../../common_components/Pagination.vue'
 import mixinsFilters from '../../mixins.js';
 import OnlineEvent from './OnlineEvent.vue';
@@ -355,7 +356,7 @@ export default {
         openPixModal(bookingId) {
             const modalElement = document.getElementById('pixModal-' + bookingId);
             if (modalElement) {
-                const modal = new bootstrap.Modal(modalElement);
+                const modal = new Modal(modalElement);
                 modal.show();
             } else {
                 console.error('Modal não encontrado:', 'pixModal-' + bookingId);
