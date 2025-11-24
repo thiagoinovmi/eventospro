@@ -420,7 +420,8 @@ Route::group([
     Route::middleware('auth')->group(function () use ($namespace) {
         // Checkout is handled via Vue component in events show page
         Route::get('/mercadopago/checkout', function() {
-            return view('eventmie::mercadopago.checkout');
+            $eventId = request()->get('event_id');
+            return view('eventmie::mercadopago.checkout', ['eventId' => $eventId]);
         })->name('mercadopago_checkout');
     });
     

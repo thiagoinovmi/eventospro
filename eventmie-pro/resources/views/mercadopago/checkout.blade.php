@@ -149,10 +149,10 @@
     function loadPaymentMethods() {
         console.log('=== CARREGANDO MÉTODOS DE PAGAMENTO ===');
         
-        // Get event ID from URL or session
-        const eventId = new URLSearchParams(window.location.search).get('event_id') || 
-                       document.querySelector('[data-event-id]')?.dataset.eventId ||
-                       '{{ request()->get("event_id") }}';
+        // Get event ID from Blade variable or URL
+        const eventId = '{{ $eventId ?? "" }}' || 
+                       new URLSearchParams(window.location.search).get('event_id') || 
+                       document.querySelector('[data-event-id]')?.dataset.eventId;
         
         console.log('Event ID:', eventId);
         
