@@ -1817,6 +1817,7 @@ class BookingsController extends Controller
                 // Extrair QR Code do PIX
                 $qrCode = null;
                 $qrCodeUrl = null;
+                $qrCodeBase64 = null;
                 
                 if (isset($responseData['point_of_interaction']['transaction_data']['qr_code'])) {
                     $qrCode = $responseData['point_of_interaction']['transaction_data']['qr_code'];
@@ -1824,6 +1825,13 @@ class BookingsController extends Controller
                 
                 if (isset($responseData['point_of_interaction']['transaction_data']['qr_code_url'])) {
                     $qrCodeUrl = $responseData['point_of_interaction']['transaction_data']['qr_code_url'];
+                }
+                
+                // Extrair Base64 da imagem do QR Code
+                if (isset($responseData['point_of_interaction']['transaction_data']['qr_code_base64'])) {
+                    $qrCodeBase64 = $responseData['point_of_interaction']['transaction_data']['qr_code_base64'];
+                    // Converter para data URL para usar diretamente no img src
+                    $qrCodeUrl = 'data:image/png;base64,' . $qrCodeBase64;
                 }
                 
                 \Log::info('PIX processado com sucesso:', [
