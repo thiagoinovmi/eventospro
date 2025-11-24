@@ -127,9 +127,16 @@ class MercadoPagoPaymentMethodController extends \App\Http\Controllers\Controlle
             $formattedMethods = [];
             $methodId = 1;
             
+            // Get mercadopago settings from database
+            $mercadopagoSettings = \Illuminate\Support\Facades\DB::table('settings')
+                ->where('key', 'like', 'mercadopago.payment_methods%')
+                ->get()
+                ->keyBy('key');
+            
             foreach ($paymentMethodTypes as $type => $name) {
                 // Check if globally enabled in settings
-                $globalEnabledValue = setting("mercadopago.payment_methods.{$type}.enabled");
+                $globalEnabledKey = "mercadopago.payment_methods.{$type}.enabled";
+                $globalEnabledValue = $mercadopagoSettings->get($globalEnabledKey)?->value;
                 $globalEnabled = $globalEnabledValue === '1' || $globalEnabledValue === 1 || $globalEnabledValue === true;
                 
                 // Check if enabled for this event
@@ -138,9 +145,13 @@ class MercadoPagoPaymentMethodController extends \App\Http\Controllers\Controlle
                 
                 // Only include if both global AND event are enabled
                 if ($globalEnabled && $eventEnabled) {
-                    $installmentsGlobalValue = setting("mercadopago.payment_methods.{$type}.installments_enabled");
+                    $installmentsGlobalKey = "mercadopago.payment_methods.{$type}.installments_enabled";
+                    $installmentsGlobalValue = $mercadopagoSettings->get($installmentsGlobalKey)?->value;
                     $installmentsGlobal = $installmentsGlobalValue === '1' || $installmentsGlobalValue === 1 || $installmentsGlobalValue === true;
                     $installmentsEvent = $eventMethod ? (bool)$eventMethod->installments_enabled : false;
+                    
+                    $maxInstallmentsKey = "mercadopago.payment_methods.{$type}.max_installments";
+                    $maxInstallmentsValue = $mercadopagoSettings->get($maxInstallmentsKey)?->value ?? 1;
                     
                     $formattedMethods[] = [
                         'id' => $eventMethod->id ?? $methodId,
@@ -151,7 +162,7 @@ class MercadoPagoPaymentMethodController extends \App\Http\Controllers\Controlle
                         'description' => '',
                         'enabled' => $eventEnabled,
                         'installments_enabled' => $installmentsGlobal && $installmentsEvent,
-                        'max_installments' => $eventMethod ? $eventMethod->max_installments : (int)setting("mercadopago.payment_methods.{$type}.max_installments", 1),
+                        'max_installments' => (int)$maxInstallmentsValue,
                         'global_enabled' => $globalEnabled
                     ];
                 }
