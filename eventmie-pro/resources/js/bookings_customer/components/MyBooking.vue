@@ -19,8 +19,8 @@
                                     <th class="border-top-0 border-bottom-0">{{ trans('em.actions') }}</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr v-for="booking in bookings" v-if="bookings.length > 0" :key="booking.id" >
+                            <tbody v-if="bookings.length > 0">
+                                <tr v-for="booking in bookings" :key="booking.id" >
                                     <td :data-title="trans('em.event')">
                                         <div class="d-flex align-items-center">
                                             <a :href="eventSlug(booking.event_slug)"> 
