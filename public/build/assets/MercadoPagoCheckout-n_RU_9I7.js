@@ -288,7 +288,15 @@ const _sfc_main = {
           return null;
         }
         const mp = new window.MercadoPago(publicKey);
-        const cardNumber = this.cardData.number.replace(/\s/g, "");
+        const cardNumber = this.cardData.number.replace(/\D/g, "");
+        console.log("DEBUG - Card data antes de gerar token:", {
+          cardData_number_raw: this.cardData.number,
+          cardNumber_cleaned: cardNumber,
+          cardNumber_length: cardNumber.length,
+          holderName: this.cardData.holderName,
+          expiry: this.cardData.expiry,
+          cvv: this.cardData.cvv
+        });
         const cardData = {
           cardNumber,
           cardholderName: this.cardData.holderName,
@@ -368,10 +376,10 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "6cde20bf"
+  "35e2060a"
 );
 const MercadoPagoCheckout = __component__.exports;
 export {
   MercadoPagoCheckout as default
 };
-//# sourceMappingURL=MercadoPagoCheckout-C6juWU2c.js.map
+//# sourceMappingURL=MercadoPagoCheckout-n_RU_9I7.js.map
