@@ -205,10 +205,10 @@
                         </div>
                         
                         <!-- Expiration Timer -->
-                        <div class="alert alert-info" v-if="pixExpiration" :key="timerTrigger">
+                        <div class="alert alert-info" v-if="pixExpiration">
                             <i class="fas fa-clock me-2"></i>
                             {{ trans('em.pix_expires_in') || 'PIX expira em' }}: 
-                            <strong>{{ formatTimeRemaining(pixExpiration) }}</strong>
+                            <strong :key="timerTrigger">{{ formatTimeRemaining(pixExpiration) }}</strong>
                         </div>
                         
                         <!-- Waiting Message -->
@@ -699,9 +699,10 @@ export default {
                             window.location.href = '/mybookings';
                         }, 2000);
                     } else if (attempts >= maxAttempts) {
-                        console.warn('⏱️ Timeout aguardando confirmação do webhook');
+                        console.warn('⏱️ Parando verificação de webhook após 5 minutos');
                         clearInterval(checkInterval);
-                        this.errorMessage = 'Timeout aguardando confirmação. Por favor, verifique seu pagamento em Minha Conta.';
+                        // Não mostrar mensagem de erro - PIX pode ser confirmado a qualquer momento
+                        // O usuário pode voltar para Minha Conta para verificar o status
                     }
                 } catch (error) {
                     console.error('Erro ao verificar confirmação:', error);

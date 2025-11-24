@@ -1,37 +1,37 @@
 
-.mercadopago-checkout-container[data-v-364df39f] {
+.mercadopago-checkout-container[data-v-1b5458ee] {
     background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     border: 2px solid #007bff;
 }
-.card[data-v-364df39f] {
+.card[data-v-1b5458ee] {
     border: 1px solid #dee2e6;
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
 }
-.form-control[data-v-364df39f]:focus,
-.form-select[data-v-364df39f]:focus {
+.form-control[data-v-1b5458ee]:focus,
+.form-select[data-v-1b5458ee]:focus {
     border-color: #007bff;
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
-.btn-primary[data-v-364df39f] {
+.btn-primary[data-v-1b5458ee] {
     background-color: #007bff;
     border-color: #007bff;
     transition: all 0.3s ease;
 }
-.btn-primary[data-v-364df39f]:hover:not(:disabled) {
+.btn-primary[data-v-1b5458ee]:hover:not(:disabled) {
     background-color: #0056b3;
     border-color: #0056b3;
     transform: translateY(-2px);
     box-shadow: 0 0.5rem 1rem rgba(0, 123, 255, 0.3);
 }
-.btn-primary[data-v-364df39f]:disabled {
+.btn-primary[data-v-1b5458ee]:disabled {
     opacity: 0.65;
     cursor: not-allowed;
 }
-.alert[data-v-364df39f] {
+.alert[data-v-1b5458ee] {
     border-radius: 0.5rem;
-    animation: slideIn-364df39f 0.3s ease;
+    animation: slideIn-1b5458ee 0.3s ease;
 }
-@keyframes slideIn-364df39f {
+@keyframes slideIn-1b5458ee {
 from {
         opacity: 0;
         transform: translateY(-10px);
@@ -41,7 +41,7 @@ to {
         transform: translateY(0);
 }
 }
-.text-danger[data-v-364df39f] {
+.text-danger[data-v-1b5458ee] {
     font-size: 0.875rem;
     margin-top: 0.25rem;
 }
