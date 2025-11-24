@@ -309,7 +309,9 @@ export default {
         
         // Iniciar timer para atualizar contagem regressiva a cada segundo
         this.timerInterval = setInterval(() => {
-            this.$forceUpdate();
+            if (this.bookings && this.bookings.length > 0) {
+                this.$forceUpdate();
+            }
         }, 1000);
     },
 
