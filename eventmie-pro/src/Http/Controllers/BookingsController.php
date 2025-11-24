@@ -1581,6 +1581,25 @@ class BookingsController extends Controller
                         'approved' => $isApproved
                     ]);
 
+                    // Register transaction in mercadopago_transactions table
+                    try {
+                        $this->registerMercadoPagoTransaction(
+                            $responseData,
+                            $validated,
+                            $user,
+                            $paymentMethodId
+                        );
+                        
+                        \Log::info('Transação registrada na tabela mercadopago_transactions:', [
+                            'payment_id' => $responseData['id']
+                        ]);
+                    } catch (\Exception $e) {
+                        \Log::error('Erro ao registrar transação:', [
+                            'message' => $e->getMessage(),
+                            'payment_id' => $responseData['id']
+                        ]);
+                    }
+
                     return [
                         'status' => true,
                         'payment_id' => $responseData['id'],
@@ -1901,6 +1920,340 @@ class BookingsController extends Controller
                 'message' => 'Erro ao verificar pagamento'
             ], 500);
         }
+    }
+
+    /**
+     * Process payment based on payment method type
+     * Supports: credit_card, debit_card, pix, boleto, wallet
+     */
+    private function processPaymentByMethod($paymentMethod, $validated, $user)
+    {
+        \Log::info('Processando pagamento por método:', [
+            'method' => $paymentMethod,
+            'selected_method' => $validated['selected_method']
+        ]);
+
+        switch ($paymentMethod) {
+            case 'credit_card':
+            case 'debit_card':
+                return $this->processCardPayment($validated, $user);
+            
+            case 'pix':
+                return $this->processPixPayment($validated, $user);
+            
+            case 'boleto':
+                return $this->processBoletoPayment($validated, $user);
+            
+            case 'wallet':
+                return $this->processWalletPayment($validated, $user);
+            
+            default:
+                return [
+                    'status' => false,
+                    'message' => 'Método de pagamento não suportado'
+                ];
+        }
+    }
+
+    /**
+     * Process PIX payment
+     */
+    private function processPixPayment($validated, $user)
+    {
+        \Log::info('=== INICIANDO PROCESSAMENTO DE PIX ===');
+        
+        $accessToken = setting('apps.mercadopago_access_token');
+        
+        $paymentData = [
+            "transaction_amount" => (float)$validated['total'],
+            "description" => "Pagamento de ingresso - Evento #{$validated['event_id']}",
+            "payment_method_id" => "pix",
+            "payer" => [
+                "email" => $user->email,
+                "first_name" => $user->name,
+                "last_name" => "User",
+                "identification" => [
+                    "type" => "CPF",
+                    "number" => str_replace(['.', '-'], '', $user->document ?? '12345678909')
+                ]
+            ],
+            "external_reference" => "BOOKING-" . time() . "-" . $user->id,
+            "statement_descriptor" => "EVENTO"
+        ];
+        
+        \Log::info('Dados PIX preparados:', $paymentData);
+        
+        // Make cURL request to Mercado Pago API
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, 'https://api.mercadopago.com/v1/payments');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($paymentData));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $accessToken,
+            'X-Idempotency-Key: ' . \Illuminate\Support\Str::uuid()
+        ]);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        curl_close($ch);
+
+        $responseData = json_decode($response, true);
+
+        if ($httpCode === 201 || $httpCode === 200) {
+            if (isset($responseData['id']) && isset($responseData['status'])) {
+                $status = $responseData['status'];
+                
+                \Log::info('PIX processado com sucesso:', [
+                    'payment_id' => $responseData['id'],
+                    'status' => $status,
+                    'qr_code' => $responseData['point_of_interaction']['transaction_data']['qr_code'] ?? null
+                ]);
+
+                // Register transaction
+                try {
+                    $this->registerMercadoPagoTransaction(
+                        $responseData,
+                        $validated,
+                        $user,
+                        'pix'
+                    );
+                } catch (\Exception $e) {
+                    \Log::error('Erro ao registrar transação PIX:', ['message' => $e->getMessage()]);
+                }
+
+                return [
+                    'status' => true,
+                    'payment_id' => $responseData['id'],
+                    'payment_method' => 'pix',
+                    'qr_code' => $responseData['point_of_interaction']['transaction_data']['qr_code'] ?? null,
+                    'qr_code_url' => $responseData['point_of_interaction']['transaction_data']['qr_code_url'] ?? null,
+                    'message' => 'QR Code PIX gerado com sucesso'
+                ];
+            }
+        }
+
+        \Log::error('Erro ao processar PIX - HTTP ' . $httpCode, ['response' => $response]);
+        
+        return [
+            'status' => false,
+            'message' => 'Erro ao processar PIX: ' . ($responseData['message'] ?? 'Erro desconhecido')
+        ];
+    }
+
+    /**
+     * Process Boleto payment
+     */
+    private function processBoletoPayment($validated, $user)
+    {
+        \Log::info('=== INICIANDO PROCESSAMENTO DE BOLETO ===');
+        
+        $accessToken = setting('apps.mercadopago_access_token');
+        
+        $paymentData = [
+            "transaction_amount" => (float)$validated['total'],
+            "description" => "Pagamento de ingresso - Evento #{$validated['event_id']}",
+            "payment_method_id" => "bolbradesco",
+            "payer" => [
+                "email" => $user->email,
+                "first_name" => $user->name,
+                "last_name" => "User",
+                "identification" => [
+                    "type" => "CPF",
+                    "number" => str_replace(['.', '-'], '', $user->document ?? '12345678909')
+                ]
+            ],
+            "external_reference" => "BOOKING-" . time() . "-" . $user->id,
+            "statement_descriptor" => "EVENTO"
+        ];
+        
+        \Log::info('Dados Boleto preparados:', $paymentData);
+        
+        // Make cURL request to Mercado Pago API
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, 'https://api.mercadopago.com/v1/payments');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($paymentData));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $accessToken,
+            'X-Idempotency-Key: ' . \Illuminate\Support\Str::uuid()
+        ]);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        curl_close($ch);
+
+        $responseData = json_decode($response, true);
+
+        if ($httpCode === 201 || $httpCode === 200) {
+            if (isset($responseData['id']) && isset($responseData['status'])) {
+                $status = $responseData['status'];
+                
+                \Log::info('Boleto processado com sucesso:', [
+                    'payment_id' => $responseData['id'],
+                    'status' => $status,
+                    'barcode' => $responseData['transaction_details']['external_resource_url'] ?? null
+                ]);
+
+                // Register transaction
+                try {
+                    $this->registerMercadoPagoTransaction(
+                        $responseData,
+                        $validated,
+                        $user,
+                        'boleto'
+                    );
+                } catch (\Exception $e) {
+                    \Log::error('Erro ao registrar transação Boleto:', ['message' => $e->getMessage()]);
+                }
+
+                return [
+                    'status' => true,
+                    'payment_id' => $responseData['id'],
+                    'payment_method' => 'boleto',
+                    'barcode_url' => $responseData['transaction_details']['external_resource_url'] ?? null,
+                    'message' => 'Boleto gerado com sucesso'
+                ];
+            }
+        }
+
+        \Log::error('Erro ao processar Boleto - HTTP ' . $httpCode, ['response' => $response]);
+        
+        return [
+            'status' => false,
+            'message' => 'Erro ao processar Boleto: ' . ($responseData['message'] ?? 'Erro desconhecido')
+        ];
+    }
+
+    /**
+     * Process Wallet (Mercado Pago Wallet) payment
+     */
+    private function processWalletPayment($validated, $user)
+    {
+        \Log::info('=== INICIANDO PROCESSAMENTO DE CARTEIRA MERCADO PAGO ===');
+        
+        $accessToken = setting('apps.mercadopago_access_token');
+        
+        $paymentData = [
+            "transaction_amount" => (float)$validated['total'],
+            "description" => "Pagamento de ingresso - Evento #{$validated['event_id']}",
+            "payment_method_id" => "wallet_purchase",
+            "payer" => [
+                "email" => $user->email,
+                "first_name" => $user->name,
+                "last_name" => "User",
+                "identification" => [
+                    "type" => "CPF",
+                    "number" => str_replace(['.', '-'], '', $user->document ?? '12345678909')
+                ]
+            ],
+            "external_reference" => "BOOKING-" . time() . "-" . $user->id,
+            "statement_descriptor" => "EVENTO"
+        ];
+        
+        \Log::info('Dados Carteira preparados:', $paymentData);
+        
+        // Make cURL request to Mercado Pago API
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, 'https://api.mercadopago.com/v1/payments');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($paymentData));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $accessToken,
+            'X-Idempotency-Key: ' . \Illuminate\Support\Str::uuid()
+        ]);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        curl_close($ch);
+
+        $responseData = json_decode($response, true);
+
+        if ($httpCode === 201 || $httpCode === 200) {
+            if (isset($responseData['id']) && isset($responseData['status'])) {
+                $status = $responseData['status'];
+                
+                \Log::info('Carteira processada com sucesso:', [
+                    'payment_id' => $responseData['id'],
+                    'status' => $status
+                ]);
+
+                // Register transaction
+                try {
+                    $this->registerMercadoPagoTransaction(
+                        $responseData,
+                        $validated,
+                        $user,
+                        'wallet'
+                    );
+                } catch (\Exception $e) {
+                    \Log::error('Erro ao registrar transação Carteira:', ['message' => $e->getMessage()]);
+                }
+
+                return [
+                    'status' => true,
+                    'payment_id' => $responseData['id'],
+                    'payment_method' => 'wallet',
+                    'message' => 'Pagamento via Carteira Mercado Pago processado'
+                ];
+            }
+        }
+
+        \Log::error('Erro ao processar Carteira - HTTP ' . $httpCode, ['response' => $response]);
+        
+        return [
+            'status' => false,
+            'message' => 'Erro ao processar Carteira: ' . ($responseData['message'] ?? 'Erro desconhecido')
+        ];
+    }
+
+    /**
+     * Register Mercado Pago transaction in database
+     */
+    private function registerMercadoPagoTransaction($responseData, $validated, $user, $paymentMethodId)
+    {
+        $mpTransaction = new \Classiebit\Eventmie\Models\MercadoPagoTransaction();
+        
+        $mpTransaction->user_id = $user->id;
+        $mpTransaction->event_id = $validated['event_id'];
+        $mpTransaction->payment_id = $responseData['id'];
+        $mpTransaction->status = $responseData['status'] ?? 'pending';
+        $mpTransaction->status_detail = $responseData['status_detail'] ?? null;
+        $mpTransaction->amount = (float)$validated['total'];
+        $mpTransaction->currency = 'BRL';
+        $mpTransaction->payment_method_type = $paymentMethodId;
+        $mpTransaction->installments = (int)($validated['installments'] ?? 1);
+        $mpTransaction->payer_email = $user->email;
+        $mpTransaction->payer_name = $user->name;
+        $mpTransaction->payer_document = str_replace(['.', '-'], '', $user->document ?? '');
+        $mpTransaction->merchant_order_id = $responseData['order_id'] ?? null;
+        $mpTransaction->notification_id = null;
+        $mpTransaction->webhook_received = false;
+        $mpTransaction->webhook_data = null;
+        
+        // Se houver um booking, associar
+        if (isset($validated['booking_id'])) {
+            $mpTransaction->booking_id = $validated['booking_id'];
+        }
+        
+        $mpTransaction->save();
+        
+        \Log::info('MercadoPagoTransaction salva com sucesso:', [
+            'id' => $mpTransaction->id,
+            'payment_id' => $mpTransaction->payment_id,
+            'user_id' => $mpTransaction->user_id,
+            'amount' => $mpTransaction->amount
+        ]);
+        
+        return $mpTransaction;
     }
 
 }
