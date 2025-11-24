@@ -216,10 +216,18 @@ export default {
     },
     updateMethod(method) {
       this.loading = true
-      axios.put(`/api/mercadopago/payment-methods/${method.id}`, {
+      // Use the correct route with cache busting
+      const timestamp = new Date().getTime()
+      axios.put(`/api/mercadopago/payment-methods/${method.id}?t=${timestamp}`, {
         enabled: method.enabled,
         installments_enabled: method.installments_enabled,
         max_installments: method.max_installments
+      }, {
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
       })
         .then(response => {
           if (response.data.status) {
@@ -244,11 +252,18 @@ export default {
     },
     saveAllMethods() {
       this.loading = true
+      const timestamp = new Date().getTime()
       const promises = this.methods.map(method => 
-        axios.put(`/api/mercadopago/payment-methods/${method.id}`, {
+        axios.put(`/api/mercadopago/payment-methods/${method.id}?t=${timestamp}`, {
           enabled: method.enabled,
           installments_enabled: method.installments_enabled,
           max_installments: method.max_installments
+        }, {
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
         })
       )
       
