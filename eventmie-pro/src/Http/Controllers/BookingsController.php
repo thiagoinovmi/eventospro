@@ -1439,8 +1439,14 @@ class BookingsController extends Controller
                 "payment_method_id" => "pix",
                 "payer" => [
                     "email" => Auth::user()->email,
-                    "first_name" => Auth::user()->name
+                    "first_name" => Auth::user()->name,
+                    "identification" => [
+                        "type" => "CPF",
+                        "number" => "00000000000"
+                    ]
                 ],
+                "notification_url" => route('eventmie.mercadopago_webhook'),
+                "external_reference" => "BOOKING-" . $bookingId,
                 "date_of_expiration" => now()->addMinutes(30)->toIso8601String()
             ];
 
