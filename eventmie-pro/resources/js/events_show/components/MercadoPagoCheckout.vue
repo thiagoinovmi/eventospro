@@ -571,8 +571,7 @@ export default {
                                 isWaitingPayment: this.isWaitingPayment
                             });
                             
-                            // Iniciar verificação de pagamento a cada 5 segundos
-                            this.startPaymentCheck(response.data.payment_id);
+                            console.log('⏳ Aguardando webhook do Mercado Pago para confirmação...');
                         } else {
                             console.error('❌ PIX selecionado mas qr_code não retornou!');
                             console.log('Resposta completa:', response.data);
@@ -589,8 +588,7 @@ export default {
                             // Abrir boleto em nova aba
                             window.open(response.data.barcode_url, '_blank');
                             
-                            // Iniciar verificação de pagamento
-                            this.startPaymentCheck(response.data.payment_id);
+                            console.log('⏳ Aguardando webhook do Mercado Pago para confirmação...');
                         } else {
                             console.warn('Boleto selecionado mas barcode_url não retornou');
                             this.errorMessage = 'Falha ao gerar Boleto. Tente novamente.';
@@ -600,8 +598,7 @@ export default {
                     else if (response.data.payment_method === 'wallet' || this.selectedMethod === 'mercadopago_wallet') {
                         console.log('💳 Carteira Mercado Pago selecionada');
                         
-                        // Iniciar verificação de pagamento
-                        this.startPaymentCheck(response.data.payment_id);
+                        console.log('⏳ Aguardando webhook do Mercado Pago para confirmação...');
                     }
                     // Cartão de Crédito/Débito
                     else if (response.data.payment_method === 'credit_card' || response.data.payment_method === 'debit_card') {
@@ -632,31 +629,6 @@ export default {
                 const errorMessage = error.response?.data?.message || 'Erro ao processar pagamento. Tente novamente.';
                 this.errorMessage = errorMessage;
             }
-        },
-
-        startPaymentCheck(transactionId) {
-            console.log('🔄 Iniciando verificação de pagamento para:', transactionId);
-            
-            // Verificar a cada 5 segundos
-            this.paymentCheckInterval = setInterval(async () => {
-                try {
-                    const response = await axios.get(`/bookings/api/mercadopago/check-payment/${transactionId}`);
-                    
-                    if (response.data.status === 'approved') {
-                        console.log('✅ Pagamento aprovado!');
-                        clearInterval(this.paymentCheckInterval);
-                        
-                        this.isWaitingPayment = false;
-                        
-                        // Redirecionar para mybookings
-                        setTimeout(() => {
-                            window.location.href = '/mybookings';
-                        }, 2000);
-                    }
-                } catch (error) {
-                    console.error('Erro ao verificar pagamento:', error);
-                }
-            }, 5000);
         },
 
         showProcessingModal() {
