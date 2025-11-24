@@ -1778,6 +1778,13 @@ class BookingsController extends Controller
 
         $responseData = json_decode($response, true);
 
+        \Log::info('Resposta PIX recebida:', [
+            'httpCode' => $httpCode,
+            'status' => $responseData['status'] ?? null,
+            'message' => $responseData['message'] ?? null,
+            'code' => $responseData['code'] ?? null
+        ]);
+
         if ($httpCode === 201 || $httpCode === 200) {
             if (isset($responseData['id']) && isset($responseData['status'])) {
                 $status = $responseData['status'];
@@ -1811,11 +1818,31 @@ class BookingsController extends Controller
             }
         }
 
-        \Log::error('Erro ao processar PIX - HTTP ' . $httpCode, ['response' => $response]);
+        // Handle 403 - PolicyAgent UNAUTHORIZED
+        if ($httpCode === 403) {
+            \Log::warning('PIX retornou 403 - Verificar permissões do token', [
+                'message' => $responseData['message'] ?? 'PolicyAgent UNAUTHORIZED',
+                'code' => $responseData['code'] ?? null,
+                'blocked_by' => $responseData['blocked_by'] ?? null
+            ]);
+            
+            return [
+                'status' => false,
+                'message' => 'PIX não está habilitado para este token. Verifique as permissões na conta Mercado Pago.',
+                'error_code' => 'PIX_UNAUTHORIZED',
+                'details' => $responseData['message'] ?? 'PolicyAgent UNAUTHORIZED'
+            ];
+        }
+
+        \Log::error('Erro ao processar PIX - HTTP ' . $httpCode, [
+            'response' => $response,
+            'responseData' => $responseData
+        ]);
         
         return [
             'status' => false,
-            'message' => 'Erro ao processar PIX: ' . ($responseData['message'] ?? 'Erro desconhecido')
+            'message' => 'Erro ao processar PIX: ' . ($responseData['message'] ?? 'Erro desconhecido'),
+            'http_code' => $httpCode
         ];
     }
 
@@ -1866,6 +1893,12 @@ class BookingsController extends Controller
 
         $responseData = json_decode($response, true);
 
+        \Log::info('Resposta Boleto recebida:', [
+            'httpCode' => $httpCode,
+            'status' => $responseData['status'] ?? null,
+            'message' => $responseData['message'] ?? null
+        ]);
+
         if ($httpCode === 201 || $httpCode === 200) {
             if (isset($responseData['id']) && isset($responseData['status'])) {
                 $status = $responseData['status'];
@@ -1898,11 +1931,29 @@ class BookingsController extends Controller
             }
         }
 
-        \Log::error('Erro ao processar Boleto - HTTP ' . $httpCode, ['response' => $response]);
+        // Handle 403 - PolicyAgent UNAUTHORIZED
+        if ($httpCode === 403) {
+            \Log::warning('Boleto retornou 403 - Verificar permissões do token', [
+                'message' => $responseData['message'] ?? 'PolicyAgent UNAUTHORIZED',
+                'code' => $responseData['code'] ?? null
+            ]);
+            
+            return [
+                'status' => false,
+                'message' => 'Boleto não está habilitado para este token. Verifique as permissões na conta Mercado Pago.',
+                'error_code' => 'BOLETO_UNAUTHORIZED'
+            ];
+        }
+
+        \Log::error('Erro ao processar Boleto - HTTP ' . $httpCode, [
+            'response' => $response,
+            'responseData' => $responseData
+        ]);
         
         return [
             'status' => false,
-            'message' => 'Erro ao processar Boleto: ' . ($responseData['message'] ?? 'Erro desconhecido')
+            'message' => 'Erro ao processar Boleto: ' . ($responseData['message'] ?? 'Erro desconhecido'),
+            'http_code' => $httpCode
         ];
     }
 
@@ -1953,6 +2004,12 @@ class BookingsController extends Controller
 
         $responseData = json_decode($response, true);
 
+        \Log::info('Resposta Carteira recebida:', [
+            'httpCode' => $httpCode,
+            'status' => $responseData['status'] ?? null,
+            'message' => $responseData['message'] ?? null
+        ]);
+
         if ($httpCode === 201 || $httpCode === 200) {
             if (isset($responseData['id']) && isset($responseData['status'])) {
                 $status = $responseData['status'];
@@ -1983,11 +2040,29 @@ class BookingsController extends Controller
             }
         }
 
-        \Log::error('Erro ao processar Carteira - HTTP ' . $httpCode, ['response' => $response]);
+        // Handle 403 - PolicyAgent UNAUTHORIZED
+        if ($httpCode === 403) {
+            \Log::warning('Carteira retornou 403 - Verificar permissões do token', [
+                'message' => $responseData['message'] ?? 'PolicyAgent UNAUTHORIZED',
+                'code' => $responseData['code'] ?? null
+            ]);
+            
+            return [
+                'status' => false,
+                'message' => 'Carteira Mercado Pago não está habilitada para este token. Verifique as permissões na conta Mercado Pago.',
+                'error_code' => 'WALLET_UNAUTHORIZED'
+            ];
+        }
+
+        \Log::error('Erro ao processar Carteira - HTTP ' . $httpCode, [
+            'response' => $response,
+            'responseData' => $responseData
+        ]);
         
         return [
             'status' => false,
-            'message' => 'Erro ao processar Carteira: ' . ($responseData['message'] ?? 'Erro desconhecido')
+            'message' => 'Erro ao processar Carteira: ' . ($responseData['message'] ?? 'Erro desconhecido'),
+            'http_code' => $httpCode
         ];
     }
 
