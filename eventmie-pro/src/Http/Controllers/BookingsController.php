@@ -1478,10 +1478,13 @@ class BookingsController extends Controller
 
             // Prepare payment data for card payment
             // According to Mercado Pago API v1 documentation
+            // Use payment_method_id from frontend if provided (visa, master, etc), otherwise use selected_method
+            $paymentMethodId = $validated['payment_method_id'] ?? $validated['selected_method'];
+            
             $paymentData = [
                 "transaction_amount" => (float)$validated['total'],
                 "description" => "Pagamento de ingresso - Evento #{$validated['event_id']}",
-                "payment_method_id" => $validated['selected_method'],
+                "payment_method_id" => $paymentMethodId,
                 "installments" => (int)($validated['installments'] ?? 1),
                 "token" => $validated['card_token'] ?? null,
                 "payer" => [
@@ -1509,6 +1512,8 @@ class BookingsController extends Controller
             \Log::info('Dados do pagamento preparados:', [
                 'amount' => $paymentData['transaction_amount'],
                 'method' => $paymentData['payment_method_id'],
+                'method_from_frontend' => $validated['payment_method_id'] ?? 'não enviado',
+                'selected_method' => $validated['selected_method'],
                 'installments' => $paymentData['installments'],
                 'email' => $paymentData['payer']['email'],
                 'token' => $paymentData['token'] ?? 'VAZIO',
