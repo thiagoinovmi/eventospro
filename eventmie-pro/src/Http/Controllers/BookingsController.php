@@ -1556,9 +1556,10 @@ class BookingsController extends Controller
                 'curlError' => $curlError
             ]);
 
-            if ($httpCode === 201 || $httpCode === 200) {
-                $responseData = json_decode($response, true);
+            // Decode response
+            $responseData = json_decode($response, true);
 
+            if ($httpCode === 201 || $httpCode === 200) {
                 if (isset($responseData['id']) && isset($responseData['status'])) {
                     $status = $responseData['status'];
                     $isApproved = ($status === 'approved');
