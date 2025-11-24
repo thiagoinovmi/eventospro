@@ -91,11 +91,10 @@
                                     </td>
 
                                     <td class="align-middle text-nowrap" :data-title="trans('em.actions')" v-else>
-                                        <!-- Botão para expandir QR Code PIX -->
+                                        <!-- Botão para abrir Modal do QR Code PIX -->
                                         <div v-if="booking.payment_type === 'mercadopago' && booking.mercadopago_transaction && booking.mercadopago_transaction.qr_code_base64 && !booking.is_paid" class="mb-2">
-                                            <button type="button" class="btn btn-sm btn-warning text-white" @click="expandedBookingId = expandedBookingId === booking.id ? null : booking.id">
-                                                <i :class="expandedBookingId === booking.id ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"></i>
-                                                {{ expandedBookingId === booking.id ? trans('em.hide') : 'PIX QR Code' }}
+                                            <button type="button" class="btn btn-sm btn-warning text-white" data-bs-toggle="modal" :data-bs-target="'#pixModal-' + booking.id">
+                                                <i class="fas fa-qrcode"></i> PIX QR Code
                                             </button>
                                         </div>
 
@@ -124,6 +123,68 @@
                         
                             </tbody>
                         </table>
+                    </div>
+
+                    <!-- Modais PIX QR Code -->
+                    <div v-for="booking in bookings" :key="'modal-' + booking.id">
+                        <div v-if="booking.payment_type === 'mercadopago' && booking.mercadopago_transaction && booking.mercadopago_transaction.qr_code_base64 && !booking.is_paid" 
+                             class="modal fade" :id="'pixModal-' + booking.id" tabindex="-1" aria-labelledby="pixModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-warning">
+                                        <h5 class="modal-title" id="pixModalLabel">
+                                            <i class="fas fa-qrcode"></i> {{ trans('em.pix_qr_code') }}
+                                        </h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row">
+                                            <!-- QR Code -->
+                                            <div class="col-md-6 text-center mb-4">
+                                                <h6 class="mb-3">{{ trans('em.scan_qr_code') }}</h6>
+                                                <img :src="'data:image/png;base64,' + booking.mercadopago_transaction.qr_code_base64" 
+                                                     alt="PIX QR Code" class="img-fluid border rounded" style="max-width: 300px;">
+                                                <p class="text-muted small mt-3">
+                                                    <i class="fas fa-clock text-danger"></i> 
+                                                    <strong>{{ trans('em.expires_in') }}:</strong> 
+                                                    <span class="text-danger fw-bold">{{ getTimeRemaining(booking.mercadopago_transaction.qr_code_expires_at) }}</span>
+                                                </p>
+                                            </div>
+
+                                            <!-- Código PIX -->
+                                            <div class="col-md-6">
+                                                <h6 class="mb-3">{{ trans('em.pix_copy_paste') }}</h6>
+                                                <div class="input-group mb-3">
+                                                    <input type="text" class="form-control" :value="booking.mercadopago_transaction.qr_code" readonly>
+                                                    <button class="btn btn-outline-primary" type="button" @click="copyToClipboard(booking.mercadopago_transaction.qr_code)">
+                                                        <i class="fas fa-copy"></i> {{ trans('em.copy') }}
+                                                    </button>
+                                                </div>
+                                                <small class="text-muted d-block">{{ trans('em.pix_instructions') }}</small>
+
+                                                <!-- Informações do Pedido -->
+                                                <div class="mt-4 p-3 bg-light rounded">
+                                                    <h6 class="mb-3">{{ trans('em.order_details') }}</h6>
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <small class="text-muted">{{ trans('em.order_id') }}</small>
+                                                            <p class="fw-bold">#{{ booking.order_number }}</p>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <small class="text-muted">{{ trans('em.order_total') }}</small>
+                                                            <p class="fw-bold">{{ currency }} {{ booking.net_price }}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ trans('em.close') }}</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="px-4 pb-4" v-if="bookings.length > 0">
                 
@@ -178,7 +239,6 @@ export default {
             currency : null,
             booking_id : 0,
             timerInterval: null,
-            expandedBookingId: null,
             timerCounter: 0,
         }
     },

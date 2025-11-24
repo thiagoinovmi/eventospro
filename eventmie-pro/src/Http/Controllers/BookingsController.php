@@ -2168,6 +2168,7 @@ class BookingsController extends Controller
         
         $mpTransaction->user_id = $user->id;
         $mpTransaction->event_id = $validated['event_id'];
+        $mpTransaction->booking_id = $validated['booking_id'] ?? null; // IMPORTANTE: Sempre salvar booking_id
         $mpTransaction->payment_id = $responseData['id'];
         $mpTransaction->status = $responseData['status'] ?? 'pending';
         $mpTransaction->status_detail = $responseData['status_detail'] ?? null;
@@ -2184,15 +2185,35 @@ class BookingsController extends Controller
         $mpTransaction->webhook_data = null;
         
         // Salvar QR Code se for PIX
-        if ($paymentMethodId === 'pix' && isset($responseData['qr_code'])) {
-            $mpTransaction->qr_code = $responseData['qr_code'];
-            $mpTransaction->qr_code_base64 = $responseData['qr_code_url'] ?? null; // data:image/png;base64,...
+        if ($paymentMethodId === 'pix') {
+            // Extrair dados do PIX da resposta
+            $pixData = $responseData['point_of_interaction']['transaction_data'] ?? [];
+            
+            // Salvar código PIX (copia e cola)
+            if (isset($pixData['qr_code'])) {
+                $mpTransaction->qr_code = $pixData['qr_code'];
+                \Log::info('QR Code PIX salvo:', ['qr_code' => substr($pixData['qr_code'], 0, 50) . '...']);
+            }
+            
+            // Salvar base64 da imagem (sem o prefixo data:image/png;base64,)
+            if (isset($pixData['qr_code_base64'])) {
+                $base64 = $pixData['qr_code_base64'];
+                // Se tiver o prefixo, remover
+                if (strpos($base64, 'data:image') === 0) {
+                    $base64 = preg_replace('/^data:image\/[^;]+;base64,/', '', $base64);
+                }
+                $mpTransaction->qr_code_base64 = $base64;
+                \Log::info('QR Code Base64 salvo:', ['length' => strlen($base64)]);
+            }
+            
+            // Salvar tempo de expiração (30 minutos)
             $mpTransaction->qr_code_expires_at = now()->addMinutes(30);
-        }
-        
-        // Se houver um booking, associar
-        if (isset($validated['booking_id'])) {
-            $mpTransaction->booking_id = $validated['booking_id'];
+            
+            \Log::info('Dados PIX salvos:', [
+                'qr_code_presente' => !empty($mpTransaction->qr_code),
+                'qr_code_base64_presente' => !empty($mpTransaction->qr_code_base64),
+                'expires_at' => $mpTransaction->qr_code_expires_at
+            ]);
         }
         
         $mpTransaction->save();
@@ -2200,8 +2221,12 @@ class BookingsController extends Controller
         \Log::info('MercadoPagoTransaction salva com sucesso:', [
             'id' => $mpTransaction->id,
             'payment_id' => $mpTransaction->payment_id,
+            'booking_id' => $mpTransaction->booking_id,
             'user_id' => $mpTransaction->user_id,
-            'amount' => $mpTransaction->amount
+            'amount' => $mpTransaction->amount,
+            'payment_method' => $paymentMethodId,
+            'qr_code_salvo' => !empty($mpTransaction->qr_code),
+            'base64_salvo' => !empty($mpTransaction->qr_code_base64)
         ]);
         
         return $mpTransaction;
