@@ -493,7 +493,7 @@ CREATE TABLE mercadopago_transactions (
 
 ## 🎯 Resumo
 
-**Problema:** Rota retorna 419 (CSRF) porque o middleware não está sendo removido corretamente.
+**Problema:** Rota retorna 41(CSRF) porque o middleware não está sendo removido corretamente.
 
 **Solução:** Adicionar `'api/mercadopago/webhook'` à lista `$except` do middleware CSRF em `/eventmie-pro/src/Middleware/VerifyCsrfToken.php`
 
