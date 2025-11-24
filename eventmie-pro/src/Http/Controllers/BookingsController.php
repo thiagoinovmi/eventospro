@@ -1499,7 +1499,9 @@ class BookingsController extends Controller
                 'method' => $paymentData['payment_method_id'],
                 'installments' => $paymentData['installments'],
                 'email' => $paymentData['payer']['email'],
+                'token' => $paymentData['token'] ?? 'VAZIO',
                 'token_length' => strlen($paymentData['token'] ?? ''),
+                'token_preview' => substr($paymentData['token'] ?? '', 0, 20),
                 'cpf' => $paymentData['payer']['identification']['number']
             ]);
 
