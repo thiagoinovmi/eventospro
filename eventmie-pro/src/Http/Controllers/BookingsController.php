@@ -1454,11 +1454,13 @@ class BookingsController extends Controller
     private function processCardPayment($validated, $user)
     {
         try {
-            \Log::info('=== INICIANDO PROCESSAMENTO DE CARTÃO ===');
+            \Log::info('=== INICIANDO PROCESSAMENTO DE CARTÃO === ' . date('Y-m-d H:i:s'));
+            \Log::info('Validated data:', $validated);
+            \Log::info('User email:', ['email' => $user->email]);
             
             // Get token from settings table (Voyager)
             $accessToken = setting('mercadopago.access_token');
-            \Log::info('Token obtido:', ['token_length' => strlen($accessToken ?? '')]);
+            \Log::info('Token obtido:', ['token_length' => strlen($accessToken ?? ''), 'token_preview' => substr($accessToken ?? '', 0, 20)]);
             
             if (!$accessToken) {
                 return [
