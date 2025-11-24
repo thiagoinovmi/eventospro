@@ -609,9 +609,11 @@ export default {
                 // Initialize Mercado Pago
                 const mp = new window.MercadoPago(publicKey);
 
-                // Prepare card data
+                // Prepare card data - IMPORTANT: cardNumber must be the FULL number without spaces
+                const cardNumber = this.cardData.number.replace(/\s/g, '');
+                
                 const cardData = {
-                    cardNumber: this.cardData.number.replace(/\s/g, ''),
+                    cardNumber: cardNumber,
                     cardholderName: this.cardData.holderName,
                     cardExpirationMonth: this.cardData.expiry.split('/')[0],
                     cardExpirationYear: '20' + this.cardData.expiry.split('/')[1],
@@ -619,7 +621,9 @@ export default {
                 };
 
                 console.log('Gerando token com dados:', {
-                    cardNumber: cardData.cardNumber.slice(-4),
+                    cardNumber: cardNumber,
+                    cardNumberLength: cardNumber.length,
+                    cardNumberPreview: cardNumber.substring(0, 6) + '****' + cardNumber.slice(-4),
                     cardholderName: cardData.cardholderName,
                     cardExpirationMonth: cardData.cardExpirationMonth,
                     cardExpirationYear: cardData.cardExpirationYear
