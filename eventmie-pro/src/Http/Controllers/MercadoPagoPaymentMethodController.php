@@ -129,18 +129,18 @@ class MercadoPagoPaymentMethodController extends \App\Http\Controllers\Controlle
             
             foreach ($paymentMethodTypes as $type => $name) {
                 // Check if globally enabled in settings
-                $globalEnabled = setting("mercadopago.payment_methods.{$type}.enabled") === '1' || 
-                                setting("mercadopago.payment_methods.{$type}.enabled") === 1;
+                $globalEnabledValue = setting("mercadopago.payment_methods.{$type}.enabled");
+                $globalEnabled = $globalEnabledValue === '1' || $globalEnabledValue === 1 || $globalEnabledValue === true;
                 
                 // Check if enabled for this event
                 $eventMethod = $eventMethods->get($methodId);
-                $eventEnabled = $eventMethod ? $eventMethod->enabled : false;
+                $eventEnabled = $eventMethod ? (bool)$eventMethod->enabled : false;
                 
                 // Only include if both global AND event are enabled
                 if ($globalEnabled && $eventEnabled) {
-                    $installmentsGlobal = setting("mercadopago.payment_methods.{$type}.installments_enabled") === '1' || 
-                                         setting("mercadopago.payment_methods.{$type}.installments_enabled") === 1;
-                    $installmentsEvent = $eventMethod ? $eventMethod->installments_enabled : false;
+                    $installmentsGlobalValue = setting("mercadopago.payment_methods.{$type}.installments_enabled");
+                    $installmentsGlobal = $installmentsGlobalValue === '1' || $installmentsGlobalValue === 1 || $installmentsGlobalValue === true;
+                    $installmentsEvent = $eventMethod ? (bool)$eventMethod->installments_enabled : false;
                     
                     $formattedMethods[] = [
                         'id' => $eventMethod->id ?? $methodId,
