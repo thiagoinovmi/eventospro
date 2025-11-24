@@ -155,13 +155,18 @@
                                 <h6 class="mb-3">{{ trans('em.scan_qr_code') }}</h6>
                                 <img :src="'data:image/png;base64,' + getCleanBase64(booking.mercadopago_transaction.qr_code_base64)" 
                                      alt="PIX QR Code" class="img-fluid border rounded" style="max-width: 300px;">
-                                <p class="text-muted small mt-3">
-                                    <i class="fas fa-clock text-danger"></i> 
-                                    <strong>{{ trans('em.expires_in') }}:</strong> 
-                                    <span class="text-danger fw-bold">{{ getTimeRemaining(booking.mercadopago_transaction.qr_code_expires_at) }}</span>
-                                </p>
+                                <div class="mt-4 p-4 rounded" style="background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%); border: 2px solid #ffc107;">
+                                    <div class="d-flex align-items-center justify-content-center mb-2">
+                                        <i class="fas fa-hourglass-end text-warning me-2" style="font-size: 1.2rem;"></i>
+                                        <span class="text-dark fw-bold">{{ trans('em.expires_in') }}</span>
+                                    </div>
+                                    <div class="text-center">
+                                        <span class="fw-bold" style="font-size: 2.5rem; color: #d32f2f; font-family: 'Courier New', monospace;">
+                                            {{ getTimeRemaining(booking.mercadopago_transaction.qr_code_expires_at) }}
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
-
                             <!-- Código PIX -->
                             <div class="col-md-6">
                                 <h6 class="mb-3">{{ trans('em.pix_copy_paste') }}</h6>
@@ -317,7 +322,7 @@ export default {
             }
         },
 
-        // Calcular tempo restante para expiração do QR Code
+        // Calcular tempo restante para expiração do QR Code (HH:MM:SS)
         getTimeRemaining(expiresAt) {
             if (!expiresAt) return '00:00:00';
             
@@ -325,13 +330,14 @@ export default {
             const expiration = moment(expiresAt);
             const diff = expiration.diff(now);
             
-            if (diff <= 0) return 'Expirado';
+            if (diff <= 0) return '00:00:00';
             
             const duration = moment.duration(diff);
-            const minutes = Math.floor(duration.asMinutes());
+            const hours = Math.floor(duration.asHours());
+            const minutes = duration.minutes();
             const seconds = duration.seconds();
             
-            return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         },
 
         // Copiar código PIX para clipboard
