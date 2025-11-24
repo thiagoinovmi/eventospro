@@ -418,10 +418,9 @@ Route::group([
 
     /* Mercado Pago Checkout Page */
     Route::middleware('auth')->group(function () use ($namespace) {
-        // Checkout is handled via Vue component in events show page
+        // Checkout page - event_id is stored in session from booking request
         Route::get('/mercadopago/checkout', function() {
-            $eventId = request()->get('event_id');
-            return view('eventmie::mercadopago.checkout', ['eventId' => $eventId]);
+            return view('eventmie::mercadopago.checkout');
         })->name('mercadopago_checkout');
     });
     

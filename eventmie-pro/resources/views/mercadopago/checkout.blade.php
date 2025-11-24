@@ -1,10 +1,18 @@
 @extends('eventmie::layouts.app')
 
 @section('content')
+<?php
+// Get event ID from session booking data
+$eventId = null;
+$booking = session('mercadopago_booking');
+if ($booking) {
+    $eventId = $booking->event_id ?? null;
+}
+?>
 <div class="container mt-5 mb-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card shadow-lg">
+            <div class="card shadow-lg" data-event-id="{{ $eventId }}">
                 <div class="card-header bg-primary text-white">
                     <h4 class="mb-0">
                         <i class="fas fa-credit-card"></i> {{ trans('em.mercadopago_checkout') }}
@@ -149,10 +157,9 @@
     function loadPaymentMethods() {
         console.log('=== CARREGANDO MÉTODOS DE PAGAMENTO ===');
         
-        // Get event ID from Blade variable or URL
-        const eventId = '{{ $eventId ?? "" }}' || 
-                       new URLSearchParams(window.location.search).get('event_id') || 
-                       document.querySelector('[data-event-id]')?.dataset.eventId;
+        // Get event ID from data-attribute (set from session in Blade)
+        const eventId = document.querySelector('[data-event-id]')?.dataset.eventId ||
+                       new URLSearchParams(window.location.search).get('event_id');
         
         console.log('Event ID:', eventId);
         
