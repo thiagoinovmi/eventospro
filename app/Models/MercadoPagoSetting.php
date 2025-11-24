@@ -23,9 +23,20 @@ class MercadoPagoSetting extends Model
         'updated_at' => 'datetime'
     ];
     
-    protected $hidden = [
-        'access_token',
-        'public_key',
-        'webhook_token'
-    ];
+    /**
+     * Override the default encryption behavior
+     * These fields should NOT be encrypted
+     */
+    protected function shouldBeEncrypted($key)
+    {
+        return false;
+    }
+    
+    /**
+     * Get the attributes that should be encrypted.
+     */
+    protected function getEncryptable()
+    {
+        return [];
+    }
 }
