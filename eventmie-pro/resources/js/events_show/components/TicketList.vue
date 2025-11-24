@@ -248,14 +248,17 @@
                                             }"
                                             :payment-methods="paymentMethods"
                                             :installment-options="installmentOptions"
+                                            @waiting-payment-changed="isWaitingPayment = $event"
+                                            @payment-confirmed-changed="paymentConfirmed = $event"
                                         />
                                     </div>
 
                                     <!-- Checkout Button - Positioned Below Form -->
-                                    <div class="col-12 mt-2 pb-4">
+                                    <!-- Esconder botão quando pagamento confirmado, desabilitar quando aguardando -->
+                                    <div class="col-12 mt-2 pb-4" v-if="!paymentConfirmed">
                                         <div class="d-grid">
                                             <div class="btn-group btn-group-md btn-block  btn-group-justified">
-                                                <button :class="{ 'disabled' : disable }" :disabled="disable" type="button" class="btn btn-success btn-lg btn-block fw-bold text-white" @click="bookTickets()">
+                                                <button :class="{ 'disabled' : disable || isWaitingPayment }" :disabled="disable || isWaitingPayment" type="button" class="btn btn-success btn-lg btn-block fw-bold text-white" @click="bookTickets()">
                                                     <i class="fas fa-lock"></i> 
                                                     {{ trans('em.checkout') }}
                                                 </button>
@@ -350,7 +353,11 @@ export default {
                 pix: true,
                 wallet: true
             },
-            installmentOptions: this.generateInstallments(12)
+            installmentOptions: this.generateInstallments(12),
+            
+            // 🔑 NOVO: Estados do Mercado Pago
+            isWaitingPayment: false,
+            paymentConfirmed: false
         }
     },
 

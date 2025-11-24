@@ -82,6 +82,16 @@ const _sfc_main = {
       return 0 .toFixed(2);
     }
   },
+  watch: {
+    // 🔑 NOVO: Emitir evento quando isWaitingPayment muda
+    isWaitingPayment(newValue) {
+      this.$emit("waiting-payment-changed", newValue);
+    },
+    // 🔑 NOVO: Emitir evento quando paymentConfirmed muda
+    paymentConfirmed(newValue) {
+      this.$emit("payment-confirmed-changed", newValue);
+    }
+  },
   methods: {
     setSelectedTicket(ticket) {
       console.log("Ticket selecionado no MercadoPagoCheckout:", ticket);
@@ -516,10 +526,10 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "38a670e0"
+  "d02a8505"
 );
 const MercadoPagoCheckout = __component__.exports;
 export {
   MercadoPagoCheckout as default
 };
-//# sourceMappingURL=MercadoPagoCheckout-D2HOS8s9.js.map
+//# sourceMappingURL=MercadoPagoCheckout-D2vRayll.js.map

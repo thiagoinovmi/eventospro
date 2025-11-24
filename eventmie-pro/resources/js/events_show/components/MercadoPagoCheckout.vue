@@ -364,6 +364,17 @@ export default {
         }
     },
 
+    watch: {
+        // 🔑 NOVO: Emitir evento quando isWaitingPayment muda
+        isWaitingPayment(newValue) {
+            this.$emit('waiting-payment-changed', newValue);
+        },
+        // 🔑 NOVO: Emitir evento quando paymentConfirmed muda
+        paymentConfirmed(newValue) {
+            this.$emit('payment-confirmed-changed', newValue);
+        }
+    },
+
     methods: {
         setSelectedTicket(ticket) {
             console.log('Ticket selecionado no MercadoPagoCheckout:', ticket);

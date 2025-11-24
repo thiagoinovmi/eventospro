@@ -1,4 +1,4 @@
-const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/MercadoPagoCheckout-D2HOS8s9.js","assets/mixins-CenrxOSq.js","assets/MercadoPagoCheckout-CaXtzuAP.css"])))=>i.map(i=>d[i]);
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/MercadoPagoCheckout-D2vRayll.js","assets/mixins-CenrxOSq.js","assets/MercadoPagoCheckout-DWkw9HLC.css"])))=>i.map(i=>d[i]);
 import { g as getDefaultExportFromCjs, b as getAugmentedNamespace, _, n as normalizeComponent, m as mixinsFilters, c as moment$1 } from "./mixins-CenrxOSq.js";
 import { m as mapMutations, a as mapState, i as index } from "./vuex.esm-BLukzcBM.js";
 import { v as vSelect } from "./vue-select-CTUDHybg.js";
@@ -2331,7 +2331,7 @@ const _sfc_main$3 = {
     mixinsFilters
   ],
   components: {
-    "mercadopago-checkout": () => __vitePreload(() => import("./MercadoPagoCheckout-D2HOS8s9.js"), true ? __vite__mapDeps([0,1,2]) : void 0)
+    "mercadopago-checkout": () => __vitePreload(() => import("./MercadoPagoCheckout-D2vRayll.js"), true ? __vite__mapDeps([0,1,2]) : void 0)
   },
   props: [
     "tickets",
@@ -2376,7 +2376,10 @@ const _sfc_main$3 = {
         pix: true,
         wallet: true
       },
-      installmentOptions: this.generateInstallments(12)
+      installmentOptions: this.generateInstallments(12),
+      // 🔑 NOVO: Estados do Mercado Pago
+      isWaitingPayment: false,
+      paymentConfirmed: false
     };
   },
   computed: {
@@ -2784,9 +2787,13 @@ var _sfc_render$3 = function render() {
     booking_end_date: _vm.booking_end_date,
     start_time: _vm.start_time,
     end_time: _vm.end_time
-  }, "payment-methods": _vm.paymentMethods, "installment-options": _vm.installmentOptions } })], 1) : _vm._e(), _c("div", { staticClass: "col-12 mt-2 pb-4" }, [_c("div", { staticClass: "d-grid" }, [_c("div", { staticClass: "btn-group btn-group-md btn-block btn-group-justified" }, [_c("button", { staticClass: "btn btn-success btn-lg btn-block fw-bold text-white", class: { "disabled": _vm.disable }, attrs: { "disabled": _vm.disable, "type": "button" }, on: { "click": function($event) {
+  }, "payment-methods": _vm.paymentMethods, "installment-options": _vm.installmentOptions }, on: { "waiting-payment-changed": function($event) {
+    _vm.isWaitingPayment = $event;
+  }, "payment-confirmed-changed": function($event) {
+    _vm.paymentConfirmed = $event;
+  } } })], 1) : _vm._e(), !_vm.paymentConfirmed ? _c("div", { staticClass: "col-12 mt-2 pb-4" }, [_c("div", { staticClass: "d-grid" }, [_c("div", { staticClass: "btn-group btn-group-md btn-block btn-group-justified" }, [_c("button", { staticClass: "btn btn-success btn-lg btn-block fw-bold text-white", class: { "disabled": _vm.disable || _vm.isWaitingPayment }, attrs: { "disabled": _vm.disable || _vm.isWaitingPayment, "type": "button" }, on: { "click": function($event) {
     return _vm.bookTickets();
-  } } }, [_c("i", { staticClass: "fas fa-lock" }), _vm._v(" " + _vm._s(_vm.trans("em.checkout")) + " ")])])])])]) : _vm._e(), _c("div", { staticClass: "row" }, [_c("div", { staticClass: "col-12" }, [!_vm.login_user_id ? _c("div", [_c("div", { staticClass: "d-grid pb-4" }, [_c("div", { staticClass: "btn-group btn-group-md btn-block btn-group-justified" }, [_c("button", { staticClass: "btn btn-primary btn-lg", attrs: { "type": "button" }, on: { "click": function($event) {
+  } } }, [_c("i", { staticClass: "fas fa-lock" }), _vm._v(" " + _vm._s(_vm.trans("em.checkout")) + " ")])])])]) : _vm._e()]) : _vm._e(), _c("div", { staticClass: "row" }, [_c("div", { staticClass: "col-12" }, [!_vm.login_user_id ? _c("div", [_c("div", { staticClass: "d-grid pb-4" }, [_c("div", { staticClass: "btn-group btn-group-md btn-block btn-group-justified" }, [_c("button", { staticClass: "btn btn-primary btn-lg", attrs: { "type": "button" }, on: { "click": function($event) {
     return _vm.loginFirst();
   } } }, [_c("i", { staticClass: "fas fa-fingerprint" }), _vm._v(" " + _vm._s(_vm.trans("em.login")))])])])]) : _vm._e()])])])])])])])]) : _vm._e()]);
 };
@@ -3647,4 +3654,4 @@ window.app = new Vue({
     GComponent
   }
 });
-//# sourceMappingURL=index-C0hNk0ix.js.map
+//# sourceMappingURL=index-Dv5DrAb2.js.map
