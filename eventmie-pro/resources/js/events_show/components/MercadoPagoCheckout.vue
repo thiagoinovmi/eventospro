@@ -560,14 +560,6 @@ export default {
                             console.log('✅ QR Code encontrado!');
                             console.log('QR Code URL:', response.data.qr_code_url || 'null (será gerado dinamicamente)');
                             
-                            // Mostrar toast de sucesso
-                            this.$notify({
-                                group: 'foo',
-                                title: 'Sucesso!',
-                                text: response.data.message || 'QR Code PIX gerado com sucesso!',
-                                type: 'success'
-                            });
-                            
                             this.pixData = response.data.qr_code;
                             this.pixQrCode = response.data.qr_code_url; // Já vem como data URL do backend
                             this.pixExpiration = new Date(Date.now() + 30 * 60 * 1000); // 30 minutos
@@ -594,14 +586,6 @@ export default {
                         if (response.data.barcode_url) {
                             console.log('URL do boleto:', response.data.barcode_url);
                             
-                            // Mostrar toast de sucesso
-                            this.$notify({
-                                group: 'foo',
-                                title: 'Sucesso!',
-                                text: response.data.message || 'Boleto gerado com sucesso! Abrindo em nova aba...',
-                                type: 'success'
-                            });
-                            
                             // Abrir boleto em nova aba
                             window.open(response.data.barcode_url, '_blank');
                             
@@ -616,28 +600,12 @@ export default {
                     else if (response.data.payment_method === 'wallet' || this.selectedMethod === 'mercadopago_wallet') {
                         console.log('💳 Carteira Mercado Pago selecionada');
                         
-                        // Mostrar toast de sucesso
-                        this.$notify({
-                            group: 'foo',
-                            title: 'Sucesso!',
-                            text: response.data.message || 'Processando pagamento via Carteira...',
-                            type: 'success'
-                        });
-                        
                         // Iniciar verificação de pagamento
                         this.startPaymentCheck(response.data.payment_id);
                     }
                     // Cartão de Crédito/Débito
                     else if (response.data.payment_method === 'credit_card' || response.data.payment_method === 'debit_card') {
                         console.log('✅ Cartão processado com sucesso');
-                        
-                        // Mostrar toast de sucesso
-                        this.$notify({
-                            group: 'foo',
-                            title: 'Sucesso!',
-                            text: response.data.message || 'Pagamento processado com sucesso!',
-                            type: 'success'
-                        });
                         
                         // Aguardar 1 segundo e depois mostrar modal de processamento
                         setTimeout(() => {
@@ -655,26 +623,14 @@ export default {
                     }
                 } else {
                     console.error('❌ Erro na resposta:', response.data);
-                    // Mostrar toast de erro
-                    this.$notify({
-                        group: 'foo',
-                        title: 'Erro!',
-                        text: response.data.message || 'Erro ao processar pagamento',
-                        type: 'error'
-                    });
+                    this.errorMessage = response.data.message || 'Erro ao processar pagamento';
                 }
             } catch (error) {
                 console.error('❌ Payment error:', error);
                 console.error('Resposta de erro:', error.response);
                 
                 const errorMessage = error.response?.data?.message || 'Erro ao processar pagamento. Tente novamente.';
-                // Mostrar toast de erro
-                this.$notify({
-                    group: 'foo',
-                    title: 'Erro!',
-                    text: errorMessage,
-                    type: 'error'
-                });
+                this.errorMessage = errorMessage;
             }
         },
 
@@ -689,14 +645,6 @@ export default {
                     if (response.data.status === 'approved') {
                         console.log('✅ Pagamento aprovado!');
                         clearInterval(this.paymentCheckInterval);
-                        
-                        // Mostrar toast de sucesso
-                        this.$notify({
-                            group: 'foo',
-                            title: 'Pagamento Confirmado!',
-                            text: 'Seu pagamento foi confirmado com sucesso!',
-                            type: 'success'
-                        });
                         
                         this.isWaitingPayment = false;
                         
