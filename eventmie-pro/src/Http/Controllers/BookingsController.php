@@ -1454,6 +1454,7 @@ class BookingsController extends Controller
     private function processCardPayment($validated, $user)
     {
         try {
+            // CACHE BUSTER: ' . time() . '
             \Log::info('=== INICIANDO PROCESSAMENTO DE CARTÃO === ' . date('Y-m-d H:i:s'));
             \Log::info('Validated data:', $validated);
             \Log::info('User email:', ['email' => $user->email]);
