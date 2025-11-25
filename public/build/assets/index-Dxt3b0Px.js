@@ -1,7 +1,7 @@
 import { n as normalizeComponent, m as mixinsFilters } from "./mixins-CO2EmGtw.js";
 import { P as PaginationComponent } from "./Pagination-DVYAWWC9.js";
 import { O as OnlineEvent } from "./OnlineEvent-DGsW96ZK.js";
-import MercadoPagoCheckout from "./MercadoPagoCheckout-nDEZk1xj.js";
+import MercadoPagoCheckout from "./MercadoPagoCheckout-B_kEAB18.js";
 var top = "top";
 var bottom = "bottom";
 var right = "right";
@@ -5244,6 +5244,8 @@ const _sfc_main = {
     // Retentar pagamento (débito/crédito pendente ou rejeitado)
     async retryPayment(booking) {
       try {
+        console.log("🚀 Booking completo:", booking);
+        console.log("🔍 Event ID do booking:", booking.event_id);
         this.selectedBookingForRetry = booking;
         await this.loadPaymentHistory(booking.id);
         this.retryBookingData = {
@@ -5258,13 +5260,18 @@ const _sfc_main = {
           is_retry: true
         };
         this.showRetryCheckout = true;
-        const modalElement = document.getElementById("retryPaymentModal");
-        if (modalElement) {
-          const modal = new Modal(modalElement);
-          modal.show();
-        } else {
-          console.error("Modal de retry não encontrado");
-        }
+        console.log("🔧 showRetryCheckout definido como:", this.showRetryCheckout);
+        console.log("🔧 selectedBookingForRetry:", this.selectedBookingForRetry);
+        this.$nextTick(() => {
+          console.log("🔧 Após nextTick - showRetryCheckout:", this.showRetryCheckout);
+          const modalElement = document.getElementById("retryPaymentModal");
+          if (modalElement) {
+            const modal = new Modal(modalElement);
+            modal.show();
+          } else {
+            console.error("Modal de retry não encontrado");
+          }
+        });
       } catch (error) {
         console.error("Erro ao abrir modal de retry:", error);
         this.showNotification("error", "Erro ao carregar formulário de pagamento");
@@ -5461,7 +5468,7 @@ var _sfc_render = function render2() {
     } } }, [_c("i", { staticClass: "fas fa-copy" }), _vm._v(" " + _vm._s(_vm.trans("em.copy")) + " ")])]), !booking.is_paid && !_vm.isQrCodeExpired(booking.mercadopago_transaction.qr_code_expires_at) ? _c("small", { staticClass: "text-muted d-block" }, [_vm._v(_vm._s(_vm.trans("em.pix_instructions")))]) : _vm.isQrCodeExpired(booking.mercadopago_transaction.qr_code_expires_at) ? _c("small", { staticClass: "text-danger d-block fw-bold" }, [_vm._v("QR Code expirado - não é possível copiar")]) : _c("small", { staticClass: "text-success d-block fw-bold" }, [_vm._v("Pagamento já foi realizado")]), _c("div", { staticClass: "mt-4 p-3 bg-light rounded" }, [_c("h6", { staticClass: "mb-3" }, [_vm._v(_vm._s(_vm.trans("em.order_details")))]), _c("div", { staticClass: "row" }, [_c("div", { staticClass: "col-6" }, [_c("small", { staticClass: "text-muted" }, [_vm._v(_vm._s(_vm.trans("em.order_id")))]), _c("p", { staticClass: "fw-bold" }, [_vm._v("#" + _vm._s(booking.order_number))])]), _c("div", { staticClass: "col-6" }, [_c("small", { staticClass: "text-muted" }, [_vm._v(_vm._s(_vm.trans("em.order_total")))]), _c("p", { staticClass: "fw-bold" }, [_vm._v(_vm._s(_vm.currency) + " " + _vm._s(booking.net_price))])])])])])])]), _c("div", { staticClass: "modal-footer" }, [_c("button", { staticClass: "btn btn-secondary", attrs: { "type": "button", "data-bs-dismiss": "modal" } }, [_vm._v(_vm._s(_vm.trans("em.close")))])])])])]) : _vm._e()]);
   }), _c("div", { staticClass: "modal fade", attrs: { "id": "retryPaymentModal", "tabindex": "-1", "aria-labelledby": "retryPaymentModalLabel", "aria-hidden": "true" } }, [_c("div", { staticClass: "modal-dialog modal-xl", staticStyle: { "max-height": "90vh" } }, [_c("div", { staticClass: "modal-content" }, [_c("div", { staticClass: "modal-header bg-primary text-white" }, [_c("h5", { staticClass: "modal-title", attrs: { "id": "retryPaymentModalLabel" } }, [_c("i", { staticClass: "fas fa-redo me-2" }), _vm._v(_vm._s(_vm.trans("em.retry_payment") || "Retentar Pagamento") + " ")]), _c("button", { staticClass: "btn-close btn-close-white", attrs: { "type": "button", "data-bs-dismiss": "modal", "aria-label": "Close" } })]), _vm.selectedBookingForRetry ? _c("div", { staticClass: "modal-body p-0" }, [_c("div", { staticClass: "row g-0" }, [_c("div", { staticClass: "col-lg-4 bg-light border-end" }, [_c("div", { staticClass: "p-4" }, [_c("h6", { staticClass: "mb-3" }, [_c("i", { staticClass: "fas fa-history me-2" }), _vm._v(_vm._s(_vm.trans("em.payment_history") || "Histórico de Tentativas") + " ")]), _vm.paymentHistory.length > 0 ? _c("div", { staticClass: "payment-history-list" }, _vm._l(_vm.paymentHistory, function(transaction, index) {
     return _c("div", { key: transaction.id, staticClass: "card mb-3 border-0 shadow-sm" }, [_c("div", { staticClass: "card-body p-3" }, [_c("div", { staticClass: "d-flex justify-content-between align-items-start mb-2" }, [_c("span", { staticClass: "badge", class: _vm.getStatusBadgeClass(transaction.status) }, [_vm._v(" " + _vm._s(_vm.getStatusText(transaction.status)) + " ")]), _c("small", { staticClass: "text-muted" }, [_vm._v(" Tentativa " + _vm._s(_vm.paymentHistory.length - index) + " ")])]), _c("div", { staticClass: "mb-2" }, [_c("small", { staticClass: "text-muted d-block" }, [_vm._v(_vm._s(_vm.trans("em.payment_method") || "Método") + ":")]), _c("span", { staticClass: "fw-bold" }, [_vm._v(_vm._s(_vm.getPaymentMethodText(transaction.payment_method_type)))])]), _c("div", { staticClass: "mb-2" }, [_c("small", { staticClass: "text-muted d-block" }, [_vm._v(_vm._s(_vm.trans("em.date") || "Data") + ":")]), _c("span", [_vm._v(_vm._s(_vm.userTimezone(transaction.created_at, "YYYY-MM-DD HH:mm:ss").format("DD/MM/YYYY HH:mm")))])]), transaction.status_detail ? _c("div", { staticClass: "mb-2" }, [_c("small", { staticClass: "text-muted d-block" }, [_vm._v(_vm._s(_vm.trans("em.reason") || "Motivo") + ":")]), _c("span", { staticClass: "text-danger small" }, [_vm._v(_vm._s(_vm.getStatusDetailText(transaction.status_detail)))])]) : _vm._e(), transaction.installments > 1 ? _c("div", { staticClass: "mb-2" }, [_c("small", { staticClass: "text-muted d-block" }, [_vm._v(_vm._s(_vm.trans("em.installments") || "Parcelas") + ":")]), _c("span", [_vm._v(_vm._s(transaction.installments) + "x")])]) : _vm._e()])]);
-  }), 0) : _c("div", { staticClass: "text-center text-muted py-4" }, [_c("i", { staticClass: "fas fa-clock fa-2x mb-2" }), _c("p", [_vm._v(_vm._s(_vm.trans("em.no_attempts") || "Nenhuma tentativa anterior"))])])])]), _c("div", { staticClass: "col-lg-8" }, [_c("div", { staticClass: "p-4" }, [_c("div", { staticClass: "card mb-4 border-0 bg-light" }, [_c("div", { staticClass: "card-body" }, [_c("div", { staticClass: "row align-items-center" }, [_c("div", { staticClass: "col-md-8" }, [_c("h6", { staticClass: "mb-1" }, [_vm._v(_vm._s(_vm.selectedBookingForRetry.event_title))]), _c("p", { staticClass: "text-muted mb-1" }, [_c("i", { staticClass: "fas fa-ticket me-1" }), _vm._v(" " + _vm._s(_vm.selectedBookingForRetry.ticket_title) + " x" + _vm._s(_vm.selectedBookingForRetry.quantity) + " ")]), _c("p", { staticClass: "text-muted mb-0" }, [_c("i", { staticClass: "fas fa-hashtag me-1" }), _vm._v(" " + _vm._s(_vm.trans("em.order") || "Pedido") + ": #" + _vm._s(_vm.selectedBookingForRetry.order_number) + " ")])]), _c("div", { staticClass: "col-md-4 text-end" }, [_c("h5", { staticClass: "text-primary mb-0" }, [_vm._v(_vm._s(_vm.currency) + " " + _vm._s(_vm.selectedBookingForRetry.net_price))])])])])]), _c("div", { attrs: { "id": "retry-checkout-container" } }, [_vm.showRetryCheckout ? _c("mercado-pago-checkout", { attrs: { "booking-data": _vm.retryBookingData, "is-retry": true }, on: { "payment-success": _vm.handleRetrySuccess, "payment-error": _vm.handleRetryError } }) : _vm._e()], 1)])])])]) : _vm._e(), _c("div", { staticClass: "modal-footer" }, [_c("button", { staticClass: "btn btn-secondary", attrs: { "type": "button", "data-bs-dismiss": "modal" } }, [_vm._v(" " + _vm._s(_vm.trans("em.close") || "Fechar") + " ")])])])])])], 2);
+  }), 0) : _c("div", { staticClass: "text-center text-muted py-4" }, [_c("i", { staticClass: "fas fa-clock fa-2x mb-2" }), _c("p", [_vm._v(_vm._s(_vm.trans("em.no_attempts") || "Nenhuma tentativa anterior"))])])])]), _c("div", { staticClass: "col-lg-8" }, [_c("div", { staticClass: "p-4" }, [_c("div", { staticClass: "card mb-4 border-0 bg-light" }, [_c("div", { staticClass: "card-body" }, [_c("div", { staticClass: "row align-items-center" }, [_c("div", { staticClass: "col-md-8" }, [_c("h6", { staticClass: "mb-1" }, [_vm._v(_vm._s(_vm.selectedBookingForRetry.event_title))]), _c("p", { staticClass: "text-muted mb-1" }, [_c("i", { staticClass: "fas fa-ticket me-1" }), _vm._v(" " + _vm._s(_vm.selectedBookingForRetry.ticket_title) + " x" + _vm._s(_vm.selectedBookingForRetry.quantity) + " ")]), _c("p", { staticClass: "text-muted mb-0" }, [_c("i", { staticClass: "fas fa-hashtag me-1" }), _vm._v(" " + _vm._s(_vm.trans("em.order") || "Pedido") + ": #" + _vm._s(_vm.selectedBookingForRetry.order_number) + " ")])]), _c("div", { staticClass: "col-md-4 text-end" }, [_c("h5", { staticClass: "text-primary mb-0" }, [_vm._v(_vm._s(_vm.currency) + " " + _vm._s(_vm.selectedBookingForRetry.net_price))])])])])]), _c("div", { attrs: { "id": "retry-checkout-container" } }, [_vm.showRetryCheckout ? _c("mercado-pago-checkout", { attrs: { "booking-data": _vm.retryBookingData, "event-id": _vm.selectedBookingForRetry ? _vm.selectedBookingForRetry.event_id : null, "is-retry": true }, on: { "payment-success": _vm.handleRetrySuccess, "payment-error": _vm.handleRetryError } }) : _vm._e()], 1)])])])]) : _vm._e(), _c("div", { staticClass: "modal-footer" }, [_c("button", { staticClass: "btn btn-secondary", attrs: { "type": "button", "data-bs-dismiss": "modal" } }, [_vm._v(" " + _vm._s(_vm.trans("em.close") || "Fechar") + " ")])])])])])], 2);
 };
 var _sfc_staticRenderFns = [function() {
   var _vm = this, _c = _vm._self._c;
@@ -5473,7 +5480,7 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "d5aba66e"
+  "e2a2fcfd"
 );
 const MyBooking = __component__.exports;
 const routes = new VueRouter({
@@ -5500,4 +5507,4 @@ window.app = new Vue({
   el: "#eventmie_app",
   router: routes
 });
-//# sourceMappingURL=index-q8TKLGZi.js.map
+//# sourceMappingURL=index-Dxt3b0Px.js.map

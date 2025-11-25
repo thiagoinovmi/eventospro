@@ -60,8 +60,10 @@ const _sfc_main = {
       timerInterval: null,
       deviceId: null,
       // 🔐 Device ID para segurança Mercado Pago
-      mp: null
+      mp: null,
       // 🔐 Instância do SDK Mercado Pago
+      window
+      // 🔧 Referência ao window para uso no template
     };
   },
   mounted() {
@@ -165,15 +167,14 @@ const _sfc_main = {
       document.head.appendChild(script);
     },
     loadPaymentMethods() {
-      var _a, _b;
       console.log("=== CARREGANDO MÉTODOS DE PAGAMENTO ===");
-      console.log("Event ID:", (_a = this.event) == null ? void 0 : _a.id);
-      if (!((_b = this.event) == null ? void 0 : _b.id)) {
+      console.log("Event ID:", this.eventId);
+      if (!this.eventId) {
         console.error("Event ID não encontrado");
         return;
       }
       const timestamp = (/* @__PURE__ */ new Date()).getTime();
-      const url = `/api/mercadopago/payment-methods/event/${this.event.id}?t=${timestamp}`;
+      const url = `/api/mercadopago/payment-methods/event/${this.eventId}?t=${timestamp}`;
       console.log("Chamando API:", url);
       axios.get(url, {
         headers: {
@@ -296,7 +297,7 @@ const _sfc_main = {
         const ticketToUse = this.selectedTicket || (this.tickets && this.tickets.length > 0 ? this.tickets[0] : null);
         console.log("Ticket a ser usado:", ticketToUse);
         const paymentData = {
-          event_id: this.event.id,
+          event_id: this.eventId,
           booking_date: this.bookingData.booking_date,
           booking_end_date: this.bookingData.booking_end_date,
           start_time: this.bookingData.start_time,
@@ -695,10 +696,10 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "11dbafe9"
+  "0e334da2"
 );
 const MercadoPagoCheckout = __component__.exports;
 export {
   MercadoPagoCheckout as default
 };
-//# sourceMappingURL=MercadoPagoCheckout-nDEZk1xj.js.map
+//# sourceMappingURL=MercadoPagoCheckout-B_kEAB18.js.map

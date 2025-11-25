@@ -252,8 +252,16 @@
                 const now = new Date();
                 const laravelFormat = now.toISOString().replace('T', ' ').replace(/\.\d{3}Z$/, '');
                 
+                console.log('[TermsModal] Formato de data gerado:', laravelFormat);
+                console.log('[TermsModal] Regex test Y-m-d H:i:s:', /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(laravelFormat));
+                
                 document.getElementById('privacy_policy_accepted_at').value = laravelFormat;
                 document.getElementById('terms_conditions_accepted_at').value = laravelFormat;
+                
+                console.log('[TermsModal] Valores definidos nos campos:', {
+                    privacy_policy_accepted_at: document.getElementById('privacy_policy_accepted_at').value,
+                    terms_conditions_accepted_at: document.getElementById('terms_conditions_accepted_at').value
+                });
                 
                 // Habilitar o botão de submit
                 const submitButton = document.querySelector('button[type="submit"]');
