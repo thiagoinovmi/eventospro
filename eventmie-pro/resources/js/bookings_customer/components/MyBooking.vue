@@ -263,7 +263,7 @@
         </div>
         </div>
     </div>
-    
+
     <!-- Modal de Retry de Pagamento -->
     <div class="modal fade" id="retryPaymentModal" tabindex="-1" aria-labelledby="retryPaymentModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl" style="max-height: 90vh;">
@@ -373,7 +373,8 @@
                 </div>
             </div>
         </div>
-        
+    </div>
+    
     </div> <!-- Fechamento do div principal -->
 </template>
 
@@ -577,11 +578,8 @@ export default {
         // Retentar pagamento (débito/crédito pendente ou rejeitado)
         async retryPayment(booking) {
             try {
-                console.log('🚀 Iniciando retry para booking:', booking.id);
-                
                 // Definir booking selecionado
                 this.selectedBookingForRetry = booking;
-                console.log('📋 selectedBookingForRetry definido:', this.selectedBookingForRetry);
                 
                 // Carregar histórico de tentativas
                 await this.loadPaymentHistory(booking.id);
@@ -602,25 +600,14 @@ export default {
                 // Mostrar checkout
                 this.showRetryCheckout = true;
                 
-                // Aguardar renderização do DOM e então abrir modal
-                this.$nextTick(() => {
-                    console.log('Procurando modal de retry...');
-                    console.log('selectedBookingForRetry no nextTick:', this.selectedBookingForRetry);
-                    console.log('showRetryCheckout:', this.showRetryCheckout);
-                    
-                    const modalElement = document.getElementById('retryPaymentModal');
-                    console.log('Modal element:', modalElement);
-                    
-                    if (modalElement) {
-                        console.log('Modal encontrado, abrindo...');
-                        const modal = new Modal(modalElement);
-                        modal.show();
-                    } else {
-                        console.error('Modal de retry não encontrado');
-                        console.log('Todos os elementos com ID:', document.querySelectorAll('[id]'));
-                        console.log('Elementos com Modal no ID:', document.querySelectorAll('[id*="Modal"]'));
-                    }
-                });
+                // Abrir modal
+                const modalElement = document.getElementById('retryPaymentModal');
+                if (modalElement) {
+                    const modal = new Modal(modalElement);
+                    modal.show();
+                } else {
+                    console.error('Modal de retry não encontrado');
+                }
                 
             } catch (error) {
                 console.error('Erro ao abrir modal de retry:', error);
@@ -628,7 +615,7 @@ export default {
             }
         },
 
-        // Carregar histórico de tentativas de pagamento
+        // 📊 Carregar histórico de tentativas de pagamento
         async loadPaymentHistory(bookingId) {
             try {
                 const response = await axios.get(`/mybookings/api/payment-history/${bookingId}`);
