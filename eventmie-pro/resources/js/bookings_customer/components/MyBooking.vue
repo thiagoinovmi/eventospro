@@ -371,8 +371,9 @@
                     </button>
                 </div>
             </div>
-        </div>
-    </div> <!-- Fechamento do div principal -->
+        </div> <!-- Fechamento do modal de retry -->
+    
+    </div> <!-- Fechamento do div principal (ROOT) -->
 </template>
 
 
