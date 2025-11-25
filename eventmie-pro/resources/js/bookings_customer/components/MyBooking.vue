@@ -578,11 +578,10 @@ export default {
         // Retentar pagamento (débito/crédito pendente ou rejeitado)
         async retryPayment(booking) {
             try {
+                console.log('🚀 Iniciando retry para booking:', booking.id);
+                
                 // Definir booking selecionado
                 this.selectedBookingForRetry = booking;
-                
-                // Carregar histórico de tentativas
-                await this.loadPaymentHistory(booking.id);
                 
                 // Preparar dados para o checkout
                 this.retryBookingData = {
@@ -600,14 +599,25 @@ export default {
                 // Mostrar checkout
                 this.showRetryCheckout = true;
                 
-                // Abrir modal
-                const modalElement = document.getElementById('retryPaymentModal');
-                if (modalElement) {
-                    const modal = new Modal(modalElement);
-                    modal.show();
-                } else {
-                    console.error('Modal de retry não encontrado');
-                }
+                // Carregar histórico de tentativas
+                await this.loadPaymentHistory(booking.id);
+                
+                // Aguardar renderização do DOM e então abrir modal
+                this.$nextTick(() => {
+                    console.log('🔍 Procurando modal de retry...');
+                    const modalElement = document.getElementById('retryPaymentModal');
+                    console.log('📋 Modal element:', modalElement);
+                    console.log('📋 selectedBookingForRetry:', this.selectedBookingForRetry);
+                    
+                    if (modalElement) {
+                        console.log('✅ Modal encontrado, abrindo...');
+                        const modal = new Modal(modalElement);
+                        modal.show();
+                    } else {
+                        console.error('❌ Modal de retry não encontrado');
+                        console.log('🔍 Elementos disponíveis:', document.querySelectorAll('[id*="Modal"]'));
+                    }
+                });
                 
             } catch (error) {
                 console.error('Erro ao abrir modal de retry:', error);

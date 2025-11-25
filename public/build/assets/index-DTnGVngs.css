@@ -1,74 +1,74 @@
 
 /* Modal de Retry - Responsividade */
 @media (max-width: 991px) {
-.modal-xl .row.g-0[data-v-80f0d76b] {
+.modal-xl .row.g-0[data-v-84f2dc71] {
         flex-direction: column;
 }
-.modal-xl .col-lg-4[data-v-80f0d76b] {
+.modal-xl .col-lg-4[data-v-84f2dc71] {
         max-height: 300px;
         overflow-y: auto;
 }
 }
 
 /* Histórico de Tentativas */
-.payment-history-list[data-v-80f0d76b] {
+.payment-history-list[data-v-84f2dc71] {
     max-height: 400px;
     overflow-y: auto;
 }
-.payment-history-list[data-v-80f0d76b]::-webkit-scrollbar {
+.payment-history-list[data-v-84f2dc71]::-webkit-scrollbar {
     width: 6px;
 }
-.payment-history-list[data-v-80f0d76b]::-webkit-scrollbar-track {
+.payment-history-list[data-v-84f2dc71]::-webkit-scrollbar-track {
     background: #f1f1f1;
     border-radius: 3px;
 }
-.payment-history-list[data-v-80f0d76b]::-webkit-scrollbar-thumb {
+.payment-history-list[data-v-84f2dc71]::-webkit-scrollbar-thumb {
     background: #c1c1c1;
     border-radius: 3px;
 }
-.payment-history-list[data-v-80f0d76b]::-webkit-scrollbar-thumb:hover {
+.payment-history-list[data-v-84f2dc71]::-webkit-scrollbar-thumb:hover {
     background: #a8a8a8;
 }
 
 /* Cards do histórico */
-.payment-history-list .card[data-v-80f0d76b] {
+.payment-history-list .card[data-v-84f2dc71] {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-.payment-history-list .card[data-v-80f0d76b]:hover {
+.payment-history-list .card[data-v-84f2dc71]:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
 }
 
 /* Modal responsivo */
-.modal-xl[data-v-80f0d76b] {
+.modal-xl[data-v-84f2dc71] {
     max-width: 95vw;
 }
 @media (min-width: 1200px) {
-.modal-xl[data-v-80f0d76b] {
+.modal-xl[data-v-84f2dc71] {
         max-width: 1140px;
 }
 }
 
 /* Badges de status */
-.badge[data-v-80f0d76b] {
+.badge[data-v-84f2dc71] {
     font-size: 0.75rem;
     padding: 0.375rem 0.75rem;
 }
 
 /* Container do checkout no modal */
-#retry-checkout-container[data-v-80f0d76b] {
+#retry-checkout-container[data-v-84f2dc71] {
     min-height: 400px;
 }
 
 /* Ajustes para mobile */
 @media (max-width: 576px) {
-.modal-xl .modal-dialog[data-v-80f0d76b] {
+.modal-xl .modal-dialog[data-v-84f2dc71] {
         margin: 0.5rem;
 }
-.modal-xl .p-4[data-v-80f0d76b] {
+.modal-xl .p-4[data-v-84f2dc71] {
         padding: 1rem !important;
 }
-.payment-history-list .card-body[data-v-80f0d76b] {
+.payment-history-list .card-body[data-v-84f2dc71] {
         padding: 0.75rem !important;
 }
 }

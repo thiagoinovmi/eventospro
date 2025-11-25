@@ -5258,13 +5258,19 @@ const _sfc_main = {
           is_retry: true
         };
         this.showRetryCheckout = true;
-        const modalElement = document.getElementById("retryPaymentModal");
-        if (modalElement) {
-          const modal = new Modal(modalElement);
-          modal.show();
-        } else {
-          console.error("Modal de retry não encontrado");
-        }
+        this.$nextTick(() => {
+          console.log("🔍 Procurando modal de retry...");
+          const modalElement = document.getElementById("retryPaymentModal");
+          console.log("📋 Modal element:", modalElement);
+          if (modalElement) {
+            console.log("✅ Modal encontrado, abrindo...");
+            const modal = new Modal(modalElement);
+            modal.show();
+          } else {
+            console.error("❌ Modal de retry não encontrado");
+            console.log("🔍 Elementos disponíveis:", document.querySelectorAll('[id*="Modal"]'));
+          }
+        });
       } catch (error) {
         console.error("Erro ao abrir modal de retry:", error);
         this.showNotification("error", "Erro ao carregar formulário de pagamento");
@@ -5453,7 +5459,7 @@ var _sfc_render = function render2() {
     } } }, [_c("i", { staticClass: "fas fa-tv" }), _vm._v(" " + _vm._s(_vm.trans("em.online") + " " + _vm.trans("em.event")))]), _vm.booking_id == booking.id ? _c("online-event", { attrs: { "online_location": booking.online_location, "booking_id": booking.id } }) : _vm._e()], 1) : _vm._e()])]);
   }), _vm.bookings.length <= 0 ? _c("tr", [_c("td", { staticClass: "text-center align-middle", attrs: { "colspan": "10" } }, [_vm._v(_vm._s(_vm.trans("em.no_bookings")))])]) : _vm._e()], 2)])]), _vm.bookings.length > 0 ? _c("div", { staticClass: "px-4 pb-4" }, [_vm.pagination.last_page > 1 ? _c("pagination-component", { attrs: { "pagination": _vm.pagination, "offset": _vm.pagination.total }, on: { "paginate": function($event) {
     return _vm.getMyBookings();
-  } } }) : _vm._e()], 1) : _vm._e()])])])]), _vm._l(_vm.bookings, function(booking) {
+  } } }) : _vm._e()], 1) : _vm._e()])])])]), _vm._v(" "), _vm._l(_vm.bookings, function(booking) {
     return _c("div", { key: "modal-" + booking.id }, [booking.payment_type === "mercadopago" && booking.mercadopago_transaction && booking.mercadopago_transaction.qr_code_base64 ? _c("div", { staticClass: "modal fade", attrs: { "id": "pixModal-" + booking.id, "tabindex": "-1", "aria-labelledby": "pixModalLabel", "aria-hidden": "true" } }, [_c("div", { staticClass: "modal-dialog modal-lg", staticStyle: { "max-height": "90vh" } }, [_c("div", { staticClass: "modal-content" }, [_c("div", { class: ["modal-header", booking.is_paid ? "bg-success" : "bg-warning"] }, [_c("h5", { staticClass: "modal-title text-white", attrs: { "id": "pixModalLabel" } }, [_c("i", { class: booking.is_paid ? "fas fa-check-circle" : "fas fa-qrcode" }), _vm._v(" " + _vm._s(booking.is_paid ? _vm.trans("em.paid") : _vm.trans("em.pix_qr_code")) + " ")]), _c("button", { staticClass: "btn-close", attrs: { "type": "button", "data-bs-dismiss": "modal", "aria-label": "Close" } })]), _c("div", { staticClass: "modal-body" }, [_c("div", { staticClass: "row" }, [_c("div", { staticClass: "col-md-6 text-center mb-4" }, [_c("h6", { staticClass: "mb-3" }, [_vm._v(_vm._s(_vm.trans("em.scan_qr_code")))]), _c("img", { staticClass: "img-fluid border rounded", staticStyle: { "max-width": "300px" }, attrs: { "src": "data:image/png;base64," + _vm.getCleanBase64(booking.mercadopago_transaction.qr_code_base64), "alt": "PIX QR Code" } }), booking.is_paid || _vm.paymentConfirmed[booking.id] ? _c("div", { staticClass: "mt-4 p-4 rounded", staticStyle: { "background": "linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%)", "border": "2px solid #28a745" } }, [_c("div", { staticClass: "d-flex align-items-center justify-content-center mb-2" }, [_c("i", { staticClass: "fas fa-check-circle text-success me-2", staticStyle: { "font-size": "1.2rem" } }), _c("span", { staticClass: "text-dark fw-bold" }, [_vm._v(_vm._s(_vm.trans("em.payment_confirmed") || "Pagamento Confirmado!"))])]), _c("div", { staticClass: "text-center" }, [_c("span", { staticClass: "fw-bold", staticStyle: { "font-size": "1.5rem", "color": "#28a745", "font-family": "'Courier New', monospace" } }, [_vm._v(" " + _vm._s(_vm.userTimezone(booking.mercadopago_transaction.updated_at || booking.mercadopago_transaction.created_at, "YYYY-MM-DD HH:mm:ss").format("DD/MM/YYYY HH:mm:ss")) + " ")])]), _vm.paymentConfirmed[booking.id] ? _c("div", { staticClass: "text-center mt-3" }, [_c("button", { staticClass: "btn btn-success", attrs: { "type": "button" }, on: { "click": function($event) {
       return _vm.closeModalAndRefresh(booking.id);
     } } }, [_c("i", { staticClass: "fas fa-sync-alt me-2" }), _vm._v(_vm._s(_vm.trans("em.update_page") || "Atualizar Página") + " ")])]) : _vm._e()]) : _vm.isQrCodeExpired(booking.mercadopago_transaction.qr_code_expires_at) ? _c("div", { staticClass: "mt-4 p-4 rounded", staticStyle: { "background": "linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%)", "border": "2px solid #dc3545" } }, [_c("div", { staticClass: "d-flex align-items-center justify-content-center mb-2" }, [_c("i", { staticClass: "fas fa-times-circle text-danger me-2", staticStyle: { "font-size": "1.2rem" } }), _c("span", { staticClass: "text-dark fw-bold" }, [_vm._v(_vm._s(_vm.trans("em.expired")))])]), _vm._m(0, true)]) : _c("div", { staticClass: "mt-4 p-4 rounded", staticStyle: { "background": "linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%)", "border": "2px solid #ffc107" } }, [_c("div", { staticClass: "d-flex align-items-center justify-content-center mb-2" }, [_c("i", { staticClass: "fas fa-hourglass-end text-warning me-2", staticStyle: { "font-size": "1.2rem" } }), _c("span", { staticClass: "text-dark fw-bold" }, [_vm._v(_vm._s(_vm.trans("em.expires_in")))])]), _c("div", { staticClass: "text-center" }, [_c("span", { key: _vm.timerTrigger, staticClass: "fw-bold", staticStyle: { "font-size": "2.5rem", "color": "#d32f2f", "font-family": "'Courier New', monospace" } }, [_vm._v(" " + _vm._s(_vm.getTimeRemaining(booking.mercadopago_transaction.qr_code_expires_at)) + " ")])])])]), _c("div", { staticClass: "col-md-6" }, [_c("h6", { staticClass: "mb-3" }, [_vm._v(_vm._s(_vm.trans("em.pix_copy_paste")))]), _c("div", { staticClass: "input-group mb-3" }, [_c("input", { staticClass: "form-control", attrs: { "type": "text", "readonly": "", "disabled": booking.is_paid || _vm.isQrCodeExpired(booking.mercadopago_transaction.qr_code_expires_at) }, domProps: { "value": booking.mercadopago_transaction.qr_code } }), _c("button", { staticClass: "btn btn-outline-primary", attrs: { "type": "button", "disabled": booking.is_paid || _vm.isQrCodeExpired(booking.mercadopago_transaction.qr_code_expires_at) }, on: { "click": function($event) {
@@ -5471,7 +5477,7 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "80f0d76b"
+  "84f2dc71"
 );
 const MyBooking = __component__.exports;
 const routes = new VueRouter({
@@ -5498,4 +5504,4 @@ window.app = new Vue({
   el: "#eventmie_app",
   router: routes
 });
-//# sourceMappingURL=index-wPMATGD3.js.map
+//# sourceMappingURL=index-CFibF_xC.js.map
