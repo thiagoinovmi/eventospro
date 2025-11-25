@@ -1335,11 +1335,16 @@ class BookingsController extends Controller
                 $paymentResult = null;
                 
                 try {
-                    if ($validated['selected_method'] === 'credit_card' || $validated['selected_method'] === 'debit_card') {
-                        // Process card payment
-                        \Log::info('Chamando processCardPayment...');
+                    if ($validated['selected_method'] === 'credit_card') {
+                        // Process credit card payment
+                        \Log::info('Chamando processCardPayment para CRÉDITO...');
                         $paymentResult = $this->processCardPayment($validated, Auth::user());
                         \Log::info('Resultado de processCardPayment:', ['result' => $paymentResult]);
+                    } else if ($validated['selected_method'] === 'debit_card') {
+                        // Process debit card payment
+                        \Log::info('Chamando processDebitCardPayment para DÉBITO...');
+                        $paymentResult = $this->processDebitCardPayment($validated, Auth::user());
+                        \Log::info('Resultado de processDebitCardPayment:', ['result' => $paymentResult]);
                     } else if ($validated['selected_method'] === 'pix') {
                         // Process PIX payment
                         \Log::info('Chamando processPixPayment...');
@@ -1654,6 +1659,205 @@ class BookingsController extends Controller
 
         } catch (\Throwable $e) {
             \Log::error('EXCEÇÃO CAPTURADA ao processar pagamento de cartão:', [
+                'exception_class' => get_class($e),
+                'message' => $e->getMessage(),
+                'code' => $e->getCode(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return [
+                'status' => false,
+                'message' => 'Erro ao processar pagamento: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Process debit card payment (separate from credit card)
+     * 
+     * Debit cards have different rules:
+     * - No installments
+     * - Must use debit_card as payment_method_id
+     * - Immediate authorization required
+     */
+    private function processDebitCardPayment($validated, $user)
+    {
+        try {
+            \Log::info('=== INICIANDO PROCESSAMENTO DE DÉBITO === ' . date('Y-m-d H:i:s'));
+            \Log::info('Validated data:', $validated);
+            
+            // Get token from settings table (Voyager)
+            $accessToken = setting('mercadopago.access_token');
+            \Log::info('Token obtido:', ['token_length' => strlen($accessToken ?? ''), 'token_preview' => substr($accessToken ?? '', 0, 20)]);
+            
+            if (!$accessToken) {
+                return [
+                    'status' => false,
+                    'message' => 'Mercado Pago não está configurado'
+                ];
+            }
+
+            \Log::info('Dados do usuário:', [
+                'email' => $user->email,
+                'name' => $user->name,
+                'document' => $user->document ?? 'vazio'
+            ]);
+
+            // CRITICAL: For debit cards, ALWAYS use 'debit_card' as payment_method_id
+            // NOT the card brand (visa, master, etc)
+            // This is the key difference from credit cards
+            $paymentMethodId = 'debit_card';
+            
+            \Log::info('Payment method ID para DÉBITO:', [
+                'payment_method_id' => $paymentMethodId,
+                'note' => 'Débito sempre usa debit_card, não a marca do cartão'
+            ]);
+            
+            // Prepare payment data for debit card payment
+            $paymentData = [
+                "transaction_amount" => (float)$validated['total'],
+                "description" => "Pagamento de ingresso (DÉBITO) - Evento #{$validated['event_id']}",
+                "payment_method_id" => $paymentMethodId,
+                "installments" => 1,  // Débito não permite parcelamento
+                "token" => $validated['card_token'] ?? null,
+                "payer" => [
+                    "email" => $user->email,
+                    "first_name" => $user->name,
+                    "last_name" => "User",
+                    "identification" => [
+                        "type" => "CPF",
+                        "number" => str_replace(['.', '-'], '', $user->document ?? '12345678909')
+                    ]
+                ],
+                "external_reference" => "BOOKING-" . time() . "-" . $user->id,
+                "statement_descriptor" => "EVENTO"
+            ];
+
+            // Validate token
+            if (empty($paymentData['token'])) {
+                \Log::error('Token do cartão está vazio para DÉBITO!');
+                return [
+                    'status' => false,
+                    'message' => 'Token do cartão não foi gerado. Verifique os dados do cartão.'
+                ];
+            }
+            
+            \Log::info('Dados do pagamento DÉBITO preparados:', [
+                'amount' => $paymentData['transaction_amount'],
+                'method' => $paymentData['payment_method_id'],
+                'installments' => $paymentData['installments'],
+                'email' => $paymentData['payer']['email'],
+                'token_length' => strlen($paymentData['token'] ?? ''),
+                'token_preview' => substr($paymentData['token'] ?? '', 0, 20),
+                'cpf' => $paymentData['payer']['identification']['number'],
+                'payer_email' => $paymentData['payer']['email'],
+                'payer_name' => $paymentData['payer']['first_name'] . ' ' . $paymentData['payer']['last_name']
+            ]);
+            
+            // Log the complete payment data as JSON
+            \Log::info('Payment data JSON (DÉBITO):', [
+                'json' => json_encode($paymentData, JSON_PRETTY_PRINT)
+            ]);
+
+            // Make cURL request to Mercado Pago API
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, 'https://api.mercadopago.com/v1/payments');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($paymentData));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . $accessToken,
+                'X-Idempotency-Key: ' . \Illuminate\Support\Str::uuid()
+            ]);
+
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curlError = curl_error($ch);
+            curl_close($ch);
+
+            \Log::info('DEBUG - Requisição DÉBITO enviada para Mercado Pago:', [
+                'url' => 'https://api.mercadopago.com/v1/payments',
+                'token_length' => strlen($accessToken),
+                'token_preview' => substr($accessToken, 0, 20) . '...',
+                'payment_data' => $paymentData,
+                'payment_data_json' => json_encode($paymentData)
+            ]);
+
+            \Log::info('Resposta do Mercado Pago (DÉBITO):', [
+                'httpCode' => $httpCode,
+                'response' => $response,
+                'curlError' => $curlError
+            ]);
+
+            // Decode response
+            $responseData = json_decode($response, true);
+
+            if ($httpCode === 201 || $httpCode === 200) {
+                if (isset($responseData['id']) && isset($responseData['status'])) {
+                    $status = $responseData['status'];
+                    $isApproved = ($status === 'approved');
+
+                    \Log::info('Pagamento DÉBITO processado:', [
+                        'payment_id' => $responseData['id'],
+                        'status' => $status,
+                        'approved' => $isApproved
+                    ]);
+
+                    return [
+                        'status' => true,
+                        'payment_id' => $responseData['id'],
+                        'is_paid' => $isApproved ? 1 : 0,
+                        'booking_status' => $isApproved ? 1 : 0,
+                        'message' => $isApproved ? 'Pagamento por débito aprovado!' : 'Pagamento por débito pendente de confirmação',
+                        'response_data' => $responseData
+                    ];
+                }
+            }
+
+            \Log::error('Erro ao processar pagamento DÉBITO - HTTP ' . $httpCode, [
+                'response' => $response,
+                'responseData' => $responseData
+            ]);
+
+            $errorMsg = 'Erro desconhecido';
+            
+            // Handle specific error messages
+            if (isset($responseData['message'])) {
+                $errorMsg = $responseData['message'];
+                
+                // Provide user-friendly messages for common errors
+                if ($responseData['message'] === 'bin_not_found') {
+                    $errorMsg = 'Cartão inválido ou não reconhecido. Verifique o número do cartão.';
+                } elseif ($responseData['message'] === 'diff_param_bins') {
+                    $errorMsg = 'Os dados do cartão não correspondem ao token gerado. Tente novamente com outro cartão.';
+                } elseif ($responseData['message'] === 'invalid_token') {
+                    $errorMsg = 'Token do cartão inválido ou expirado. Tente novamente.';
+                } elseif ($responseData['message'] === 'debit_card_not_supported') {
+                    $errorMsg = 'Este cartão de débito não é suportado. Tente com outro cartão.';
+                }
+            }
+            
+            if (isset($responseData['cause']) && is_array($responseData['cause'])) {
+                $causes = array_map(function($c) { return $c['description'] ?? ''; }, $responseData['cause']);
+                \Log::error('Causas do erro DÉBITO:', $causes);
+            }
+
+            \Log::error('Erro ao processar pagamento DÉBITO:', [
+                'httpCode' => $httpCode,
+                'response' => $response,
+                'errorMsg' => $errorMsg
+            ]);
+
+            return [
+                'status' => false,
+                'message' => 'Erro ao processar pagamento: ' . $errorMsg
+            ];
+
+        } catch (\Throwable $e) {
+            \Log::error('EXCEÇÃO CAPTURADA ao processar pagamento DÉBITO:', [
                 'exception_class' => get_class($e),
                 'message' => $e->getMessage(),
                 'code' => $e->getCode(),
