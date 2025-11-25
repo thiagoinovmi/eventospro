@@ -1542,7 +1542,10 @@ class BookingsController extends Controller
                 "statement_descriptor" => "EVENTO"
             ];
 
-            // Adicionar items para melhorar aprovação (+14 pontos Mercado Pago)
+            // TODO: Implementar items na API v2 do Mercado Pago
+            // API v1 não suporta parâmetro 'items' - causa erro 400
+            // Remover temporariamente para restaurar funcionamento
+            /*
             if ($ticket && $event) {
                 $paymentData['items'] = [
                     [
@@ -1559,6 +1562,7 @@ class BookingsController extends Controller
             } else {
                 \Log::warning('Event ou Ticket não encontrados - Items não adicionados');
             }
+            */
 
             // Validate token
             if (empty($paymentData['token'])) {
