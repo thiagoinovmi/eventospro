@@ -578,6 +578,9 @@ export default {
         // Retentar pagamento (débito/crédito pendente ou rejeitado)
         async retryPayment(booking) {
             try {
+                console.log('🚀 Booking completo:', booking);
+                console.log('🔍 Event ID do booking:', booking.event_id);
+                
                 // Definir booking selecionado
                 this.selectedBookingForRetry = booking;
                 
@@ -599,15 +602,22 @@ export default {
                 
                 // Mostrar checkout
                 this.showRetryCheckout = true;
+                console.log('🔧 showRetryCheckout definido como:', this.showRetryCheckout);
+                console.log('🔧 selectedBookingForRetry:', this.selectedBookingForRetry);
                 
-                // Abrir modal
-                const modalElement = document.getElementById('retryPaymentModal');
-                if (modalElement) {
-                    const modal = new Modal(modalElement);
-                    modal.show();
-                } else {
-                    console.error('Modal de retry não encontrado');
-                }
+                // Aguardar renderização do componente
+                this.$nextTick(() => {
+                    console.log('🔧 Após nextTick - showRetryCheckout:', this.showRetryCheckout);
+                    
+                    // Abrir modal
+                    const modalElement = document.getElementById('retryPaymentModal');
+                    if (modalElement) {
+                        const modal = new Modal(modalElement);
+                        modal.show();
+                    } else {
+                        console.error('Modal de retry não encontrado');
+                    }
+                });
                 
             } catch (error) {
                 console.error('Erro ao abrir modal de retry:', error);
