@@ -177,7 +177,7 @@
                                     placeholder="João Silva"
                                     @input="validateCardholderName"
                                 >
-                                <small class="text-danger" v-if="errors.cardholderName">{{ errors.cardholderName }}</small>
+                                <small class="text-danger" v-if="validationErrors.cardholderName">{{ validationErrors.cardholderName }}</small>
                             </div>
 
                             <!-- Card Number -->
@@ -192,7 +192,7 @@
                                     maxlength="19"
                                     @input="formatCardNumber"
                                 >
-                                <small class="text-danger" v-if="errors.cardNumber">{{ errors.cardNumber }}</small>
+                                <small class="text-danger" v-if="validationErrors.cardNumber">{{ validationErrors.cardNumber }}</small>
                             </div>
 
                             <!-- Expiry and CVV -->
@@ -208,7 +208,7 @@
                                         maxlength="5"
                                         @input="formatCardExpiry"
                                     >
-                                    <small class="text-danger" v-if="errors.cardExpiry">{{ errors.cardExpiry }}</small>
+                                    <small class="text-danger" v-if="validationErrors.cardExpiry">{{ validationErrors.cardExpiry }}</small>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="cardCvv" class="form-label">{{ trans('em.cvv') || 'CVV' }}</label>
@@ -221,7 +221,7 @@
                                         maxlength="4"
                                         @input="validateCVV"
                                     >
-                                    <small class="text-danger" v-if="errors.cardCvv">{{ errors.cardCvv }}</small>
+                                    <small class="text-danger" v-if="validationErrors.cardCvv">{{ validationErrors.cardCvv }}</small>
                                 </div>
                             </div>
 
@@ -399,7 +399,7 @@ export default {
                 installments: 1,
                 paymentMethodId: 'credit_card' // Will be updated based on card brand
             },
-            errors: {
+            validationErrors: {
                 cardholderName: '',
                 cardNumber: '',
                 cardExpiry: '',
@@ -664,17 +664,17 @@ export default {
 
         validateCardholderName() {
             if (this.cardData.holderName.length < 3) {
-                this.errors.cardholderName = 'Nome deve ter pelo menos 3 caracteres';
+                this.validationErrors.cardholderName = 'Nome deve ter pelo menos 3 caracteres';
             } else {
-                this.errors.cardholderName = '';
+                this.validationErrors.cardholderName = '';
             }
         },
 
         validateCVV() {
             if (this.cardData.cvv.length < 3 || this.cardData.cvv.length > 4) {
-                this.errors.cardCvv = 'CVV deve ter 3 ou 4 dígitos';
+                this.validationErrors.cardCvv = 'CVV deve ter 3 ou 4 dígitos';
             } else {
-                this.errors.cardCvv = '';
+                this.validationErrors.cardCvv = '';
             }
         },
 
@@ -684,25 +684,25 @@ export default {
             if (this.selectedMethod === 'credit_card' || this.selectedMethod === 'debit_card') {
                 // Validate cardholder name
                 if (this.cardData.holderName.length < 3) {
-                    this.errors.cardholderName = 'Nome inválido';
+                    this.validationErrors.cardholderName = 'Nome inválido';
                     isValid = false;
                 }
 
                 // Validate card number
                 if (this.cardData.number.replace(/\s/g, '').length !== 16) {
-                    this.errors.cardNumber = 'Número do cartão inválido';
+                    this.validationErrors.cardNumber = 'Número do cartão inválido';
                     isValid = false;
                 }
 
                 // Validate expiry
                 if (!this.cardData.expiry.match(/^\d{2}\/\d{2}$/)) {
-                    this.errors.cardExpiry = 'Validade inválida (MM/YY)';
+                    this.validationErrors.cardExpiry = 'Validade inválida (MM/YY)';
                     isValid = false;
                 }
 
                 // Validate CVV
                 if (this.cardData.cvv.length < 3 || this.cardData.cvv.length > 4) {
-                    this.errors.cardCvv = 'CVV inválido';
+                    this.validationErrors.cardCvv = 'CVV inválido';
                     isValid = false;
                 }
             }

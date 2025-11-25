@@ -236,9 +236,9 @@
                                     <div class="col-12 mt-4" v-if="payment_method == 2 && total > 0">
                                         <mercadopago-checkout
                                             ref="mercadoPagoCheckout"
-                                            :event="event"
+                                            :event-id="event.id"
                                             :tickets="tickets"
-                                            :total="total"
+                                            :total="parseFloat(total)"
                                             :currency="currency"
                                             :booking-data="{
                                                 booking_date: booking_date,
@@ -328,6 +328,7 @@ export default {
             openModal           : false,
             ticket_info         : false,    
             moment              : moment,
+            overflowHidden      : false,
             quantity            : [1],
             price               : null,
             total_price         : [],
