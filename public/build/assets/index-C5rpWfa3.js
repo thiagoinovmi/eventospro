@@ -9,21 +9,82 @@ const _sfc_main$4 = {
       name: null,
       username: null,
       email: null,
-      address: null,
+      // 🏠 Endereço separado em campos
+      address_zip_code: null,
+      address_street: null,
+      address_number: null,
+      address_complement: null,
+      address_neighborhood: null,
+      address_city: null,
+      address_state: null,
+      // Telefone e Documento
       phone: null,
       document_type: null,
       document: null,
+      // PIX
       pix_type: null,
       pix_key: null,
+      // Avatar
       avatar: null,
       is_organiser,
-      avatarUrl: null
+      avatarUrl: null,
+      // Estado de busca de CEP
+      cepLoading: false,
+      cepError: null
     };
   },
   methods: {
     // ...mapMutations(["add"]),
     editProfile() {
-      this.name = this.user.name, this.username = this.user.username, this.email = this.user.email, this.address = this.user.address, this.phone = this.user.phone, this.document_type = this.user.document_type, this.document = this.user.document, this.pix_type = this.user.pix_type, this.pix_key = this.user.pix_key;
+      this.name = this.user.name;
+      this.username = this.user.username;
+      this.email = this.user.email;
+      this.address_zip_code = this.user.address_zip_code;
+      this.address_street = this.user.address_street;
+      this.address_number = this.user.address_number;
+      this.address_complement = this.user.address_complement;
+      this.address_neighborhood = this.user.address_neighborhood;
+      this.address_city = this.user.address_city;
+      this.address_state = this.user.address_state;
+      this.phone = this.user.phone;
+      this.document_type = this.user.document_type;
+      this.document = this.user.document;
+      this.pix_type = this.user.pix_type;
+      this.pix_key = this.user.pix_key;
+    },
+    // 🔍 Buscar CEP usando ViaCEP API
+    async searchCEP() {
+      if (!this.address_zip_code) {
+        this.cepError = "Digite um CEP";
+        return;
+      }
+      const cepClean = this.address_zip_code.replace(/\D/g, "");
+      if (cepClean.length !== 8) {
+        this.cepError = "CEP deve ter 8 dígitos";
+        return;
+      }
+      this.cepLoading = true;
+      this.cepError = null;
+      try {
+        const response = await fetch(`https://viacep.com.br/ws/${cepClean}/json/`);
+        const data = await response.json();
+        if (data.erro) {
+          this.cepError = "CEP não encontrado";
+          this.cepLoading = false;
+          return;
+        }
+        this.address_street = data.logradouro;
+        this.address_neighborhood = data.bairro;
+        this.address_city = data.localidade;
+        this.address_state = data.uf;
+        this.cepError = null;
+        console.log("✅ CEP preenchido com sucesso:", data);
+      } catch (error) {
+        console.error("❌ Erro ao buscar CEP:", error);
+        this.cepError = "Erro ao buscar CEP. Tente novamente.";
+      } finally {
+        this.cepLoading = false;
+      }
     },
     // validate data on form submit
     validateForm(event) {
@@ -71,10 +132,28 @@ var _sfc_render$4 = function render() {
   } } }), _c("span", { directives: [{ name: "show", rawName: "v-show", value: _vm.errors.has("name"), expression: "errors.has('name')" }], staticClass: "help text-danger" }, [_vm._v(_vm._s(_vm.errors.first("name")))])])]), _c("div", { staticClass: "form-group row mt-3" }, [_c("label", { staticClass: "col-md-3 form-label" }, [_vm._v(_vm._s(_vm.trans("em.email")) + "*")]), _c("div", { staticClass: "col-md-9" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.email, expression: "email" }, { name: "validate", rawName: "v-validate", value: "required", expression: "'required'" }], staticClass: "form-control", attrs: { "name": "email", "type": "email" }, domProps: { "value": _vm.email }, on: { "input": function($event) {
     if ($event.target.composing) return;
     _vm.email = $event.target.value;
-  } } }), _c("span", { directives: [{ name: "show", rawName: "v-show", value: _vm.errors.has("email"), expression: "errors.has('email')" }], staticClass: "help text-danger" }, [_vm._v(_vm._s(_vm.errors.first("email")))])])]), _c("div", { staticClass: "form-group row mt-3" }, [_c("label", { staticClass: "col-md-3 form-label" }, [_vm._v(_vm._s(_vm.trans("em.address")))]), _c("div", { staticClass: "col-md-9" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.address, expression: "address" }], staticClass: "form-control", attrs: { "name": "address", "type": "text" }, domProps: { "value": _vm.address }, on: { "input": function($event) {
+  } } }), _c("span", { directives: [{ name: "show", rawName: "v-show", value: _vm.errors.has("email"), expression: "errors.has('email')" }], staticClass: "help text-danger" }, [_vm._v(_vm._s(_vm.errors.first("email")))])])]), _c("div", { staticClass: "form-group row mt-3" }, [_c("label", { staticClass: "col-md-3 form-label" }, [_vm._v("CEP")]), _c("div", { staticClass: "col-md-6" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.address_zip_code, expression: "address_zip_code" }], staticClass: "form-control", attrs: { "name": "address_zip_code", "type": "text", "placeholder": "00000-000", "maxlength": "9" }, domProps: { "value": _vm.address_zip_code }, on: { "blur": _vm.searchCEP, "input": function($event) {
     if ($event.target.composing) return;
-    _vm.address = $event.target.value;
-  } } }), _c("span", { directives: [{ name: "show", rawName: "v-show", value: _vm.errors.has("address"), expression: "errors.has('address')" }], staticClass: "help text-danger" }, [_vm._v(_vm._s(_vm.errors.first("address")))])])]), _c("div", { staticClass: "form-group row mt-3" }, [_c("label", { staticClass: "col-md-3 form-label" }, [_vm._v(_vm._s(_vm.trans("em.phone")))]), _c("div", { staticClass: "col-md-9" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.phone, expression: "phone" }], staticClass: "form-control", attrs: { "name": "phone", "type": "text" }, domProps: { "value": _vm.phone }, on: { "input": function($event) {
+    _vm.address_zip_code = $event.target.value;
+  } } }), _c("span", { directives: [{ name: "show", rawName: "v-show", value: _vm.errors.has("address_zip_code"), expression: "errors.has('address_zip_code')" }], staticClass: "help text-danger" }, [_vm._v(_vm._s(_vm.errors.first("address_zip_code")))])]), _c("div", { staticClass: "col-md-3" }, [_c("button", { staticClass: "btn btn-sm btn-info", attrs: { "type": "button", "disabled": !_vm.address_zip_code }, on: { "click": _vm.searchCEP } }, [_c("i", { staticClass: "fas fa-search" }), _vm._v(" Buscar ")])])]), _c("div", { staticClass: "form-group row mt-3" }, [_c("label", { staticClass: "col-md-3 form-label" }, [_vm._v("Logradouro")]), _c("div", { staticClass: "col-md-9" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.address_street, expression: "address_street" }], staticClass: "form-control", attrs: { "name": "address_street", "type": "text", "placeholder": "Rua, Avenida, etc" }, domProps: { "value": _vm.address_street }, on: { "input": function($event) {
+    if ($event.target.composing) return;
+    _vm.address_street = $event.target.value;
+  } } }), _c("span", { directives: [{ name: "show", rawName: "v-show", value: _vm.errors.has("address_street"), expression: "errors.has('address_street')" }], staticClass: "help text-danger" }, [_vm._v(_vm._s(_vm.errors.first("address_street")))])])]), _c("div", { staticClass: "form-group row mt-3" }, [_c("label", { staticClass: "col-md-3 form-label" }, [_vm._v("Número")]), _c("div", { staticClass: "col-md-3" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.address_number, expression: "address_number" }], staticClass: "form-control", attrs: { "name": "address_number", "type": "text", "placeholder": "123" }, domProps: { "value": _vm.address_number }, on: { "input": function($event) {
+    if ($event.target.composing) return;
+    _vm.address_number = $event.target.value;
+  } } }), _c("span", { directives: [{ name: "show", rawName: "v-show", value: _vm.errors.has("address_number"), expression: "errors.has('address_number')" }], staticClass: "help text-danger" }, [_vm._v(_vm._s(_vm.errors.first("address_number")))])]), _c("label", { staticClass: "col-md-3 form-label" }, [_vm._v("Complemento")]), _c("div", { staticClass: "col-md-3" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.address_complement, expression: "address_complement" }], staticClass: "form-control", attrs: { "name": "address_complement", "type": "text", "placeholder": "Apto, Sala, etc" }, domProps: { "value": _vm.address_complement }, on: { "input": function($event) {
+    if ($event.target.composing) return;
+    _vm.address_complement = $event.target.value;
+  } } })])]), _c("div", { staticClass: "form-group row mt-3" }, [_c("label", { staticClass: "col-md-3 form-label" }, [_vm._v("Bairro")]), _c("div", { staticClass: "col-md-9" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.address_neighborhood, expression: "address_neighborhood" }], staticClass: "form-control", attrs: { "name": "address_neighborhood", "type": "text", "placeholder": "Bairro" }, domProps: { "value": _vm.address_neighborhood }, on: { "input": function($event) {
+    if ($event.target.composing) return;
+    _vm.address_neighborhood = $event.target.value;
+  } } }), _c("span", { directives: [{ name: "show", rawName: "v-show", value: _vm.errors.has("address_neighborhood"), expression: "errors.has('address_neighborhood')" }], staticClass: "help text-danger" }, [_vm._v(_vm._s(_vm.errors.first("address_neighborhood")))])])]), _c("div", { staticClass: "form-group row mt-3" }, [_c("label", { staticClass: "col-md-3 form-label" }, [_vm._v("Cidade")]), _c("div", { staticClass: "col-md-6" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.address_city, expression: "address_city" }], staticClass: "form-control", attrs: { "name": "address_city", "type": "text", "placeholder": "Cidade" }, domProps: { "value": _vm.address_city }, on: { "input": function($event) {
+    if ($event.target.composing) return;
+    _vm.address_city = $event.target.value;
+  } } }), _c("span", { directives: [{ name: "show", rawName: "v-show", value: _vm.errors.has("address_city"), expression: "errors.has('address_city')" }], staticClass: "help text-danger" }, [_vm._v(_vm._s(_vm.errors.first("address_city")))])]), _c("label", { staticClass: "col-md-2 form-label" }, [_vm._v("Estado")]), _c("div", { staticClass: "col-md-1" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.address_state, expression: "address_state" }], staticClass: "form-control", attrs: { "name": "address_state", "type": "text", "placeholder": "SP", "maxlength": "2" }, domProps: { "value": _vm.address_state }, on: { "input": function($event) {
+    if ($event.target.composing) return;
+    _vm.address_state = $event.target.value;
+  } } }), _c("span", { directives: [{ name: "show", rawName: "v-show", value: _vm.errors.has("address_state"), expression: "errors.has('address_state')" }], staticClass: "help text-danger" }, [_vm._v(_vm._s(_vm.errors.first("address_state")))])])]), _c("div", { staticClass: "form-group row mt-3" }, [_c("label", { staticClass: "col-md-3 form-label" }, [_vm._v(_vm._s(_vm.trans("em.phone")))]), _c("div", { staticClass: "col-md-9" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.phone, expression: "phone" }], staticClass: "form-control", attrs: { "name": "phone", "type": "text" }, domProps: { "value": _vm.phone }, on: { "input": function($event) {
     if ($event.target.composing) return;
     _vm.phone = $event.target.value;
   } } }), _c("span", { directives: [{ name: "show", rawName: "v-show", value: _vm.errors.has("phone"), expression: "errors.has('phone')" }], staticClass: "help text-danger" }, [_vm._v(_vm._s(_vm.errors.first("phone")))])])]), _c("div", { staticClass: "form-group row mt-3" }, [_c("label", { staticClass: "col-md-3 form-label" }, [_vm._v("Tipo de Documento")]), _c("div", { staticClass: "col-md-9" }, [_c("select", { directives: [{ name: "model", rawName: "v-model", value: _vm.document_type, expression: "document_type" }, { name: "validate", rawName: "v-validate", value: "", expression: "''" }], staticClass: "form-control", attrs: { "name": "document_type", "data-vv-as": "Tipo de Documento" }, on: { "change": function($event) {
@@ -516,4 +595,4 @@ window.app = new Vue({
     });
   }
 });
-//# sourceMappingURL=index-D8YoUW5C.js.map
+//# sourceMappingURL=index-C5rpWfa3.js.map

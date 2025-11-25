@@ -45,14 +45,72 @@
                                 </div>
                             </div>
 
+                            <!-- 🏠 ENDEREÇO COMPLETO - SEPARADO EM CAMPOS -->
                             <div class="form-group row mt-3">
-                                <label class="col-md-3 form-label">{{
-                                trans("em.address")
-                                }}</label>
+                                <label class="col-md-3 form-label">CEP</label>
+                                <div class="col-md-6">
+                                    <input class="form-control" name="address_zip_code" type="text" 
+                                        v-model="address_zip_code" placeholder="00000-000" 
+                                        @blur="searchCEP" maxlength="9" />
+                                    <span v-show="errors.has('address_zip_code')" class="help text-danger">{{
+                                    errors.first("address_zip_code") }}</span>
+                                </div>
+                                <div class="col-md-3">
+                                    <button type="button" class="btn btn-sm btn-info" @click="searchCEP" :disabled="!address_zip_code">
+                                        <i class="fas fa-search"></i> Buscar
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="form-group row mt-3">
+                                <label class="col-md-3 form-label">Logradouro</label>
                                 <div class="col-md-9">
-                                    <input class="form-control" name="address" type="text" v-model="address" />
-                                    <span v-show="errors.has('address')" class="help text-danger">{{
-                                    errors.first("address") }}</span>
+                                    <input class="form-control" name="address_street" type="text" 
+                                        v-model="address_street" placeholder="Rua, Avenida, etc" />
+                                    <span v-show="errors.has('address_street')" class="help text-danger">{{
+                                    errors.first("address_street") }}</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group row mt-3">
+                                <label class="col-md-3 form-label">Número</label>
+                                <div class="col-md-3">
+                                    <input class="form-control" name="address_number" type="text" 
+                                        v-model="address_number" placeholder="123" />
+                                    <span v-show="errors.has('address_number')" class="help text-danger">{{
+                                    errors.first("address_number") }}</span>
+                                </div>
+                                <label class="col-md-3 form-label">Complemento</label>
+                                <div class="col-md-3">
+                                    <input class="form-control" name="address_complement" type="text" 
+                                        v-model="address_complement" placeholder="Apto, Sala, etc" />
+                                </div>
+                            </div>
+
+                            <div class="form-group row mt-3">
+                                <label class="col-md-3 form-label">Bairro</label>
+                                <div class="col-md-9">
+                                    <input class="form-control" name="address_neighborhood" type="text" 
+                                        v-model="address_neighborhood" placeholder="Bairro" />
+                                    <span v-show="errors.has('address_neighborhood')" class="help text-danger">{{
+                                    errors.first("address_neighborhood") }}</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group row mt-3">
+                                <label class="col-md-3 form-label">Cidade</label>
+                                <div class="col-md-6">
+                                    <input class="form-control" name="address_city" type="text" 
+                                        v-model="address_city" placeholder="Cidade" />
+                                    <span v-show="errors.has('address_city')" class="help text-danger">{{
+                                    errors.first("address_city") }}</span>
+                                </div>
+                                <label class="col-md-2 form-label">Estado</label>
+                                <div class="col-md-1">
+                                    <input class="form-control" name="address_state" type="text" 
+                                        v-model="address_state" placeholder="SP" maxlength="2" />
+                                    <span v-show="errors.has('address_state')" class="help text-danger">{{
+                                    errors.first("address_state") }}</span>
                                 </div>
                             </div>
 
@@ -140,16 +198,28 @@ export default {
             name: null,
             username: null,
             email: null,
-            address: null,
+            // 🏠 Endereço separado em campos
+            address_zip_code: null,
+            address_street: null,
+            address_number: null,
+            address_complement: null,
+            address_neighborhood: null,
+            address_city: null,
+            address_state: null,
+            // Telefone e Documento
             phone: null,
             document_type: null,
             document: null,
+            // PIX
             pix_type: null,
             pix_key: null,
+            // Avatar
             avatar : null,
             is_organiser : is_organiser,
             avatarUrl : null,
-
+            // Estado de busca de CEP
+            cepLoading: false,
+            cepError: null,
         };
     },
 
@@ -157,15 +227,68 @@ export default {
         // ...mapMutations(["add"]),
 
         editProfile() {
-            this.name = this.user.name,
-            this.username = this.user.username,
-            this.email = this.user.email,
-            this.address = this.user.address,
-            this.phone = this.user.phone,
-            this.document_type = this.user.document_type,
-            this.document = this.user.document,
-            this.pix_type = this.user.pix_type,
+            this.name = this.user.name;
+            this.username = this.user.username;
+            this.email = this.user.email;
+            // 🏠 Carregar endereço separado
+            this.address_zip_code = this.user.address_zip_code;
+            this.address_street = this.user.address_street;
+            this.address_number = this.user.address_number;
+            this.address_complement = this.user.address_complement;
+            this.address_neighborhood = this.user.address_neighborhood;
+            this.address_city = this.user.address_city;
+            this.address_state = this.user.address_state;
+            // Telefone e Documento
+            this.phone = this.user.phone;
+            this.document_type = this.user.document_type;
+            this.document = this.user.document;
+            // PIX
+            this.pix_type = this.user.pix_type;
             this.pix_key = this.user.pix_key;
+        },
+
+        // 🔍 Buscar CEP usando ViaCEP API
+        async searchCEP() {
+            if (!this.address_zip_code) {
+                this.cepError = 'Digite um CEP';
+                return;
+            }
+
+            // Remover caracteres especiais
+            const cepClean = this.address_zip_code.replace(/\D/g, '');
+
+            if (cepClean.length !== 8) {
+                this.cepError = 'CEP deve ter 8 dígitos';
+                return;
+            }
+
+            this.cepLoading = true;
+            this.cepError = null;
+
+            try {
+                const response = await fetch(`https://viacep.com.br/ws/${cepClean}/json/`);
+                const data = await response.json();
+
+                if (data.erro) {
+                    this.cepError = 'CEP não encontrado';
+                    this.cepLoading = false;
+                    return;
+                }
+
+                // Preencher campos automaticamente
+                this.address_street = data.logradouro;
+                this.address_neighborhood = data.bairro;
+                this.address_city = data.localidade;
+                this.address_state = data.uf;
+                this.cepError = null;
+
+                console.log('✅ CEP preenchido com sucesso:', data);
+            } catch (error) {
+                console.error('❌ Erro ao buscar CEP:', error);
+                this.cepError = 'Erro ao buscar CEP. Tente novamente.';
+            } finally {
+                this.cepLoading = false;
+            }
         },
 
         // validate data on form submit
