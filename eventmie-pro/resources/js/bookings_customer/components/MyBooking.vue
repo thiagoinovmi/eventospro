@@ -433,18 +433,26 @@ export default {
 
         // Retentar pagamento (débito/crédito pendente ou rejeitado)
         retryPayment(booking) {
-            // Emitir evento para abrir o checkout novamente
-            // O componente pai (SelectDates) irá capturar este evento
-            this.$emit('retry-payment', {
+            // Armazenar dados do booking na sessão para retentar pagamento
+            const retryData = {
                 booking_id: booking.id,
                 event_id: booking.event_id,
                 ticket_id: booking.ticket_id,
                 ticket_title: booking.ticket_title,
                 net_price: booking.net_price,
-                transaction_id: booking.mercadopago_transaction?.id
-            });
+                transaction_id: booking.mercadopago_transaction?.id,
+                event_slug: booking.event_slug
+            };
+            
+            // Salvar na localStorage para recuperar na página do evento
+            localStorage.setItem('mercadopago_retry_payment', JSON.stringify(retryData));
             
             this.showNotification('info', trans('em.opening_checkout') || 'Abrindo formulário de pagamento...');
+            
+            // Redirecionar para a página do evento
+            setTimeout(() => {
+                window.location.href = route('eventmie.events_show', [booking.event_slug]);
+            }, 500);
         },
     },
     mounted() {

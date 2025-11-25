@@ -5224,15 +5224,20 @@ const _sfc_main = {
     // Retentar pagamento (débito/crédito pendente ou rejeitado)
     retryPayment(booking) {
       var _a;
-      this.$emit("retry-payment", {
+      const retryData = {
         booking_id: booking.id,
         event_id: booking.event_id,
         ticket_id: booking.ticket_id,
         ticket_title: booking.ticket_title,
         net_price: booking.net_price,
-        transaction_id: (_a = booking.mercadopago_transaction) == null ? void 0 : _a.id
-      });
+        transaction_id: (_a = booking.mercadopago_transaction) == null ? void 0 : _a.id,
+        event_slug: booking.event_slug
+      };
+      localStorage.setItem("mercadopago_retry_payment", JSON.stringify(retryData));
       this.showNotification("info", trans("em.opening_checkout") || "Abrindo formulário de pagamento...");
+      setTimeout(() => {
+        window.location.href = route("eventmie.events_show", [booking.event_slug]);
+      }, 500);
     }
   },
   mounted() {
@@ -5307,4 +5312,4 @@ window.app = new Vue({
   el: "#eventmie_app",
   router: routes
 });
-//# sourceMappingURL=index-B0bv37YK.js.map
+//# sourceMappingURL=index-TdFof7Jx.js.map

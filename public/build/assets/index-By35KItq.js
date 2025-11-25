@@ -3349,6 +3349,33 @@ const _sfc_main$2 = {
       if (endDateTime < today)
         return;
       this.singleEvent();
+    },
+    // 🔄 Verificar e processar retentar pagamento
+    checkRetryPayment() {
+      try {
+        const retryData = localStorage.getItem("mercadopago_retry_payment");
+        if (retryData) {
+          const data = JSON.parse(retryData);
+          console.log("🔄 Retentar pagamento detectado:", data);
+          localStorage.removeItem("mercadopago_retry_payment");
+          setTimeout(() => {
+            const ticketsSection = document.getElementById("buy-tickets");
+            if (ticketsSection) {
+              ticketsSection.scrollIntoView({ behavior: "smooth" });
+            }
+            if (window.app && window.app.$children[0]) {
+              window.app.$children[0].$notify({
+                group: "foo",
+                title: "Retentar Pagamento",
+                text: "Abrindo formulário de pagamento para o ingresso: " + data.ticket_title,
+                type: "info"
+              });
+            }
+          }, 500);
+        }
+      } catch (error) {
+        console.error("Erro ao processar retentar pagamento:", error);
+      }
     }
   },
   mounted() {
@@ -3357,6 +3384,7 @@ const _sfc_main$2 = {
       this.getEventSchedule();
     this.triggerCheckout();
     this.singleDefaultDate();
+    this.checkRetryPayment();
   }
 };
 var _sfc_render$2 = function render2() {
@@ -3460,7 +3488,7 @@ var __component__$2 = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns$2,
   false,
   null,
-  "7b38f0bb"
+  "36979118"
 );
 const SelectDates = __component__$2.exports;
 const _sfc_main$1 = {
@@ -3654,4 +3682,4 @@ window.app = new Vue({
     GComponent
   }
 });
-//# sourceMappingURL=index-CLelGkkQ.js.map
+//# sourceMappingURL=index-By35KItq.js.map

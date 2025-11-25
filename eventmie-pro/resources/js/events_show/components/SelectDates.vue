@@ -1247,6 +1247,41 @@ export default {
                 return ;
 
             this.singleEvent();
+        },
+
+        // 🔄 Verificar e processar retentar pagamento
+        checkRetryPayment() {
+            try {
+                const retryData = localStorage.getItem('mercadopago_retry_payment');
+                if (retryData) {
+                    const data = JSON.parse(retryData);
+                    console.log('🔄 Retentar pagamento detectado:', data);
+                    
+                    // Limpar localStorage
+                    localStorage.removeItem('mercadopago_retry_payment');
+                    
+                    // Aguardar um pouco para garantir que o DOM está pronto
+                    setTimeout(() => {
+                        // Scroll para a seção de tickets
+                        const ticketsSection = document.getElementById('buy-tickets');
+                        if (ticketsSection) {
+                            ticketsSection.scrollIntoView({ behavior: 'smooth' });
+                        }
+                        
+                        // Emitir notificação
+                        if (window.app && window.app.$children[0]) {
+                            window.app.$children[0].$notify({
+                                group: 'foo',
+                                title: 'Retentar Pagamento',
+                                text: 'Abrindo formulário de pagamento para o ingresso: ' + data.ticket_title,
+                                type: 'info'
+                            });
+                        }
+                    }, 500);
+                }
+            } catch (error) {
+                console.error('Erro ao processar retentar pagamento:', error);
+            }
         }
     
     },
@@ -1260,8 +1295,10 @@ export default {
         //CUSTOM
 
         this.triggerCheckout();
-        this.singleDefaultDate();        
+        this.singleDefaultDate();
 
+        // 🔄 Verificar se há tentativa de retentar pagamento
+        this.checkRetryPayment();
     },
 }
 </script>

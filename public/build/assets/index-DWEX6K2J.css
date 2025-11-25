@@ -3,7 +3,7 @@
     white-space: pre-line;
 }
 
-.custom-select[data-v-7b38f0bb] {
+.custom-select[data-v-36979118] {
     border: 1px solid #d1e7e7;
     border-radius: 5px;
     padding: 5px 10px;
@@ -15,7 +15,7 @@
     -webkit-appearance: none;
     -moz-appearance: none;
 }
-.arrow-btn[data-v-7b38f0bb] {
+.arrow-btn[data-v-36979118] {
     background: none;
     border: none;
     font-size: 16px;
@@ -23,35 +23,35 @@
     cursor: pointer;
     color: #333;
 }
-.bg-dark.text-white[data-v-7b38f0bb] {
+.bg-dark.text-white[data-v-36979118] {
     background-color: #000 !important; /* Bootstrap's bg-dark color */
     color: #ffffff !important;
 }
-.bg-dark.text-white .text-dark[data-v-7b38f0bb],
-.bg-dark.text-white .text-primary[data-v-7b38f0bb],
-.bg-dark.text-white .text-xs[data-v-7b38f0bb],
-.bg-dark.text-white .h5[data-v-7b38f0bb],
-.bg-dark.text-white .badge[data-v-7b38f0bb] {
+.bg-dark.text-white .text-dark[data-v-36979118],
+.bg-dark.text-white .text-primary[data-v-36979118],
+.bg-dark.text-white .text-xs[data-v-36979118],
+.bg-dark.text-white .h5[data-v-36979118],
+.bg-dark.text-white .badge[data-v-36979118] {
     color: #ffffff !important; /* Ensure all text is white */
 }
-.bg-dark.text-white .badge.bg-light[data-v-7b38f0bb] {
+.bg-dark.text-white .badge.bg-light[data-v-36979118] {
     background-color: #6c757d !important; /* Adjust badge background for contrast */
     color: #ffffff !important;
 }
 /* Target the schedule-info card that matches the selected booking_date */
-.schedule-info[data-selected="true"][data-v-7b38f0bb] {
+.schedule-info[data-selected="true"][data-v-36979118] {
     background-color: #2276ff !important; /* Matches .bg-dark */
     color: #2276ff !important; /* Matches .text-white */
     border: 2px solid #2276FF !important;
 }
-.schedule-info[data-selected="true"] .text-dark[data-v-7b38f0bb],
-.schedule-info[data-selected="true"] .text-primary[data-v-7b38f0bb],
-.schedule-info[data-selected="true"] .text-xs[data-v-7b38f0bb],
-.schedule-info[data-selected="true"] .h5[data-v-7b38f0bb],
-.schedule-info[data-selected="true"] .badge[data-v-7b38f0bb] {
+.schedule-info[data-selected="true"] .text-dark[data-v-36979118],
+.schedule-info[data-selected="true"] .text-primary[data-v-36979118],
+.schedule-info[data-selected="true"] .text-xs[data-v-36979118],
+.schedule-info[data-selected="true"] .h5[data-v-36979118],
+.schedule-info[data-selected="true"] .badge[data-v-36979118] {
     color: #ffffff !important; /* Ensure all text is white */
 }
-.schedule-info[data-selected="true"] .badge.bg-light[data-v-7b38f0bb] {
+.schedule-info[data-selected="true"] .badge.bg-light[data-v-36979118] {
     background-color: #6c757d !important; /* Adjust badge background for contrast */
     color: #ffffff !important;
 }
