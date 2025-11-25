@@ -581,12 +581,20 @@ export default {
                     
                     paymentData.card_token = cardToken;
                     paymentData.installments = this.cardData.installments || 1;
-                    paymentData.payment_method_id = this.cardData.paymentMethodId; // Send detected card brand
+                    
+                    // 🔑 IMPORTANTE: Para crédito, enviar a marca do cartão (visa, master, etc)
+                    // Para débito, NÃO enviar payment_method_id (backend usa "debit_card")
+                    if (this.selectedMethod === 'credit_card') {
+                        paymentData.payment_method_id = this.cardData.paymentMethodId; // Send detected card brand for credit
+                    }
+                    // Para débito, não enviar payment_method_id - backend usa "debit_card" automaticamente
                     
                     console.log('Card payment data:', {
                         card_token: cardToken,
                         installments: paymentData.installments,
-                        payment_method_id: paymentData.payment_method_id
+                        payment_method_id: paymentData.payment_method_id,
+                        selected_method: this.selectedMethod,
+                        note: this.selectedMethod === 'debit_card' ? 'Débito - payment_method_id não enviado' : 'Crédito - payment_method_id enviado'
                     });
                 }
 

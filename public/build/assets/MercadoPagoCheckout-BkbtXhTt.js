@@ -243,11 +243,15 @@ const _sfc_main = {
           }
           paymentData.card_token = cardToken;
           paymentData.installments = this.cardData.installments || 1;
-          paymentData.payment_method_id = this.cardData.paymentMethodId;
+          if (this.selectedMethod === "credit_card") {
+            paymentData.payment_method_id = this.cardData.paymentMethodId;
+          }
           console.log("Card payment data:", {
             card_token: cardToken,
             installments: paymentData.installments,
-            payment_method_id: paymentData.payment_method_id
+            payment_method_id: paymentData.payment_method_id,
+            selected_method: this.selectedMethod,
+            note: this.selectedMethod === "debit_card" ? "Débito - payment_method_id não enviado" : "Crédito - payment_method_id enviado"
           });
         }
         const apiUrl = "/bookings/api/mercadopago/process";
@@ -526,10 +530,10 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "d02a8505"
+  "898bdb95"
 );
 const MercadoPagoCheckout = __component__.exports;
 export {
   MercadoPagoCheckout as default
 };
-//# sourceMappingURL=MercadoPagoCheckout-D2vRayll.js.map
+//# sourceMappingURL=MercadoPagoCheckout-BkbtXhTt.js.map
