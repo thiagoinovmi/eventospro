@@ -1335,6 +1335,9 @@ class BookingsController extends Controller
                 $paymentResult = null;
                 
                 try {
+                    \Log::info('=== SELEÇÃO DE MÉTODO DE PAGAMENTO ===');
+                    \Log::info('selected_method recebido:', ['method' => $validated['selected_method']]);
+                    
                     if ($validated['selected_method'] === 'credit_card') {
                         // Process credit card payment
                         \Log::info('Chamando processCardPayment para CRÉDITO...');
@@ -1350,6 +1353,23 @@ class BookingsController extends Controller
                         \Log::info('Chamando processPixPayment...');
                         $paymentResult = $this->processPixPayment($validated, Auth::user(), $ticket, $event);
                         \Log::info('Resultado de processPixPayment:', ['result' => $paymentResult]);
+                    } else if ($validated['selected_method'] === 'boleto') {
+                        // Process Boleto payment
+                        \Log::info('Chamando processBoletoPayment...');
+                        $paymentResult = $this->processBoletoPayment($validated, Auth::user(), $ticket, $event);
+                        \Log::info('Resultado de processBoletoPayment:', ['result' => $paymentResult]);
+                    } else if ($validated['selected_method'] === 'mercadopago_wallet') {
+                        // Process Wallet payment
+                        \Log::info('Chamando processWalletPayment...');
+                        $paymentResult = $this->processWalletPayment($validated, Auth::user(), $ticket, $event);
+                        \Log::info('Resultado de processWalletPayment:', ['result' => $paymentResult]);
+                    } else {
+                        // Método não reconhecido
+                        \Log::error('Método de pagamento não reconhecido:', ['method' => $validated['selected_method']]);
+                        $paymentResult = [
+                            'status' => false,
+                            'message' => 'Método de pagamento não suportado: ' . $validated['selected_method']
+                        ];
                     }
                 } catch (\Exception $e) {
                     \Log::error('Exceção ao processar pagamento:', [
@@ -2158,6 +2178,110 @@ class BookingsController extends Controller
     }
 
     /**
+     * Process Wallet payment (Mercado Pago Account)
+     */
+    private function processWalletPayment($validated, $user, $ticket = null, $event = null)
+    {
+        \Log::info('=== INICIANDO PROCESSAMENTO DE CARTEIRA ===');
+        
+        // Use o mesmo token do cartão (mercadopago.access_token)
+        $accessToken = setting('mercadopago.access_token');
+        
+        if (!$accessToken) {
+            \Log::error('Access token do Mercado Pago não configurado para Carteira');
+            return [
+                'status' => false,
+                'message' => 'Mercado Pago não está configurado para Carteira'
+            ];
+        }
+        
+        $paymentData = [
+            "transaction_amount" => (float)$validated['total'],
+            "description" => "Pagamento de ingresso - Evento #{$validated['event_id']}",
+            "payment_method_id" => "account_money",
+            "payer" => $this->buildPayerData($user),
+            "external_reference" => "BOOKING-" . time() . "-" . $user->id,
+            "statement_descriptor" => "EVENTO",
+            "notification_url" => env('APP_URL') . '/api/mercadopago/webhook'
+        ];
+
+        // 📦 Adicionar Items - Detalhes do carrinho (recomendado)
+        if ($ticket && $event) {
+            $paymentData['items'] = [
+                [
+                    'id' => (string)$ticket->id,
+                    'title' => $ticket->title,
+                    'description' => 'Ingresso para evento: ' . $event->title,
+                    'category_id' => 'event_ticket',
+                    'quantity' => (int)($validated['quantity'] ?? 1),
+                    'unit_price' => (float)$ticket->price
+                ]
+            ];
+        }
+        
+        \Log::info('Dados Carteira preparados:', $paymentData);
+        
+        // Make cURL request to Mercado Pago API
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, 'https://api.mercadopago.com/v1/payments');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($paymentData));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $accessToken,
+            'X-Idempotency-Key: ' . \Illuminate\Support\Str::uuid()
+        ]);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        curl_close($ch);
+
+        $responseData = json_decode($response, true);
+
+        \Log::info('Resposta Carteira recebida:', [
+            'httpCode' => $httpCode,
+            'status' => $responseData['status'] ?? null,
+            'message' => $responseData['message'] ?? null
+        ]);
+
+        if ($httpCode === 201 || $httpCode === 200) {
+            if (isset($responseData['id'])) {
+                $status = $responseData['status'] ?? 'pending';
+                $isApproved = ($status === 'approved');
+
+                \Log::info('Carteira processada:', [
+                    'payment_id' => $responseData['id'],
+                    'status' => $status,
+                    'approved' => $isApproved
+                ]);
+
+                return [
+                    'status' => true,
+                    'payment_id' => $responseData['id'],
+                    'payment_method' => 'wallet',
+                    'is_paid' => $isApproved ? 1 : 0,
+                    'booking_status' => $isApproved ? 1 : 0,
+                    'message' => $isApproved ? 'Pagamento via carteira aprovado!' : 'Pagamento via carteira pendente',
+                    'response_data' => $responseData
+                ];
+            }
+        }
+
+        \Log::error('Erro ao processar Carteira - HTTP ' . $httpCode, [
+            'response' => $response,
+            'responseData' => $responseData
+        ]);
+
+        return [
+            'status' => false,
+            'message' => 'Erro ao processar Carteira: ' . ($responseData['message'] ?? 'Erro desconhecido'),
+            'http_code' => $httpCode
+        ];
+    }
+
+    /**
      * Process Boleto payment
      */
     private function processBoletoPayment($validated, $user, $ticket = null, $event = null)
@@ -2298,9 +2422,9 @@ class BookingsController extends Controller
     }
 
     /**
-     * Process Wallet (Mercado Pago Wallet) payment
+     * Register Mercado Pago transaction in database
      */
-    private function processWalletPayment($validated, $user, $ticket = null, $event = null)
+    private function registerMercadoPagoTransaction($responseData, $validated, $user, $paymentMethodId)
     {
         \Log::info('=== INICIANDO PROCESSAMENTO DE CARTEIRA MERCADO PAGO ===');
         
