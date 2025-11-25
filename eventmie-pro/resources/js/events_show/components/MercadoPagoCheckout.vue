@@ -437,8 +437,15 @@ export default {
             let formatted = value.match(/.{1,4}/g)?.join(' ') || value;
             this.cardData.number = formatted;
             
-            // Detect card brand based on first digits
-            this.detectCardBrand(value);
+            // 🔑 IMPORTANTE: Detectar marca APENAS para crédito
+            // Para débito, NÃO detectar marca (backend usa debit_card)
+            if (this.selectedMethod === 'credit_card') {
+                this.detectCardBrand(value);
+            } else if (this.selectedMethod === 'debit_card') {
+                // Para débito, não detectar marca
+                this.cardData.paymentMethodId = undefined;
+                console.log('Débito selecionado - payment_method_id não será enviado');
+            }
         },
         
         detectCardBrand(cardNumber) {

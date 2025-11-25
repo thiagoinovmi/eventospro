@@ -142,7 +142,12 @@ const _sfc_main = {
       let value = this.cardData.number.replace(/\s/g, "");
       let formatted = ((_a = value.match(/.{1,4}/g)) == null ? void 0 : _a.join(" ")) || value;
       this.cardData.number = formatted;
-      this.detectCardBrand(value);
+      if (this.selectedMethod === "credit_card") {
+        this.detectCardBrand(value);
+      } else if (this.selectedMethod === "debit_card") {
+        this.cardData.paymentMethodId = void 0;
+        console.log("Débito selecionado - payment_method_id não será enviado");
+      }
     },
     detectCardBrand(cardNumber) {
       const cleanNumber = cardNumber.replace(/\D/g, "");
@@ -530,10 +535,10 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "898bdb95"
+  "d221160d"
 );
 const MercadoPagoCheckout = __component__.exports;
 export {
   MercadoPagoCheckout as default
 };
-//# sourceMappingURL=MercadoPagoCheckout-BkbtXhTt.js.map
+//# sourceMappingURL=MercadoPagoCheckout-CU6UH-aH.js.map
