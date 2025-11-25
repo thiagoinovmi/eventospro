@@ -668,22 +668,27 @@ export default {
                 // Add card-specific data for credit/debit cards
                 if (['credit_card', 'debit_card'].includes(this.selectedMethod)) {
                     // Generate card token using Mercado Pago SDK
-                    const cardToken = await this.generateCardToken();
+                    const tokenData = await this.generateCardToken();
                     
-                    if (!cardToken) {
+                    if (!tokenData) {
                         this.errorMessage = 'Erro ao gerar token do cartão. Verifique os dados e tente novamente.';
                         return;
                     }
                     
-                    paymentData.card_token = cardToken;
+                    paymentData.card_token = tokenData.id;
                     paymentData.installments = this.cardData.installments || 1;
                     
-                    // � Adicionar Device ID para segurança (SDK Mercado Pago V2)
+                    // 🏦 Adicionar Issuer ID para evitar erros de processamento
+                    if (tokenData.issuer_id) {
+                        paymentData.issuer_id = tokenData.issuer_id;
+                    }
+                    
+                    // 🔐 Adicionar Device ID para segurança (SDK Mercado Pago V2)
                     if (this.deviceId) {
                         paymentData.device_id = this.deviceId;
                     }
                     
-                    // �🔑 IMPORTANTE: Para crédito, enviar a marca do cartão (visa, master, etc)
+                    // 🔑 IMPORTANTE: Para crédito, enviar a marca do cartão (visa, master, etc)
                     // Para débito, NÃO enviar payment_method_id (backend usa "debit_card")
                     if (this.selectedMethod === 'credit_card') {
                         paymentData.payment_method_id = this.cardData.paymentMethodId; // Send detected card brand for credit
@@ -691,7 +696,8 @@ export default {
                     // Para débito, não enviar payment_method_id - backend usa "debit_card" automaticamente
                     
                     console.log('Card payment data:', {
-                        card_token: cardToken,
+                        card_token: tokenData.id,
+                        issuer_id: tokenData.issuer_id,
                         installments: paymentData.installments,
                         payment_method_id: paymentData.payment_method_id,
                         device_id: paymentData.device_id,
@@ -1000,7 +1006,13 @@ export default {
 
                 if (token && token.id) {
                     console.log('Token gerado com sucesso:', token.id);
-                    return token.id;
+                    console.log('Issuer ID:', token.issuer_id);
+                    
+                    // Retornar objeto com token e issuer_id
+                    return {
+                        id: token.id,
+                        issuer_id: token.issuer_id
+                    };
                 } else {
                     console.error('Erro ao gerar token:', token);
                     this.errorMessage = token?.cause?.[0]?.description || 'Erro ao gerar token do cartão';

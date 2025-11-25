@@ -285,13 +285,16 @@ const _sfc_main = {
           ticket_title: ticketToUse ? ticketToUse.title : null
         };
         if (["credit_card", "debit_card"].includes(this.selectedMethod)) {
-          const cardToken = await this.generateCardToken();
-          if (!cardToken) {
+          const tokenData = await this.generateCardToken();
+          if (!tokenData) {
             this.errorMessage = "Erro ao gerar token do cartão. Verifique os dados e tente novamente.";
             return;
           }
-          paymentData.card_token = cardToken;
+          paymentData.card_token = tokenData.id;
           paymentData.installments = this.cardData.installments || 1;
+          if (tokenData.issuer_id) {
+            paymentData.issuer_id = tokenData.issuer_id;
+          }
           if (this.deviceId) {
             paymentData.device_id = this.deviceId;
           }
@@ -299,7 +302,8 @@ const _sfc_main = {
             paymentData.payment_method_id = this.cardData.paymentMethodId;
           }
           console.log("Card payment data:", {
-            card_token: cardToken,
+            card_token: tokenData.id,
+            issuer_id: tokenData.issuer_id,
             installments: paymentData.installments,
             payment_method_id: paymentData.payment_method_id,
             device_id: paymentData.device_id,
@@ -514,7 +518,11 @@ const _sfc_main = {
         const token = await mp.createCardToken(cardData);
         if (token && token.id) {
           console.log("Token gerado com sucesso:", token.id);
-          return token.id;
+          console.log("Issuer ID:", token.issuer_id);
+          return {
+            id: token.id,
+            issuer_id: token.issuer_id
+          };
         } else {
           console.error("Erro ao gerar token:", token);
           this.errorMessage = ((_b = (_a = token == null ? void 0 : token.cause) == null ? void 0 : _a[0]) == null ? void 0 : _b.description) || "Erro ao gerar token do cartão";
@@ -587,10 +595,10 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "bb70ec65"
+  "141d506e"
 );
 const MercadoPagoCheckout = __component__.exports;
 export {
   MercadoPagoCheckout as default
 };
-//# sourceMappingURL=MercadoPagoCheckout-CjX8ufZs.js.map
+//# sourceMappingURL=MercadoPagoCheckout-CE0akarj.js.map

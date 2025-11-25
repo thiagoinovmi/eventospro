@@ -1534,6 +1534,11 @@ class BookingsController extends Controller
             // 🔔 Adicionar Webhook notification_url (obrigatório)
             $paymentData['notification_url'] = env('APP_URL') . '/api/mercadopago/webhook';
 
+            // 🏦 Adicionar Issuer ID se disponível (evita erros de processamento)
+            if (!empty($validated['issuer_id'])) {
+                $paymentData['issuer_id'] = (int)$validated['issuer_id'];
+            }
+
             // ⚠️ NOTA: Items NÃO são suportados em pagamentos com cartão tokenizado
             // Items funcionam apenas com PIX, Boleto e Carteira
 
@@ -1780,6 +1785,11 @@ class BookingsController extends Controller
 
             // 🔔 Adicionar Webhook notification_url (obrigatório)
             $paymentData['notification_url'] = env('APP_URL') . '/api/mercadopago/webhook';
+
+            // 🏦 Adicionar Issuer ID se disponível (evita erros de processamento)
+            if (!empty($validated['issuer_id'])) {
+                $paymentData['issuer_id'] = (int)$validated['issuer_id'];
+            }
 
             // ⚠️ NOTA: Items NÃO são suportados em pagamentos com cartão tokenizado
             // Items funcionam apenas com PIX, Boleto e Carteira
@@ -2622,6 +2632,22 @@ class BookingsController extends Controller
         }
 
         return $payerData;
+    }
+
+    /**
+     * 🏦 Extrair issuer_id do token do cartão
+     * O issuer_id identifica o banco emissor do cartão
+     * Necessário para evitar erros de processamento
+     */
+    private function extractIssuerIdFromToken($token)
+    {
+        // Nota: O issuer_id é retornado pelo Mercado Pago ao gerar o token
+        // Aqui tentamos extrair informações básicas do token
+        // Em produção, o frontend deveria enviar o issuer_id junto com o token
+        
+        // Por enquanto, retornamos null e deixamos o Mercado Pago detectar
+        // Isso é aceitável, mas issuer_id explícito melhora a taxa de aprovação
+        return null;
     }
 
 }
