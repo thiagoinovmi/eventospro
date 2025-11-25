@@ -356,6 +356,7 @@
                                     <mercado-pago-checkout 
                                         v-if="showRetryCheckout"
                                         :booking-data="retryBookingData"
+                                        :event-id="selectedBookingForRetry ? selectedBookingForRetry.event_id : null"
                                         :is-retry="true"
                                         @payment-success="handleRetrySuccess"
                                         @payment-error="handleRetryError">
@@ -374,6 +375,7 @@
         </div> <!-- Fechamento do modal de retry -->
     
     </div> <!-- Fechamento do div principal (ROOT) -->
+    </div>
 </template>
 
 
