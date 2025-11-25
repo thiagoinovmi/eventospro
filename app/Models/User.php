@@ -30,6 +30,13 @@ class User extends \Classiebit\Eventmie\Models\User
         'terms_conditions_accepted',
         'privacy_policy_accepted_at',
         'terms_conditions_accepted_at',
+        'phone',
+        'address_street',
+        'address_number',
+        'address_neighborhood',
+        'address_city',
+        'address_state',
+        'address_zip_code',
     ];
 
     /**

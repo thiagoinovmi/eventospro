@@ -1521,15 +1521,7 @@ class BookingsController extends Controller
                 "payment_method_id" => $paymentMethodId,
                 "installments" => (int)($validated['installments'] ?? 1),
                 "token" => $validated['card_token'] ?? null,
-                "payer" => [
-                    "email" => $user->email,
-                    "first_name" => $user->name,
-                    "last_name" => "User",
-                    "identification" => [
-                        "type" => "CPF",
-                        "number" => str_replace(['.', '-'], '', $user->document ?? '12345678909')
-                    ]
-                ],
+                "payer" => $this->buildPayerData($user),
                 "external_reference" => "BOOKING-" . time() . "-" . $user->id,
                 "statement_descriptor" => "EVENTO"
             ];
@@ -1787,15 +1779,7 @@ class BookingsController extends Controller
                 "payment_method_id" => $paymentMethodId,
                 "installments" => 1,  // Débito não permite parcelamento
                 "token" => $validated['card_token'] ?? null,
-                "payer" => [
-                    "email" => $user->email,
-                    "first_name" => $user->name,
-                    "last_name" => "User",
-                    "identification" => [
-                        "type" => "CPF",
-                        "number" => str_replace(['.', '-'], '', $user->document ?? '12345678909')
-                    ]
-                ],
+                "payer" => $this->buildPayerData($user),
                 "external_reference" => "BOOKING-" . time() . "-" . $user->id,
                 "statement_descriptor" => "EVENTO"
             ];
@@ -2049,15 +2033,7 @@ class BookingsController extends Controller
             "transaction_amount" => (float)$validated['total'],
             "description" => "Pagamento de ingresso - Evento #{$validated['event_id']}",
             "payment_method_id" => "pix",
-            "payer" => [
-                "email" => $user->email,
-                "first_name" => $user->name,
-                "last_name" => "User",
-                "identification" => [
-                    "type" => "CPF",
-                    "number" => str_replace(['.', '-'], '', $user->document ?? '12345678909')
-                ]
-            ],
+            "payer" => $this->buildPayerData($user),
             "external_reference" => "BOOKING-" . time() . "-" . $user->id,
             "statement_descriptor" => "EVENTO",
             "notification_url" => env('APP_URL') . '/api/mercadopago/webhook'
@@ -2215,15 +2191,7 @@ class BookingsController extends Controller
             "transaction_amount" => (float)$validated['total'],
             "description" => "Pagamento de ingresso - Evento #{$validated['event_id']}",
             "payment_method_id" => "bolbradesco",
-            "payer" => [
-                "email" => $user->email,
-                "first_name" => $user->name,
-                "last_name" => "User",
-                "identification" => [
-                    "type" => "CPF",
-                    "number" => str_replace(['.', '-'], '', $user->document ?? '12345678909')
-                ]
-            ],
+            "payer" => $this->buildPayerData($user),
             "external_reference" => "BOOKING-" . time() . "-" . $user->id,
             "statement_descriptor" => "EVENTO",
             "notification_url" => env('APP_URL') . '/api/mercadopago/webhook'
@@ -2363,15 +2331,7 @@ class BookingsController extends Controller
             "transaction_amount" => (float)$validated['total'],
             "description" => "Pagamento de ingresso - Evento #{$validated['event_id']}",
             "payment_method_id" => "wallet_purchase",
-            "payer" => [
-                "email" => $user->email,
-                "first_name" => $user->name,
-                "last_name" => "User",
-                "identification" => [
-                    "type" => "CPF",
-                    "number" => str_replace(['.', '-'], '', $user->document ?? '12345678909')
-                ]
-            ],
+            "payer" => $this->buildPayerData($user),
             "external_reference" => "BOOKING-" . time() . "-" . $user->id,
             "statement_descriptor" => "EVENTO",
             "notification_url" => env('APP_URL') . '/api/mercadopago/webhook'
@@ -2639,6 +2599,51 @@ class BookingsController extends Controller
             // Retornar 200 mesmo em caso de erro para não fazer retry infinito
             return response()->json(['status' => 'success'], 200);
         }
+    }
+
+    /**
+     * 👤 Construir dados completos do pagador (Payer) para Mercado Pago
+     * Inclui: email, nome, identificação, telefone e endereço
+     */
+    private function buildPayerData($user)
+    {
+        $payerData = [
+            "email" => $user->email,
+            "first_name" => explode(' ', $user->name)[0] ?? $user->name,
+            "last_name" => implode(' ', array_slice(explode(' ', $user->name), 1)) ?: "User",
+            "identification" => [
+                "type" => "CPF",
+                "number" => str_replace(['.', '-'], '', $user->document ?? '12345678909')
+            ]
+        ];
+
+        // 📱 Adicionar telefone se disponível
+        if (!empty($user->phone)) {
+            // Extrair apenas números
+            $phoneClean = preg_replace('/[^0-9]/', '', $user->phone);
+            
+            // Formato: area_code (2 dígitos) + number (resto)
+            if (strlen($phoneClean) >= 10) {
+                $payerData['phone'] = [
+                    'area_code' => substr($phoneClean, 0, 2),
+                    'number' => substr($phoneClean, 2)
+                ];
+            }
+        }
+
+        // 🏠 Adicionar endereço se disponível
+        if (!empty($user->address_zip_code)) {
+            $payerData['address'] = [
+                'zip_code' => preg_replace('/[^0-9]/', '', $user->address_zip_code),
+                'street_name' => $user->address_street ?? '',
+                'street_number' => $user->address_number ?? '',
+                'neighborhood' => $user->address_neighborhood ?? '',
+                'city' => $user->address_city ?? '',
+                'federal_unit' => $user->address_state ?? ''
+            ];
+        }
+
+        return $payerData;
     }
 
 }
