@@ -181,15 +181,21 @@
                                 <img :src="'data:image/png;base64,' + getCleanBase64(booking.mercadopago_transaction.qr_code_base64)" 
                                      alt="PIX QR Code" class="img-fluid border rounded" style="max-width: 300px;">
                                 <!-- Se Pago -->
-                                <div v-if="booking.is_paid" class="mt-4 p-4 rounded" style="background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); border: 2px solid #28a745;">
+                                <div v-if="booking.is_paid || paymentConfirmed[booking.id]" class="mt-4 p-4 rounded" style="background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); border: 2px solid #28a745;">
                                     <div class="d-flex align-items-center justify-content-center mb-2">
                                         <i class="fas fa-check-circle text-success me-2" style="font-size: 1.2rem;"></i>
-                                        <span class="text-dark fw-bold">{{ trans('em.paid') }}</span>
+                                        <span class="text-dark fw-bold">{{ trans('em.payment_confirmed') || 'Pagamento Confirmado!' }}</span>
                                     </div>
                                     <div class="text-center">
                                         <span class="fw-bold" style="font-size: 1.5rem; color: #28a745; font-family: 'Courier New', monospace;">
-                                            {{ userTimezone(booking.mercadopago_transaction.created_at, 'YYYY-MM-DD HH:mm:ss').format('DD/MM/YYYY HH:mm:ss') }}
+                                            {{ userTimezone(booking.mercadopago_transaction.updated_at || booking.mercadopago_transaction.created_at, 'YYYY-MM-DD HH:mm:ss').format('DD/MM/YYYY HH:mm:ss') }}
                                         </span>
+                                    </div>
+                                    <!-- Botão para fechar modal e atualizar página -->
+                                    <div class="text-center mt-3" v-if="paymentConfirmed[booking.id]">
+                                        <button type="button" class="btn btn-success" @click="closeModalAndRefresh(booking.id)">
+                                            <i class="fas fa-sync-alt me-2"></i>{{ trans('em.update_page') || 'Atualizar Página' }}
+                                        </button>
                                     </div>
                                 </div>
 
@@ -302,6 +308,10 @@ export default {
             booking_id : 0,
             timerInterval: null,
             timerCounter: 0,
+            // 🔄 Controle de polling PIX
+            paymentPolling: {},
+            paymentConfirmed: {},
+            pollingIntervals: {},
         }
     },
 
@@ -418,6 +428,14 @@ export default {
             if (modalElement) {
                 const modal = new Modal(modalElement);
                 modal.show();
+                
+                // 🔄 Iniciar polling de status do pagamento
+                this.startPaymentPolling(bookingId);
+                
+                // 🎧 Listener para parar polling quando modal fechar
+                modalElement.addEventListener('hidden.bs.modal', () => {
+                    this.stopPaymentPolling(bookingId);
+                });
             } else {
                 console.error('Modal não encontrado:', 'pixModal-' + bookingId);
             }
@@ -454,6 +472,101 @@ export default {
                 window.location.href = route('eventmie.events_show', [booking.event_slug]);
             }, 500);
         },
+
+        // 🔄 Iniciar polling de status do pagamento PIX
+        startPaymentPolling(bookingId) {
+            // Encontrar o booking e sua transação
+            const booking = this.bookings.find(b => b.id === bookingId);
+            if (!booking || !booking.mercadopago_transaction) {
+                console.warn('Booking ou transação não encontrada para polling:', bookingId);
+                return;
+            }
+
+            const transactionId = booking.mercadopago_transaction.id;
+            console.log('🔄 Iniciando polling para transação:', transactionId);
+
+            // Marcar como em polling
+            this.$set(this.paymentPolling, bookingId, true);
+
+            // Criar intervalo de polling (verificar a cada 3 segundos)
+            const interval = setInterval(() => {
+                this.checkPaymentStatus(bookingId, transactionId);
+            }, 3000);
+
+            // Armazenar referência do intervalo
+            this.$set(this.pollingIntervals, bookingId, interval);
+
+            // Parar polling após 10 minutos (600 segundos)
+            setTimeout(() => {
+                this.stopPaymentPolling(bookingId);
+            }, 600000);
+        },
+
+        // 🛑 Parar polling de status do pagamento
+        stopPaymentPolling(bookingId) {
+            if (this.pollingIntervals[bookingId]) {
+                clearInterval(this.pollingIntervals[bookingId]);
+                delete this.pollingIntervals[bookingId];
+                console.log('🛑 Polling parado para booking:', bookingId);
+            }
+            this.$set(this.paymentPolling, bookingId, false);
+        },
+
+        // 📡 Verificar status do pagamento via API
+        checkPaymentStatus(bookingId, transactionId) {
+            axios.get(`/api/mercadopago/transaction/${transactionId}/status`)
+                .then(response => {
+                    console.log('📡 Status da transação:', response.data);
+                    
+                    if (response.data.status && response.data.data) {
+                        const { transaction_status, is_paid } = response.data.data;
+                        
+                        // Se pagamento foi aprovado
+                        if (transaction_status === 'approved' && is_paid) {
+                            console.log('✅ Pagamento confirmado via polling!');
+                            
+                            // Marcar como confirmado
+                            this.$set(this.paymentConfirmed, bookingId, true);
+                            
+                            // Parar polling
+                            this.stopPaymentPolling(bookingId);
+                            
+                            // Mostrar notificação
+                            this.showNotification('success', 'Pagamento confirmado! 🎉');
+                            
+                            // Atualizar dados do booking
+                            const booking = this.bookings.find(b => b.id === bookingId);
+                            if (booking) {
+                                booking.is_paid = true;
+                                booking.mercadopago_transaction.status = 'approved';
+                            }
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.warn('⚠️ Erro ao verificar status:', error);
+                });
+        },
+
+        // 🔄 Fechar modal e atualizar página
+        closeModalAndRefresh(bookingId) {
+            // Fechar modal
+            const modalElement = document.getElementById('pixModal-' + bookingId);
+            if (modalElement) {
+                const modal = Modal.getInstance(modalElement);
+                if (modal) {
+                    modal.hide();
+                }
+            }
+            
+            // Parar polling
+            this.stopPaymentPolling(bookingId);
+            
+            // Atualizar página após 1 segundo
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        },
     },
     mounted() {
         this.getMyBookings();
@@ -472,6 +585,11 @@ export default {
         if (this.timerInterval) {
             clearInterval(this.timerInterval);
         }
+        
+        // 🧹 Limpar todos os intervalos de polling
+        Object.keys(this.pollingIntervals).forEach(bookingId => {
+            this.stopPaymentPolling(parseInt(bookingId));
+        });
     }
 }
 </script>

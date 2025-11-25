@@ -5114,7 +5114,11 @@ const _sfc_main = {
       currency: null,
       booking_id: 0,
       timerInterval: null,
-      timerCounter: 0
+      timerCounter: 0,
+      // 🔄 Controle de polling PIX
+      paymentPolling: {},
+      paymentConfirmed: {},
+      pollingIntervals: {}
     };
   },
   computed: {
@@ -5210,6 +5214,10 @@ const _sfc_main = {
       if (modalElement) {
         const modal = new Modal(modalElement);
         modal.show();
+        this.startPaymentPolling(bookingId);
+        modalElement.addEventListener("hidden.bs.modal", () => {
+          this.stopPaymentPolling(bookingId);
+        });
       } else {
         console.error("Modal não encontrado:", "pixModal-" + bookingId);
       }
@@ -5238,6 +5246,69 @@ const _sfc_main = {
       setTimeout(() => {
         window.location.href = route("eventmie.events_show", [booking.event_slug]);
       }, 500);
+    },
+    // 🔄 Iniciar polling de status do pagamento PIX
+    startPaymentPolling(bookingId) {
+      const booking = this.bookings.find((b) => b.id === bookingId);
+      if (!booking || !booking.mercadopago_transaction) {
+        console.warn("Booking ou transação não encontrada para polling:", bookingId);
+        return;
+      }
+      const transactionId = booking.mercadopago_transaction.id;
+      console.log("🔄 Iniciando polling para transação:", transactionId);
+      this.$set(this.paymentPolling, bookingId, true);
+      const interval = setInterval(() => {
+        this.checkPaymentStatus(bookingId, transactionId);
+      }, 3e3);
+      this.$set(this.pollingIntervals, bookingId, interval);
+      setTimeout(() => {
+        this.stopPaymentPolling(bookingId);
+      }, 6e5);
+    },
+    // 🛑 Parar polling de status do pagamento
+    stopPaymentPolling(bookingId) {
+      if (this.pollingIntervals[bookingId]) {
+        clearInterval(this.pollingIntervals[bookingId]);
+        delete this.pollingIntervals[bookingId];
+        console.log("🛑 Polling parado para booking:", bookingId);
+      }
+      this.$set(this.paymentPolling, bookingId, false);
+    },
+    // 📡 Verificar status do pagamento via API
+    checkPaymentStatus(bookingId, transactionId) {
+      axios.get(`/api/mercadopago/transaction/${transactionId}/status`).then((response) => {
+        console.log("📡 Status da transação:", response.data);
+        if (response.data.status && response.data.data) {
+          const { transaction_status, is_paid } = response.data.data;
+          if (transaction_status === "approved" && is_paid) {
+            console.log("✅ Pagamento confirmado via polling!");
+            this.$set(this.paymentConfirmed, bookingId, true);
+            this.stopPaymentPolling(bookingId);
+            this.showNotification("success", "Pagamento confirmado! 🎉");
+            const booking = this.bookings.find((b) => b.id === bookingId);
+            if (booking) {
+              booking.is_paid = true;
+              booking.mercadopago_transaction.status = "approved";
+            }
+          }
+        }
+      }).catch((error) => {
+        console.warn("⚠️ Erro ao verificar status:", error);
+      });
+    },
+    // 🔄 Fechar modal e atualizar página
+    closeModalAndRefresh(bookingId) {
+      const modalElement = document.getElementById("pixModal-" + bookingId);
+      if (modalElement) {
+        const modal = Modal.getInstance(modalElement);
+        if (modal) {
+          modal.hide();
+        }
+      }
+      this.stopPaymentPolling(bookingId);
+      setTimeout(() => {
+        window.location.reload();
+      }, 1e3);
     }
   },
   mounted() {
@@ -5251,6 +5322,9 @@ const _sfc_main = {
     if (this.timerInterval) {
       clearInterval(this.timerInterval);
     }
+    Object.keys(this.pollingIntervals).forEach((bookingId) => {
+      this.stopPaymentPolling(parseInt(bookingId));
+    });
   }
 };
 var _sfc_render = function render2() {
@@ -5270,7 +5344,9 @@ var _sfc_render = function render2() {
   }), _vm.bookings.length <= 0 ? _c("tr", [_c("td", { staticClass: "text-center align-middle", attrs: { "colspan": "10" } }, [_vm._v(_vm._s(_vm.trans("em.no_bookings")))])]) : _vm._e()], 2)])]), _vm.bookings.length > 0 ? _c("div", { staticClass: "px-4 pb-4" }, [_vm.pagination.last_page > 1 ? _c("pagination-component", { attrs: { "pagination": _vm.pagination, "offset": _vm.pagination.total }, on: { "paginate": function($event) {
     return _vm.getMyBookings();
   } } }) : _vm._e()], 1) : _vm._e()])])])]), _vm._l(_vm.bookings, function(booking) {
-    return _c("div", { key: "modal-" + booking.id }, [booking.payment_type === "mercadopago" && booking.mercadopago_transaction && booking.mercadopago_transaction.qr_code_base64 ? _c("div", { staticClass: "modal fade", attrs: { "id": "pixModal-" + booking.id, "tabindex": "-1", "aria-labelledby": "pixModalLabel", "aria-hidden": "true" } }, [_c("div", { staticClass: "modal-dialog modal-lg", staticStyle: { "max-height": "90vh" } }, [_c("div", { staticClass: "modal-content" }, [_c("div", { class: ["modal-header", booking.is_paid ? "bg-success" : "bg-warning"] }, [_c("h5", { staticClass: "modal-title text-white", attrs: { "id": "pixModalLabel" } }, [_c("i", { class: booking.is_paid ? "fas fa-check-circle" : "fas fa-qrcode" }), _vm._v(" " + _vm._s(booking.is_paid ? _vm.trans("em.paid") : _vm.trans("em.pix_qr_code")) + " ")]), _c("button", { staticClass: "btn-close", attrs: { "type": "button", "data-bs-dismiss": "modal", "aria-label": "Close" } })]), _c("div", { staticClass: "modal-body" }, [_c("div", { staticClass: "row" }, [_c("div", { staticClass: "col-md-6 text-center mb-4" }, [_c("h6", { staticClass: "mb-3" }, [_vm._v(_vm._s(_vm.trans("em.scan_qr_code")))]), _c("img", { staticClass: "img-fluid border rounded", staticStyle: { "max-width": "300px" }, attrs: { "src": "data:image/png;base64," + _vm.getCleanBase64(booking.mercadopago_transaction.qr_code_base64), "alt": "PIX QR Code" } }), booking.is_paid ? _c("div", { staticClass: "mt-4 p-4 rounded", staticStyle: { "background": "linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%)", "border": "2px solid #28a745" } }, [_c("div", { staticClass: "d-flex align-items-center justify-content-center mb-2" }, [_c("i", { staticClass: "fas fa-check-circle text-success me-2", staticStyle: { "font-size": "1.2rem" } }), _c("span", { staticClass: "text-dark fw-bold" }, [_vm._v(_vm._s(_vm.trans("em.paid")))])]), _c("div", { staticClass: "text-center" }, [_c("span", { staticClass: "fw-bold", staticStyle: { "font-size": "1.5rem", "color": "#28a745", "font-family": "'Courier New', monospace" } }, [_vm._v(" " + _vm._s(_vm.userTimezone(booking.mercadopago_transaction.created_at, "YYYY-MM-DD HH:mm:ss").format("DD/MM/YYYY HH:mm:ss")) + " ")])])]) : _vm.isQrCodeExpired(booking.mercadopago_transaction.qr_code_expires_at) ? _c("div", { staticClass: "mt-4 p-4 rounded", staticStyle: { "background": "linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%)", "border": "2px solid #dc3545" } }, [_c("div", { staticClass: "d-flex align-items-center justify-content-center mb-2" }, [_c("i", { staticClass: "fas fa-times-circle text-danger me-2", staticStyle: { "font-size": "1.2rem" } }), _c("span", { staticClass: "text-dark fw-bold" }, [_vm._v(_vm._s(_vm.trans("em.expired")))])]), _vm._m(0, true)]) : _c("div", { staticClass: "mt-4 p-4 rounded", staticStyle: { "background": "linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%)", "border": "2px solid #ffc107" } }, [_c("div", { staticClass: "d-flex align-items-center justify-content-center mb-2" }, [_c("i", { staticClass: "fas fa-hourglass-end text-warning me-2", staticStyle: { "font-size": "1.2rem" } }), _c("span", { staticClass: "text-dark fw-bold" }, [_vm._v(_vm._s(_vm.trans("em.expires_in")))])]), _c("div", { staticClass: "text-center" }, [_c("span", { key: _vm.timerTrigger, staticClass: "fw-bold", staticStyle: { "font-size": "2.5rem", "color": "#d32f2f", "font-family": "'Courier New', monospace" } }, [_vm._v(" " + _vm._s(_vm.getTimeRemaining(booking.mercadopago_transaction.qr_code_expires_at)) + " ")])])])]), _c("div", { staticClass: "col-md-6" }, [_c("h6", { staticClass: "mb-3" }, [_vm._v(_vm._s(_vm.trans("em.pix_copy_paste")))]), _c("div", { staticClass: "input-group mb-3" }, [_c("input", { staticClass: "form-control", attrs: { "type": "text", "readonly": "", "disabled": booking.is_paid || _vm.isQrCodeExpired(booking.mercadopago_transaction.qr_code_expires_at) }, domProps: { "value": booking.mercadopago_transaction.qr_code } }), _c("button", { staticClass: "btn btn-outline-primary", attrs: { "type": "button", "disabled": booking.is_paid || _vm.isQrCodeExpired(booking.mercadopago_transaction.qr_code_expires_at) }, on: { "click": function($event) {
+    return _c("div", { key: "modal-" + booking.id }, [booking.payment_type === "mercadopago" && booking.mercadopago_transaction && booking.mercadopago_transaction.qr_code_base64 ? _c("div", { staticClass: "modal fade", attrs: { "id": "pixModal-" + booking.id, "tabindex": "-1", "aria-labelledby": "pixModalLabel", "aria-hidden": "true" } }, [_c("div", { staticClass: "modal-dialog modal-lg", staticStyle: { "max-height": "90vh" } }, [_c("div", { staticClass: "modal-content" }, [_c("div", { class: ["modal-header", booking.is_paid ? "bg-success" : "bg-warning"] }, [_c("h5", { staticClass: "modal-title text-white", attrs: { "id": "pixModalLabel" } }, [_c("i", { class: booking.is_paid ? "fas fa-check-circle" : "fas fa-qrcode" }), _vm._v(" " + _vm._s(booking.is_paid ? _vm.trans("em.paid") : _vm.trans("em.pix_qr_code")) + " ")]), _c("button", { staticClass: "btn-close", attrs: { "type": "button", "data-bs-dismiss": "modal", "aria-label": "Close" } })]), _c("div", { staticClass: "modal-body" }, [_c("div", { staticClass: "row" }, [_c("div", { staticClass: "col-md-6 text-center mb-4" }, [_c("h6", { staticClass: "mb-3" }, [_vm._v(_vm._s(_vm.trans("em.scan_qr_code")))]), _c("img", { staticClass: "img-fluid border rounded", staticStyle: { "max-width": "300px" }, attrs: { "src": "data:image/png;base64," + _vm.getCleanBase64(booking.mercadopago_transaction.qr_code_base64), "alt": "PIX QR Code" } }), booking.is_paid || _vm.paymentConfirmed[booking.id] ? _c("div", { staticClass: "mt-4 p-4 rounded", staticStyle: { "background": "linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%)", "border": "2px solid #28a745" } }, [_c("div", { staticClass: "d-flex align-items-center justify-content-center mb-2" }, [_c("i", { staticClass: "fas fa-check-circle text-success me-2", staticStyle: { "font-size": "1.2rem" } }), _c("span", { staticClass: "text-dark fw-bold" }, [_vm._v(_vm._s(_vm.trans("em.payment_confirmed") || "Pagamento Confirmado!"))])]), _c("div", { staticClass: "text-center" }, [_c("span", { staticClass: "fw-bold", staticStyle: { "font-size": "1.5rem", "color": "#28a745", "font-family": "'Courier New', monospace" } }, [_vm._v(" " + _vm._s(_vm.userTimezone(booking.mercadopago_transaction.updated_at || booking.mercadopago_transaction.created_at, "YYYY-MM-DD HH:mm:ss").format("DD/MM/YYYY HH:mm:ss")) + " ")])]), _vm.paymentConfirmed[booking.id] ? _c("div", { staticClass: "text-center mt-3" }, [_c("button", { staticClass: "btn btn-success", attrs: { "type": "button" }, on: { "click": function($event) {
+      return _vm.closeModalAndRefresh(booking.id);
+    } } }, [_c("i", { staticClass: "fas fa-sync-alt me-2" }), _vm._v(_vm._s(_vm.trans("em.update_page") || "Atualizar Página") + " ")])]) : _vm._e()]) : _vm.isQrCodeExpired(booking.mercadopago_transaction.qr_code_expires_at) ? _c("div", { staticClass: "mt-4 p-4 rounded", staticStyle: { "background": "linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%)", "border": "2px solid #dc3545" } }, [_c("div", { staticClass: "d-flex align-items-center justify-content-center mb-2" }, [_c("i", { staticClass: "fas fa-times-circle text-danger me-2", staticStyle: { "font-size": "1.2rem" } }), _c("span", { staticClass: "text-dark fw-bold" }, [_vm._v(_vm._s(_vm.trans("em.expired")))])]), _vm._m(0, true)]) : _c("div", { staticClass: "mt-4 p-4 rounded", staticStyle: { "background": "linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%)", "border": "2px solid #ffc107" } }, [_c("div", { staticClass: "d-flex align-items-center justify-content-center mb-2" }, [_c("i", { staticClass: "fas fa-hourglass-end text-warning me-2", staticStyle: { "font-size": "1.2rem" } }), _c("span", { staticClass: "text-dark fw-bold" }, [_vm._v(_vm._s(_vm.trans("em.expires_in")))])]), _c("div", { staticClass: "text-center" }, [_c("span", { key: _vm.timerTrigger, staticClass: "fw-bold", staticStyle: { "font-size": "2.5rem", "color": "#d32f2f", "font-family": "'Courier New', monospace" } }, [_vm._v(" " + _vm._s(_vm.getTimeRemaining(booking.mercadopago_transaction.qr_code_expires_at)) + " ")])])])]), _c("div", { staticClass: "col-md-6" }, [_c("h6", { staticClass: "mb-3" }, [_vm._v(_vm._s(_vm.trans("em.pix_copy_paste")))]), _c("div", { staticClass: "input-group mb-3" }, [_c("input", { staticClass: "form-control", attrs: { "type": "text", "readonly": "", "disabled": booking.is_paid || _vm.isQrCodeExpired(booking.mercadopago_transaction.qr_code_expires_at) }, domProps: { "value": booking.mercadopago_transaction.qr_code } }), _c("button", { staticClass: "btn btn-outline-primary", attrs: { "type": "button", "disabled": booking.is_paid || _vm.isQrCodeExpired(booking.mercadopago_transaction.qr_code_expires_at) }, on: { "click": function($event) {
       return _vm.copyToClipboard(booking.mercadopago_transaction.qr_code);
     } } }, [_c("i", { staticClass: "fas fa-copy" }), _vm._v(" " + _vm._s(_vm.trans("em.copy")) + " ")])]), !booking.is_paid && !_vm.isQrCodeExpired(booking.mercadopago_transaction.qr_code_expires_at) ? _c("small", { staticClass: "text-muted d-block" }, [_vm._v(_vm._s(_vm.trans("em.pix_instructions")))]) : _vm.isQrCodeExpired(booking.mercadopago_transaction.qr_code_expires_at) ? _c("small", { staticClass: "text-danger d-block fw-bold" }, [_vm._v("QR Code expirado - não é possível copiar")]) : _c("small", { staticClass: "text-success d-block fw-bold" }, [_vm._v("Pagamento já foi realizado")]), _c("div", { staticClass: "mt-4 p-3 bg-light rounded" }, [_c("h6", { staticClass: "mb-3" }, [_vm._v(_vm._s(_vm.trans("em.order_details")))]), _c("div", { staticClass: "row" }, [_c("div", { staticClass: "col-6" }, [_c("small", { staticClass: "text-muted" }, [_vm._v(_vm._s(_vm.trans("em.order_id")))]), _c("p", { staticClass: "fw-bold" }, [_vm._v("#" + _vm._s(booking.order_number))])]), _c("div", { staticClass: "col-6" }, [_c("small", { staticClass: "text-muted" }, [_vm._v(_vm._s(_vm.trans("em.order_total")))]), _c("p", { staticClass: "fw-bold" }, [_vm._v(_vm._s(_vm.currency) + " " + _vm._s(booking.net_price))])])])])])])]), _c("div", { staticClass: "modal-footer" }, [_c("button", { staticClass: "btn btn-secondary", attrs: { "type": "button", "data-bs-dismiss": "modal" } }, [_vm._v(_vm._s(_vm.trans("em.close")))])])])])]) : _vm._e()]);
   })], 2);
@@ -5312,4 +5388,4 @@ window.app = new Vue({
   el: "#eventmie_app",
   router: routes
 });
-//# sourceMappingURL=index-TdFof7Jx.js.map
+//# sourceMappingURL=index-nRe7DsbG.js.map
