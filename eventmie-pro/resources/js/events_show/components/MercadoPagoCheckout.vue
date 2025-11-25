@@ -359,7 +359,10 @@
 <script>
 export default {
     props: {
-        event: Object,
+        eventId: {
+            type: [Number, String],
+            required: true
+        },
         tickets: Array,
         total: Number,
         currency: String,
@@ -423,6 +426,9 @@ export default {
     },
 
     mounted() {
+        console.log('🔍 MercadoPagoCheckout mounted - eventId prop:', this.eventId);
+        console.log('🔍 MercadoPagoCheckout mounted - todos props:', this.$props);
+        
         this.loadPaymentMethods();
         
         // 🔐 Inicializar SDK Mercado Pago V2 para Device ID
