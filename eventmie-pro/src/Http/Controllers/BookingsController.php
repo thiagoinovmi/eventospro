@@ -1338,7 +1338,7 @@ class BookingsController extends Controller
                     if ($validated['selected_method'] === 'credit_card' || $validated['selected_method'] === 'debit_card') {
                         // Process card payment
                         \Log::info('Chamando processCardPayment...');
-                        $paymentResult = $this->processCardPayment($validated, Auth::user());
+                        $paymentResult = $this->processCardPayment($validated, Auth::user(), $event, $ticket);
                         \Log::info('Resultado de processCardPayment:', ['result' => $paymentResult]);
                     } else if ($validated['selected_method'] === 'pix') {
                         // Process PIX payment
@@ -1474,7 +1474,7 @@ class BookingsController extends Controller
     /**
      * Process card payment (credit or debit)
      */
-    private function processCardPayment($validated, $user)
+    private function processCardPayment($validated, $user, $event = null, $ticket = null)
     {
         try {
             // CACHE BUSTER: ' . time() . '
@@ -1498,6 +1498,19 @@ class BookingsController extends Controller
                 'name' => $user->name,
                 'document' => $user->document ?? 'vazio'
             ]);
+
+            // Buscar dados do evento e ticket se não foram passados (compatibilidade)
+            if (!$event) {
+                $event = \Classiebit\Eventmie\Models\Event::find($validated['event_id']);
+            }
+            
+            if (!$ticket) {
+                if ($validated['ticket_id']) {
+                    $ticket = \Classiebit\Eventmie\Models\Ticket::find($validated['ticket_id']);
+                } else {
+                    $ticket = \Classiebit\Eventmie\Models\Ticket::where('event_id', $validated['event_id'])->first();
+                }
+            }
 
             // Prepare payment data for card payment
             // According to Mercado Pago API v1 documentation
@@ -1528,6 +1541,24 @@ class BookingsController extends Controller
                 "external_reference" => "BOOKING-" . time() . "-" . $user->id,
                 "statement_descriptor" => "EVENTO"
             ];
+
+            // Adicionar items para melhorar aprovação (+14 pontos Mercado Pago)
+            if ($ticket && $event) {
+                $paymentData['items'] = [
+                    [
+                        'id' => (string)$ticket->id,
+                        'title' => $ticket->title,
+                        'description' => 'Ingresso para ' . $event->title,
+                        'category_id' => 'event_ticket',
+                        'quantity' => (int)($validated['quantity'] ?? 1),
+                        'unit_price' => (float)$ticket->price
+                    ]
+                ];
+                
+                \Log::info('Items adicionados ao pagamento:', $paymentData['items']);
+            } else {
+                \Log::warning('Event ou Ticket não encontrados - Items não adicionados');
+            }
 
             // Validate token
             if (empty($paymentData['token'])) {
@@ -1717,7 +1748,7 @@ class BookingsController extends Controller
         switch ($paymentMethod) {
             case 'credit_card':
             case 'debit_card':
-                return $this->processCardPayment($validated, $user);
+                return $this->processCardPayment($validated, $user, null, null);
             
             case 'pix':
                 return $this->processPixPayment($validated, $user);
