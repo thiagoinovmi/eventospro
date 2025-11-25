@@ -153,6 +153,16 @@ return [
     |
     */
 
-    'attributes' => [],
+    'attributes' => [
+        'privacy_policy_accepted' => 'aceitação da política de privacidade',
+        'terms_conditions_accepted' => 'aceitação dos termos e condições',
+        'privacy_policy_accepted_at' => 'data de aceitação da política de privacidade',
+        'terms_conditions_accepted_at' => 'data de aceitação dos termos e condições',
+        'document_type' => 'tipo de documento',
+        'document' => 'documento',
+        'name' => 'nome',
+        'email' => 'e-mail',
+        'password' => 'senha',
+    ],
 
 ];

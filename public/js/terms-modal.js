@@ -247,8 +247,13 @@
                 // Atualizar campos hidden
                 document.getElementById('privacy_policy_accepted').value = '1';
                 document.getElementById('terms_conditions_accepted').value = '1';
-                document.getElementById('privacy_policy_accepted_at').value = new Date().toISOString();
-                document.getElementById('terms_conditions_accepted_at').value = new Date().toISOString();
+                
+                // Formato Laravel: Y-m-d H:i:s
+                const now = new Date();
+                const laravelFormat = now.toISOString().replace('T', ' ').replace(/\.\d{3}Z$/, '');
+                
+                document.getElementById('privacy_policy_accepted_at').value = laravelFormat;
+                document.getElementById('terms_conditions_accepted_at').value = laravelFormat;
                 
                 // Habilitar o botão de submit
                 const submitButton = document.querySelector('button[type="submit"]');
