@@ -5229,6 +5229,11 @@ const _sfc_main = {
       const expiration = moment(expiresAt);
       return now.isAfter(expiration);
     },
+    // Verificar se é pagamento com cartão (crédito ou débito)
+    isCardPayment(transaction) {
+      if (!transaction || !transaction.payment_method_type) return false;
+      return ["credit_card", "debit_card"].includes(transaction.payment_method_type);
+    },
     // Retentar pagamento (débito/crédito pendente ou rejeitado)
     retryPayment(booking) {
       var _a;
@@ -5336,7 +5341,7 @@ var _sfc_render = function render2() {
       return _vm.bookingCancel(booking.id, booking.ticket_id, booking.event_id);
     } } }, [_c("i", { staticClass: "fas fa-ban" }), _vm._v(" " + _vm._s(_vm.trans("em.cancel")))]) : _c("p", [_vm._v(_vm._s(_vm.trans("em.n/a")))])]) : _c("td", { staticClass: "align-middle", attrs: { "data-title": _vm.trans("em.cancellation") } }, [booking.booking_cancel == 0 ? _c("span", { staticClass: "badge bg-secondary text-white" }, [_vm._v(_vm._s(_vm.trans("em.disabled")))]) : _vm._e(), booking.booking_cancel == 1 ? _c("span", { staticClass: "badge bg-warning text-white" }, [_vm._v(_vm._s(_vm.trans("em.pending")))]) : _vm._e(), booking.booking_cancel == 2 ? _c("span", { staticClass: "badge bg-info text-white" }, [_vm._v(_vm._s(_vm.trans("em.approved")))]) : _vm._e(), booking.booking_cancel == 3 ? _c("span", { staticClass: "badge bg-secondary text-white" }, [_vm._v(_vm._s(_vm.trans("em.refunded")))]) : _vm._e()]), booking.expired == 1 ? _c("td", { staticClass: "align-middle", attrs: { "data-title": _vm.trans("em.expired") } }, [_c("span", { staticClass: "badge bg-danger text-white" }, [_vm._v(" " + _vm._s(_vm.trans("em.expired")) + " ")])]) : _c("td", { staticClass: "align-middle text-nowrap", attrs: { "data-title": _vm.trans("em.actions") } }, [booking.payment_type === "mercadopago" && booking.mercadopago_transaction && booking.mercadopago_transaction.qr_code_base64 && !booking.is_paid ? _c("div", { staticClass: "mb-2" }, [_c("button", { staticClass: "btn btn-sm btn-warning text-white", attrs: { "type": "button" }, on: { "click": function($event) {
       return _vm.openPixModal(booking.id);
-    } } }, [_c("i", { staticClass: "fas fa-qrcode" }), _vm._v(" PIX QR Code ")])]) : _vm._e(), booking.payment_type === "mercadopago" && booking.mercadopago_transaction && ["pending", "rejected", "cancelled"].includes(booking.mercadopago_transaction.status) && !booking.is_paid ? _c("div", { staticClass: "mb-2" }, [_c("button", { staticClass: "btn btn-sm btn-info text-white", attrs: { "type": "button" }, on: { "click": function($event) {
+    } } }, [_c("i", { staticClass: "fas fa-qrcode" }), _vm._v(" PIX QR Code ")])]) : _vm._e(), booking.payment_type === "mercadopago" && booking.mercadopago_transaction && ["pending", "rejected", "cancelled"].includes(booking.mercadopago_transaction.status) && !booking.is_paid && _vm.isCardPayment(booking.mercadopago_transaction) ? _c("div", { staticClass: "mb-2" }, [_c("button", { staticClass: "btn btn-sm btn-info text-white", attrs: { "type": "button" }, on: { "click": function($event) {
       return _vm.retryPayment(booking);
     } } }, [_c("i", { staticClass: "fas fa-redo me-1" }), _vm._v(" " + _vm._s(_vm.trans("em.retry_payment") || "Retentar Pagamento") + " ")])]) : _vm._e(), _vm.hide_ticket_download == null ? _c("div", { staticClass: "mb-2" }, [booking.is_paid == 1 && booking.status == 1 && booking.order_number ? _c("a", { staticClass: "btn btn-sm bg-danger text-white", attrs: { "href": _vm.downloadURL(booking.id, booking.order_number) } }, [_c("i", { staticClass: "fas fa-download" }), _vm._v(" " + _vm._s(_vm.trans("em.ticket")))]) : _c("span", { staticClass: "badge bg-danger text-white" }, [booking.is_paid == 0 && booking.status == 1 ? _c("small", { staticClass: "text-white" }, [_vm._v(_vm._s(_vm.trans("em.unpaid")))]) : _c("small", {}, [_vm._v(_vm._s(_vm.trans("em.disabled")))])])]) : _vm._e(), _vm.hide_google_calendar == null ? _c("div", { staticClass: "mb-2" }, [_c("create-google-event", { attrs: { "booking": booking, "date_format": _vm.date_format } })], 1) : _vm._e(), booking.online_location != null && booking.is_paid == 1 && booking.status == 1 ? _c("div", [_c("button", { staticClass: "btn btn-sm bg-parimary text-parimary", attrs: { "type": "button" }, on: { "click": function($event) {
       _vm.booking_id = booking.id;
@@ -5388,4 +5393,4 @@ window.app = new Vue({
   el: "#eventmie_app",
   router: routes
 });
-//# sourceMappingURL=index-nRe7DsbG.js.map
+//# sourceMappingURL=index-BGTrou42.js.map

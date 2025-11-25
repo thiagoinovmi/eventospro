@@ -116,8 +116,8 @@
                                             </button>
                                         </div>
 
-                                        <!-- Botão para Retentar Pagamento (Débito/Crédito Pendente ou Rejeitado) -->
-                                        <div v-if="booking.payment_type === 'mercadopago' && booking.mercadopago_transaction && ['pending', 'rejected', 'cancelled'].includes(booking.mercadopago_transaction.status) && !booking.is_paid" class="mb-2">
+                                        <!-- Botão para Retentar Pagamento (APENAS Cartão de Crédito/Débito Pendente ou Rejeitado) -->
+                                        <div v-if="booking.payment_type === 'mercadopago' && booking.mercadopago_transaction && ['pending', 'rejected', 'cancelled'].includes(booking.mercadopago_transaction.status) && !booking.is_paid && isCardPayment(booking.mercadopago_transaction)" class="mb-2">
                                             <button type="button" class="btn btn-sm btn-info text-white" @click="retryPayment(booking)">
                                                 <i class="fas fa-redo me-1"></i> {{ trans('em.retry_payment') || 'Retentar Pagamento' }}
                                             </button>
@@ -447,6 +447,12 @@ export default {
             const now = moment();
             const expiration = moment(expiresAt);
             return now.isAfter(expiration);
+        },
+
+        // Verificar se é pagamento com cartão (crédito ou débito)
+        isCardPayment(transaction) {
+            if (!transaction || !transaction.payment_method_type) return false;
+            return ['credit_card', 'debit_card'].includes(transaction.payment_method_type);
         },
 
         // Retentar pagamento (débito/crédito pendente ou rejeitado)
