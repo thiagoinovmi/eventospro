@@ -377,8 +377,6 @@
                 </div>
             </div>
         </div>
-    </div>
-    
     </div> <!-- Fechamento do div principal -->
 </template>
 
