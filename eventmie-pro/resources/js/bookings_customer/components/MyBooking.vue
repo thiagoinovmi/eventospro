@@ -357,6 +357,8 @@
                                         v-if="showRetryCheckout"
                                         :booking-data="retryBookingData"
                                         :event-id="selectedBookingForRetry ? selectedBookingForRetry.event_id : null"
+                                        :total="selectedBookingForRetry ? parseFloat(selectedBookingForRetry.net_price) : 0"
+                                        :currency="currency || 'R$'"
                                         :is-retry="true"
                                         @payment-success="handleRetrySuccess"
                                         @payment-error="handleRetryError">

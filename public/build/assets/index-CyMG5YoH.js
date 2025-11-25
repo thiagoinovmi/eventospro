@@ -1,4 +1,4 @@
-const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/MercadoPagoCheckout-B_kEAB18.js","assets/mixins-CO2EmGtw.js","assets/MercadoPagoCheckout-C9krXtr2.css"])))=>i.map(i=>d[i]);
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/MercadoPagoCheckout-Dm9CKdkm.js","assets/mixins-CO2EmGtw.js","assets/MercadoPagoCheckout-ni8TcF7k.css"])))=>i.map(i=>d[i]);
 import { g as getDefaultExportFromCjs, b as getAugmentedNamespace, _, n as normalizeComponent, m as mixinsFilters, c as moment$1 } from "./mixins-CO2EmGtw.js";
 import { m as mapMutations, a as mapState, i as index } from "./vuex.esm-BLukzcBM.js";
 import { v as vSelect } from "./vue-select-Bq6QHwGa.js";
@@ -2331,7 +2331,7 @@ const _sfc_main$3 = {
     mixinsFilters
   ],
   components: {
-    "mercadopago-checkout": () => __vitePreload(() => import("./MercadoPagoCheckout-B_kEAB18.js"), true ? __vite__mapDeps([0,1,2]) : void 0)
+    "mercadopago-checkout": () => __vitePreload(() => import("./MercadoPagoCheckout-Dm9CKdkm.js"), true ? __vite__mapDeps([0,1,2]) : void 0)
   },
   props: [
     "tickets",
@@ -2353,6 +2353,7 @@ const _sfc_main$3 = {
       openModal: false,
       ticket_info: false,
       moment,
+      overflowHidden: false,
       quantity: [1],
       price: null,
       total_price: [],
@@ -2399,6 +2400,8 @@ const _sfc_main$3 = {
     console.log("=== DEBUG TICKET LIST ===");
     console.log("is_admin:", this.is_admin);
     console.log("is_mercadopago:", this.is_mercadopago);
+    console.log("🔍 Event object:", this.event);
+    console.log("🔍 Event ID:", this.event ? this.event.id : "EVENT IS NULL");
     console.log("is_paypal:", this.is_paypal);
     console.log("is_customer:", this.is_customer);
     console.log("is_organiser:", this.is_organiser);
@@ -2782,7 +2785,7 @@ var _sfc_render$3 = function render() {
     _vm.payment_method = "2";
   } } }), _vm._m(1)]) : _vm._e(), _vm.is_organiser > 0 && _vm.is_offline_payment_organizer > 0 || _vm.is_customer > 0 && _vm.is_offline_payment_customer > 0 || _vm.is_admin > 0 ? _c("div", { staticClass: "radio-inline" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.payment_method, expression: "payment_method" }], staticClass: "custom-control-input", attrs: { "type": "radio", "id": "payment_method_offline", "name": "payment_method", "value": "offline" }, domProps: { "checked": _vm._q(_vm.payment_method, "offline") }, on: { "change": function($event) {
     _vm.payment_method = "offline";
-  } } }), _c("label", { staticClass: "custom-control-label", attrs: { "for": "payment_method_offline" } }, [_vm._v("  "), _c("i", { staticClass: "fas fa-suitcase-rolling" }), _vm._v(" " + _vm._s(_vm.trans("em.offline")) + " "), _c("small", [_vm._v("(" + _vm._s(_vm.trans("em.cash_on_arrival")) + ")")])])]) : _vm._e(), _vm.payment_method == "offline" ? _c("p", { staticClass: "text-mute h6 px-3 mt-1" }, [_c("strong", [_vm._v(_vm._s(_vm.trans("em.offline_payment_info")) + ": ")]), _c("small", { staticClass: "preserve-whitespace", domProps: { "innerHTML": _vm._s(_vm.event.offline_payment_info) } })]) : _vm._e(), _c("p", { staticClass: "text-mute h6 mt-2 mx-3", domProps: { "innerHTML": _vm._s(_vm.trans("em.order_terms")) } })])])]), _vm.payment_method == 2 && _vm.total > 0 ? _c("div", { staticClass: "col-12 mt-4" }, [_c("mercadopago-checkout", { ref: "mercadoPagoCheckout", attrs: { "event": _vm.event, "tickets": _vm.tickets, "total": _vm.total, "currency": _vm.currency, "booking-data": {
+  } } }), _c("label", { staticClass: "custom-control-label", attrs: { "for": "payment_method_offline" } }, [_vm._v("  "), _c("i", { staticClass: "fas fa-suitcase-rolling" }), _vm._v(" " + _vm._s(_vm.trans("em.offline")) + " "), _c("small", [_vm._v("(" + _vm._s(_vm.trans("em.cash_on_arrival")) + ")")])])]) : _vm._e(), _vm.payment_method == "offline" ? _c("p", { staticClass: "text-mute h6 px-3 mt-1" }, [_c("strong", [_vm._v(_vm._s(_vm.trans("em.offline_payment_info")) + ": ")]), _c("small", { staticClass: "preserve-whitespace", domProps: { "innerHTML": _vm._s(_vm.event.offline_payment_info) } })]) : _vm._e(), _c("p", { staticClass: "text-mute h6 mt-2 mx-3", domProps: { "innerHTML": _vm._s(_vm.trans("em.order_terms")) } })])])]), _vm.payment_method == 2 && _vm.total > 0 ? _c("div", { staticClass: "col-12 mt-4" }, [_c("mercadopago-checkout", { ref: "mercadoPagoCheckout", attrs: { "event-id": _vm.event ? _vm.event.id : null, "tickets": _vm.tickets, "total": parseFloat(_vm.total), "currency": _vm.currency, "booking-data": {
     booking_date: _vm.booking_date,
     booking_end_date: _vm.booking_end_date,
     start_time: _vm.start_time,
@@ -3682,4 +3685,4 @@ window.app = new Vue({
     GComponent
   }
 });
-//# sourceMappingURL=index-DAfVuh4i.js.map
+//# sourceMappingURL=index-CyMG5YoH.js.map

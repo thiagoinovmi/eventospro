@@ -19,6 +19,15 @@
     var disable_booking_cancellation = {!! json_encode(setting('booking.disable_booking_cancellation'), JSON_HEX_TAG) !!};
     var hide_ticket_download = {!! json_encode(setting('booking.hide_ticket_download'), JSON_HEX_TAG) !!};
     var hide_google_calendar = {!! json_encode(setting('booking.hide_google_calendar'), JSON_HEX_TAG) !!};
+    
+    // 👤 Dados do usuário para o frontend (necessário para MercadoPagoCheckout)
+    @auth
+    window.currentUser = {!! json_encode(auth()->user()) !!};
+    console.log('✅ Dados do usuário carregados via Blade:', window.currentUser);
+    @else
+    window.currentUser = null;
+    console.log('⚠️ Usuário não logado');
+    @endauth
 </script>
 @vite(['eventmie-pro/resources/js/bookings_customer/index.js'])
 

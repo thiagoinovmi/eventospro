@@ -1,7 +1,10 @@
 import { n as normalizeComponent } from "./mixins-CO2EmGtw.js";
 const _sfc_main = {
   props: {
-    event: Object,
+    eventId: {
+      type: [Number, String],
+      required: true
+    },
     tickets: Array,
     total: Number,
     currency: String,
@@ -41,7 +44,7 @@ const _sfc_main = {
         paymentMethodId: "credit_card"
         // Will be updated based on card brand
       },
-      errors: {
+      validationErrors: {
         cardholderName: "",
         cardNumber: "",
         cardExpiry: "",
@@ -67,6 +70,8 @@ const _sfc_main = {
     };
   },
   mounted() {
+    console.log("🔍 MercadoPagoCheckout mounted - eventId prop:", this.eventId);
+    console.log("🔍 MercadoPagoCheckout mounted - todos props:", this.$props);
     this.loadPaymentMethods();
     this.initializeMercadoPagoSDK();
     this.loadUserData();
@@ -249,35 +254,35 @@ const _sfc_main = {
     },
     validateCardholderName() {
       if (this.cardData.holderName.length < 3) {
-        this.errors.cardholderName = "Nome deve ter pelo menos 3 caracteres";
+        this.validationErrors.cardholderName = "Nome deve ter pelo menos 3 caracteres";
       } else {
-        this.errors.cardholderName = "";
+        this.validationErrors.cardholderName = "";
       }
     },
     validateCVV() {
       if (this.cardData.cvv.length < 3 || this.cardData.cvv.length > 4) {
-        this.errors.cardCvv = "CVV deve ter 3 ou 4 dígitos";
+        this.validationErrors.cardCvv = "CVV deve ter 3 ou 4 dígitos";
       } else {
-        this.errors.cardCvv = "";
+        this.validationErrors.cardCvv = "";
       }
     },
     validateForm() {
       let isValid = true;
       if (this.selectedMethod === "credit_card" || this.selectedMethod === "debit_card") {
         if (this.cardData.holderName.length < 3) {
-          this.errors.cardholderName = "Nome inválido";
+          this.validationErrors.cardholderName = "Nome inválido";
           isValid = false;
         }
         if (this.cardData.number.replace(/\s/g, "").length !== 16) {
-          this.errors.cardNumber = "Número do cartão inválido";
+          this.validationErrors.cardNumber = "Número do cartão inválido";
           isValid = false;
         }
         if (!this.cardData.expiry.match(/^\d{2}\/\d{2}$/)) {
-          this.errors.cardExpiry = "Validade inválida (MM/YY)";
+          this.validationErrors.cardExpiry = "Validade inválida (MM/YY)";
           isValid = false;
         }
         if (this.cardData.cvv.length < 3 || this.cardData.cvv.length > 4) {
-          this.errors.cardCvv = "CVV inválido";
+          this.validationErrors.cardCvv = "CVV inválido";
           isValid = false;
         }
       }
@@ -633,7 +638,7 @@ const _sfc_main = {
 };
 var _sfc_render = function render() {
   var _vm = this, _c = _vm._self._c;
-  return _c("div", { staticClass: "mercadopago-checkout-container mt-4 p-4 border rounded bg-light" }, [_vm.paymentConfirmed ? _c("div", { staticClass: "text-center py-5" }, [_vm._m(0), _c("h3", { staticClass: "text-success mb-3" }, [_vm._v(" ✅ Pagamento Recebido e Confirmado! ")]), _c("p", { staticClass: "text-muted mb-4" }, [_vm._v(" Seu pagamento foi processado com sucesso. Você será redirecionado para a página de minhas reservas em breve. ")]), _vm._m(1), _vm._m(2)]) : [_c("div", { staticClass: "mb-4" }, [_c("h5", { staticClass: "mb-3" }, [_c("i", { staticClass: "fas fa-credit-card me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.payment_details") || "Detalhes do Pagamento") + " ")]), _c("hr")]), _vm.userDataComplete ? _c("div", { staticClass: "alert alert-success alert-dismissible fade show mb-4", attrs: { "role": "alert" } }, [_c("i", { staticClass: "fas fa-check-circle me-2" }), _c("strong", [_vm._v("Perfeito!")]), _vm._v(" Todos os seus dados estão preenchidos corretamente no perfil. "), _vm._m(3), _c("button", { staticClass: "btn-close", attrs: { "type": "button", "data-bs-dismiss": "alert", "aria-label": "Close" } })]) : _vm.window.currentUser ? _c("div", { staticClass: "alert alert-warning alert-dismissible fade show mb-4", attrs: { "role": "alert" } }, [_c("i", { staticClass: "fas fa-exclamation-triangle me-2" }), _c("strong", [_vm._v("Atenção!")]), _vm._v(" Para garantir a aprovação do seu pagamento, é importante que seus dados estejam completos. "), _c("div", { staticClass: "mt-2 small" }, [!_vm.userCPF ? _c("div", { staticClass: "mb-1" }, [_c("i", { staticClass: "fas fa-times-circle text-danger me-1" }), _vm._v(" CPF/CNPJ não preenchido ")]) : _vm._e(), !_vm.userPhone ? _c("div", { staticClass: "mb-1" }, [_c("i", { staticClass: "fas fa-times-circle text-danger me-1" }), _vm._v(" Telefone não preenchido ")]) : _vm._e(), !_vm.userAddressComplete ? _c("div", { staticClass: "mb-1" }, [_c("i", { staticClass: "fas fa-times-circle text-danger me-1" }), _vm._v(" Endereço incompleto ")]) : _vm._e()]), _vm._m(4), _c("button", { staticClass: "btn-close", attrs: { "type": "button", "data-bs-dismiss": "alert", "aria-label": "Close" } })]) : _vm._e(), _c("div", { staticClass: "row mb-4" }, [_c("div", { staticClass: "col-md-6" }, [_c("div", { staticClass: "card" }, [_c("div", { staticClass: "card-body" }, [_c("h6", { staticClass: "card-title mb-3" }, [_vm._v(_vm._s(_vm.trans("em.order_summary") || "Resumo do Pedido"))]), _c("div", { staticClass: "d-flex justify-content-between mb-2" }, [_c("span", [_vm._v(_vm._s(_vm.trans("em.subtotal") || "Subtotal") + ":")]), _c("strong", [_vm._v(_vm._s(_vm.subtotal) + " " + _vm._s(_vm.currency))])]), _c("div", { staticClass: "d-flex justify-content-between mb-2" }, [_c("span", [_vm._v(_vm._s(_vm.trans("em.tax") || "Taxa") + ":")]), _c("strong", [_vm._v(_vm._s(_vm.tax) + " " + _vm._s(_vm.currency))])]), _c("hr"), _c("div", { staticClass: "d-flex justify-content-between" }, [_c("span", { staticClass: "h6" }, [_vm._v(_vm._s(_vm.trans("em.total") || "Total") + ":")]), _c("strong", { staticClass: "h6" }, [_vm._v(_vm._s(_vm.total) + " " + _vm._s(_vm.currency))])])])])]), _c("div", { staticClass: "col-md-6" }, [_c("div", { staticClass: "card" }, [_c("div", { staticClass: "card-body" }, [_c("h6", { staticClass: "card-title mb-3" }, [_vm._v(_vm._s(_vm.trans("em.payment_method") || "Método de Pagamento"))]), _vm.loadedMethods.credit_card ? _c("div", { staticClass: "form-check mb-3" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.selectedMethod, expression: "selectedMethod" }], staticClass: "form-check-input", attrs: { "type": "radio", "id": "method_credit_card", "value": "credit_card" }, domProps: { "checked": _vm._q(_vm.selectedMethod, "credit_card") }, on: { "change": function($event) {
+  return _c("div", { staticClass: "mercadopago-checkout-container mt-4 p-4 border rounded bg-light" }, [_vm.paymentConfirmed ? _c("div", { staticClass: "text-center py-5" }, [_vm._m(0), _c("h3", { staticClass: "text-success mb-3" }, [_vm._v(" ✅ Pagamento Recebido e Confirmado! ")]), _c("p", { staticClass: "text-muted mb-4" }, [_vm._v(" Seu pagamento foi processado com sucesso. Você será redirecionado para a página de minhas reservas em breve. ")]), _vm._m(1), _vm._m(2)]) : [_c("div", { staticClass: "mb-4" }, [_c("h5", { staticClass: "mb-3" }, [_c("i", { staticClass: "fas fa-credit-card me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.payment_details") || "Detalhes do Pagamento") + " ")]), _c("hr")]), _vm.userDataComplete ? _c("div", { staticClass: "alert alert-success alert-dismissible fade show mb-4", attrs: { "role": "alert" } }, [_c("i", { staticClass: "fas fa-check-circle me-2" }), _c("strong", [_vm._v("Perfeito!")]), _vm._v(" Todos os seus dados estão preenchidos corretamente no perfil. "), _vm._m(3), _c("button", { staticClass: "btn-close", attrs: { "type": "button", "data-bs-dismiss": "alert", "aria-label": "Close" } })]) : _vm.window.currentUser ? _c("div", { staticClass: "alert alert-warning alert-dismissible fade show mb-4", attrs: { "role": "alert" } }, [_c("i", { staticClass: "fas fa-exclamation-triangle me-2" }), _c("strong", [_vm._v("Atenção!")]), _vm._v(" Para garantir a aprovação do seu pagamento, é importante que seus dados estejam completos. "), _c("div", { staticClass: "mt-2 small" }, [!_vm.userCPF ? _c("div", { staticClass: "mb-1" }, [_c("i", { staticClass: "fas fa-times-circle text-danger me-1" }), _vm._v(" CPF/CNPJ não preenchido ")]) : _vm._e(), !_vm.userPhone ? _c("div", { staticClass: "mb-1" }, [_c("i", { staticClass: "fas fa-times-circle text-danger me-1" }), _vm._v(" Telefone não preenchido ")]) : _vm._e(), !_vm.userAddressComplete ? _c("div", { staticClass: "mb-1" }, [_c("i", { staticClass: "fas fa-times-circle text-danger me-1" }), _vm._v(" Endereço incompleto ")]) : _vm._e()]), _vm._m(4), _c("button", { staticClass: "btn-close", attrs: { "type": "button", "data-bs-dismiss": "alert", "aria-label": "Close" } })]) : _vm._e(), _c("div", { staticClass: "row mb-4" }, [_c("div", { staticClass: "col-md-6" }, [_c("div", { staticClass: "card" }, [_c("div", { staticClass: "card-body" }, [_c("h6", { staticClass: "card-title mb-3" }, [_vm._v(_vm._s(_vm.trans("em.order_summary") || "Resumo do Pedido"))]), _c("div", { staticClass: "d-flex justify-content-between mb-2" }, [_c("span", [_vm._v(_vm._s(_vm.trans("em.subtotal") || "Subtotal") + ":")]), _c("strong", [_vm._v(_vm._s(_vm.currency) + " " + _vm._s(_vm.subtotal))])]), _c("div", { staticClass: "d-flex justify-content-between mb-2" }, [_c("span", [_vm._v(_vm._s(_vm.trans("em.tax") || "Taxa") + ":")]), _c("strong", [_vm._v(_vm._s(_vm.currency) + " " + _vm._s(_vm.tax))])]), _c("hr"), _c("div", { staticClass: "d-flex justify-content-between" }, [_c("span", { staticClass: "h6" }, [_vm._v(_vm._s(_vm.trans("em.total") || "Total") + ":")]), _c("strong", { staticClass: "h6" }, [_vm._v(_vm._s(_vm.currency) + " " + _vm._s(_vm.total))])])])])]), _c("div", { staticClass: "col-md-6" }, [_c("div", { staticClass: "card" }, [_c("div", { staticClass: "card-body" }, [_c("h6", { staticClass: "card-title mb-3" }, [_vm._v(_vm._s(_vm.trans("em.payment_method") || "Método de Pagamento"))]), _vm.loadedMethods.credit_card ? _c("div", { staticClass: "form-check mb-3" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.selectedMethod, expression: "selectedMethod" }], staticClass: "form-check-input", attrs: { "type": "radio", "id": "method_credit_card", "value": "credit_card" }, domProps: { "checked": _vm._q(_vm.selectedMethod, "credit_card") }, on: { "change": function($event) {
     _vm.selectedMethod = "credit_card";
   } } }), _c("label", { staticClass: "form-check-label", attrs: { "for": "method_credit_card" } }, [_c("i", { staticClass: "fas fa-credit-card me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.credit_card") || "Cartão de Crédito") + " ")])]) : _vm._e(), _vm.loadedMethods.debit_card ? _c("div", { staticClass: "form-check mb-3" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.selectedMethod, expression: "selectedMethod" }], staticClass: "form-check-input", attrs: { "type": "radio", "id": "method_debit_card", "value": "debit_card" }, domProps: { "checked": _vm._q(_vm.selectedMethod, "debit_card") }, on: { "change": function($event) {
     _vm.selectedMethod = "debit_card";
@@ -646,16 +651,16 @@ var _sfc_render = function render() {
   } } }), _c("label", { staticClass: "form-check-label", attrs: { "for": "method_wallet" } }, [_c("i", { staticClass: "fas fa-wallet me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.wallet") || "Carteira Mercado Pago") + " ")])]) : _vm._e()])])])]), ["credit_card", "debit_card"].includes(_vm.selectedMethod) ? _c("div", { staticClass: "row mb-4" }, [_c("div", { staticClass: "col-12" }, [_c("div", { staticClass: "card" }, [_c("div", { staticClass: "card-body" }, [_c("h6", { staticClass: "card-title mb-3" }, [_vm._v(_vm._s(_vm.trans("em.card_details") || "Dados do Cartão"))]), _c("div", { staticClass: "mb-3" }, [_c("label", { staticClass: "form-label", attrs: { "for": "cardholderName" } }, [_vm._v(_vm._s(_vm.trans("em.cardholder_name") || "Nome do Titular"))]), _c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.cardData.holderName, expression: "cardData.holderName" }], staticClass: "form-control", attrs: { "type": "text", "id": "cardholderName", "placeholder": "João Silva" }, domProps: { "value": _vm.cardData.holderName }, on: { "input": [function($event) {
     if ($event.target.composing) return;
     _vm.$set(_vm.cardData, "holderName", $event.target.value);
-  }, _vm.validateCardholderName] } }), _vm.errors.cardholderName ? _c("small", { staticClass: "text-danger" }, [_vm._v(_vm._s(_vm.errors.cardholderName))]) : _vm._e()]), _c("div", { staticClass: "mb-3" }, [_c("label", { staticClass: "form-label", attrs: { "for": "cardNumber" } }, [_vm._v(_vm._s(_vm.trans("em.card_number") || "Número do Cartão"))]), _c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.cardData.number, expression: "cardData.number" }], staticClass: "form-control", attrs: { "type": "text", "id": "cardNumber", "placeholder": "1234 5678 9012 3456", "maxlength": "19" }, domProps: { "value": _vm.cardData.number }, on: { "input": [function($event) {
+  }, _vm.validateCardholderName] } }), _vm.validationErrors.cardholderName ? _c("small", { staticClass: "text-danger" }, [_vm._v(_vm._s(_vm.validationErrors.cardholderName))]) : _vm._e()]), _c("div", { staticClass: "mb-3" }, [_c("label", { staticClass: "form-label", attrs: { "for": "cardNumber" } }, [_vm._v(_vm._s(_vm.trans("em.card_number") || "Número do Cartão"))]), _c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.cardData.number, expression: "cardData.number" }], staticClass: "form-control", attrs: { "type": "text", "id": "cardNumber", "placeholder": "1234 5678 9012 3456", "maxlength": "19" }, domProps: { "value": _vm.cardData.number }, on: { "input": [function($event) {
     if ($event.target.composing) return;
     _vm.$set(_vm.cardData, "number", $event.target.value);
-  }, _vm.formatCardNumber] } }), _vm.errors.cardNumber ? _c("small", { staticClass: "text-danger" }, [_vm._v(_vm._s(_vm.errors.cardNumber))]) : _vm._e()]), _c("div", { staticClass: "row" }, [_c("div", { staticClass: "col-md-6 mb-3" }, [_c("label", { staticClass: "form-label", attrs: { "for": "cardExpiry" } }, [_vm._v(_vm._s(_vm.trans("em.expiry_date") || "Validade"))]), _c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.cardData.expiry, expression: "cardData.expiry" }], staticClass: "form-control", attrs: { "type": "text", "id": "cardExpiry", "placeholder": "MM/YY", "maxlength": "5" }, domProps: { "value": _vm.cardData.expiry }, on: { "input": [function($event) {
+  }, _vm.formatCardNumber] } }), _vm.validationErrors.cardNumber ? _c("small", { staticClass: "text-danger" }, [_vm._v(_vm._s(_vm.validationErrors.cardNumber))]) : _vm._e()]), _c("div", { staticClass: "row" }, [_c("div", { staticClass: "col-md-6 mb-3" }, [_c("label", { staticClass: "form-label", attrs: { "for": "cardExpiry" } }, [_vm._v(_vm._s(_vm.trans("em.expiry_date") || "Validade"))]), _c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.cardData.expiry, expression: "cardData.expiry" }], staticClass: "form-control", attrs: { "type": "text", "id": "cardExpiry", "placeholder": "MM/YY", "maxlength": "5" }, domProps: { "value": _vm.cardData.expiry }, on: { "input": [function($event) {
     if ($event.target.composing) return;
     _vm.$set(_vm.cardData, "expiry", $event.target.value);
-  }, _vm.formatCardExpiry] } }), _vm.errors.cardExpiry ? _c("small", { staticClass: "text-danger" }, [_vm._v(_vm._s(_vm.errors.cardExpiry))]) : _vm._e()]), _c("div", { staticClass: "col-md-6 mb-3" }, [_c("label", { staticClass: "form-label", attrs: { "for": "cardCvv" } }, [_vm._v(_vm._s(_vm.trans("em.cvv") || "CVV"))]), _c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.cardData.cvv, expression: "cardData.cvv" }], staticClass: "form-control", attrs: { "type": "text", "id": "cardCvv", "placeholder": "123", "maxlength": "4" }, domProps: { "value": _vm.cardData.cvv }, on: { "input": [function($event) {
+  }, _vm.formatCardExpiry] } }), _vm.validationErrors.cardExpiry ? _c("small", { staticClass: "text-danger" }, [_vm._v(_vm._s(_vm.validationErrors.cardExpiry))]) : _vm._e()]), _c("div", { staticClass: "col-md-6 mb-3" }, [_c("label", { staticClass: "form-label", attrs: { "for": "cardCvv" } }, [_vm._v(_vm._s(_vm.trans("em.cvv") || "CVV"))]), _c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.cardData.cvv, expression: "cardData.cvv" }], staticClass: "form-control", attrs: { "type": "text", "id": "cardCvv", "placeholder": "123", "maxlength": "4" }, domProps: { "value": _vm.cardData.cvv }, on: { "input": [function($event) {
     if ($event.target.composing) return;
     _vm.$set(_vm.cardData, "cvv", $event.target.value);
-  }, _vm.validateCVV] } }), _vm.errors.cardCvv ? _c("small", { staticClass: "text-danger" }, [_vm._v(_vm._s(_vm.errors.cardCvv))]) : _vm._e()])]), ["credit_card", "wallet"].includes(_vm.selectedMethod) && _vm.installmentOptions.length > 0 ? _c("div", { staticClass: "mb-3" }, [_c("label", { staticClass: "form-label", attrs: { "for": "installments" } }, [_vm._v(_vm._s(_vm.trans("em.installments") || "Parcelamento"))]), _c("select", { directives: [{ name: "model", rawName: "v-model", value: _vm.cardData.installments, expression: "cardData.installments" }], staticClass: "form-select", attrs: { "id": "installments" }, on: { "change": function($event) {
+  }, _vm.validateCVV] } }), _vm.validationErrors.cardCvv ? _c("small", { staticClass: "text-danger" }, [_vm._v(_vm._s(_vm.validationErrors.cardCvv))]) : _vm._e()])]), ["credit_card", "wallet"].includes(_vm.selectedMethod) && _vm.installmentOptions.length > 0 ? _c("div", { staticClass: "mb-3" }, [_c("label", { staticClass: "form-label", attrs: { "for": "installments" } }, [_vm._v(_vm._s(_vm.trans("em.installments") || "Parcelamento"))]), _c("select", { directives: [{ name: "model", rawName: "v-model", value: _vm.cardData.installments, expression: "cardData.installments" }], staticClass: "form-select", attrs: { "id": "installments" }, on: { "change": function($event) {
     var $$selectedVal = Array.prototype.filter.call($event.target.options, function(o) {
       return o.selected;
     }).map(function(o) {
@@ -696,10 +701,10 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "0e334da2"
+  "74162198"
 );
 const MercadoPagoCheckout = __component__.exports;
 export {
   MercadoPagoCheckout as default
 };
-//# sourceMappingURL=MercadoPagoCheckout-B_kEAB18.js.map
+//# sourceMappingURL=MercadoPagoCheckout-Dm9CKdkm.js.map
