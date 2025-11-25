@@ -1,6 +1,5 @@
 <template>
     <div>
-        <!-- Container principal -->
         <div class="container-fluid">
         <div class="row py-5">
             <div class="col-md-12">
@@ -159,9 +158,9 @@
                 </div>
             </div>
         </div>
-        </div> <!-- Fechamento do container-fluid -->
-        
-        <!-- Modais PIX QR Code -->
+    </div>
+
+    <!-- Modais PIX QR Code - FORA DO CARD -->
     <div v-for="booking in bookings" :key="'modal-' + booking.id">
         <div v-if="booking.payment_type === 'mercadopago' && booking.mercadopago_transaction && booking.mercadopago_transaction.qr_code_base64" 
              class="modal fade" :id="'pixModal-' + booking.id" tabindex="-1" aria-labelledby="pixModalLabel" aria-hidden="true">
@@ -374,8 +373,7 @@
                 </div>
             </div>
         </div>
-        
-    </div> <!-- Fechamento do div principal -->
+    </div>
 </template>
 
 
