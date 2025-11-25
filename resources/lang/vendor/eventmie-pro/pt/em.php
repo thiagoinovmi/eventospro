@@ -222,7 +222,7 @@ return [
     'tomorrow'                        => 'Amanhã',
     'time'                            => 'Tempo',
     'timings'                         => 'Timings',
-    'date'                            => 'Encontro',
+    'date'                            => 'Data e hora',
     'dates'                           => 'Datas',
     'start'                           => 'Começar',
     'started'                         => 'Iniciado',

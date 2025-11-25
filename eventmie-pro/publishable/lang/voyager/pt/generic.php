@@ -169,7 +169,7 @@ return [
     'Event Sales Reports'                             => 'Relatórios de vendas de eventos',
     'all'                                             => 'tudo',
     'Timing'                                          => 'Cronometragem',
-    'Date'                                            => 'Encontro',
+    'Date'                                            => 'Data e hora',
     'Ticket'                                          => 'Bilhete',
     'Order'                                           => 'Pedido',
     'Payout'                                          => 'Pagamento',
