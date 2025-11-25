@@ -1534,19 +1534,8 @@ class BookingsController extends Controller
             // 🔔 Adicionar Webhook notification_url (obrigatório)
             $paymentData['notification_url'] = env('APP_URL') . '/api/mercadopago/webhook';
 
-            // 📦 Adicionar Items - Detalhes do carrinho (recomendado)
-            if ($ticket && $event) {
-                $paymentData['items'] = [
-                    [
-                        'id' => (string)$ticket->id,
-                        'title' => $ticket->title,
-                        'description' => 'Ingresso para evento: ' . $event->title,
-                        'category_id' => 'event_ticket',
-                        'quantity' => (int)($validated['quantity'] ?? 1),
-                        'unit_price' => (float)$ticket->price
-                    ]
-                ];
-            }
+            // ⚠️ NOTA: Items NÃO são suportados em pagamentos com cartão tokenizado
+            // Items funcionam apenas com PIX, Boleto e Carteira
 
             // Validate token
             if (empty($paymentData['token'])) {
@@ -1792,19 +1781,8 @@ class BookingsController extends Controller
             // 🔔 Adicionar Webhook notification_url (obrigatório)
             $paymentData['notification_url'] = env('APP_URL') . '/api/mercadopago/webhook';
 
-            // 📦 Adicionar Items - Detalhes do carrinho (recomendado)
-            if ($ticket && $event) {
-                $paymentData['items'] = [
-                    [
-                        'id' => (string)$ticket->id,
-                        'title' => $ticket->title,
-                        'description' => 'Ingresso para evento: ' . $event->title,
-                        'category_id' => 'event_ticket',
-                        'quantity' => (int)($validated['quantity'] ?? 1),
-                        'unit_price' => (float)$ticket->price
-                    ]
-                ];
-            }
+            // ⚠️ NOTA: Items NÃO são suportados em pagamentos com cartão tokenizado
+            // Items funcionam apenas com PIX, Boleto e Carteira
 
             // Validate token
             if (empty($paymentData['token'])) {
