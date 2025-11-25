@@ -71,6 +71,13 @@
                                 {{-- Hide Profile pic for all except for Admin --}}
                                 @if(Auth::user()->hasRole('admin') && $row->field == 'avatar' && $dataTypeContent->role_id != 1)
                                     
+                                {{-- Mostrar campos de endereço apenas uma vez --}}
+                                @elseif($row->field == 'address_zip_code')
+                                    @include('eventmie::vendor.voyager.users.address-fields', ['dataTypeContent' => $dataTypeContent])
+                                    
+                                {{-- Pular os outros campos de endereço pois já foram incluídos acima --}}
+                                @elseif(in_array($row->field, ['address_street', 'address_number', 'address_complement', 'address_neighborhood', 'address_city', 'address_state']))
+                                    
                                 @else
                                 <div class="form-group @if($row->type == 'hidden') hidden @endif col-md-{{ $display_options->width ?? 12 }} {{ $errors->has($row->field) ? 'has-error' : '' }}" @if(isset($display_options->id)){{ "id=$display_options->id" }}@endif>
                                     {{ $row->slugify }}
