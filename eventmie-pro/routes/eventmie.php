@@ -277,6 +277,7 @@ Route::group([
         Route::get('/api/get_mybookings', "$controller@mybookings")->name('mybookings');
         Route::post('/api/cancel', "$controller@cancel")->name('mybookings_cancel');
         Route::get('/api/transaction/{transactionId}/status', "$controller@getTransactionStatus")->name('mybookings_transaction_status');
+        Route::get('/api/payment-history/{bookingId}', "$controller@getPaymentHistory")->name('mybookings_payment_history');
     });
     
     /* My Bookings (organizer) */

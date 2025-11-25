@@ -98,14 +98,18 @@
     "name": "vuex.esm"
   },
   "eventmie-pro/resources/js/bookings_customer/index.js": {
-    "file": "assets/index-CF8euZ7H.js",
+    "file": "assets/index-wPMATGD3.js",
     "name": "index",
     "src": "eventmie-pro/resources/js/bookings_customer/index.js",
     "isEntry": true,
     "imports": [
       "_mixins-CO2EmGtw.js",
       "_Pagination-DVYAWWC9.js",
-      "_OnlineEvent-DGsW96ZK.js"
+      "_OnlineEvent-DGsW96ZK.js",
+      "eventmie-pro/resources/js/events_show/components/MercadoPagoCheckout.vue"
+    ],
+    "css": [
+      "assets/index-BrT77G22.css"
     ]
   },
   "eventmie-pro/resources/js/bookings_organiser/index.js": {
@@ -164,7 +168,7 @@
     ]
   },
   "eventmie-pro/resources/js/events_show/components/MercadoPagoCheckout.vue": {
-    "file": "assets/MercadoPagoCheckout-D4foxifj.js",
+    "file": "assets/MercadoPagoCheckout-nDEZk1xj.js",
     "name": "MercadoPagoCheckout",
     "src": "eventmie-pro/resources/js/events_show/components/MercadoPagoCheckout.vue",
     "isDynamicEntry": true,
@@ -172,11 +176,11 @@
       "_mixins-CO2EmGtw.js"
     ],
     "css": [
-      "assets/MercadoPagoCheckout-9OAP6hy1.css"
+      "assets/MercadoPagoCheckout-DoUuhZda.css"
     ]
   },
   "eventmie-pro/resources/js/events_show/index.js": {
-    "file": "assets/index-C6pOyN7n.js",
+    "file": "assets/index-BHhXaagu.js",
     "name": "index",
     "src": "eventmie-pro/resources/js/events_show/index.js",
     "isEntry": true,

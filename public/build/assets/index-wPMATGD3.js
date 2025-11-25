@@ -1,6 +1,7 @@
 import { n as normalizeComponent, m as mixinsFilters } from "./mixins-CO2EmGtw.js";
 import { P as PaginationComponent } from "./Pagination-DVYAWWC9.js";
 import { O as OnlineEvent } from "./OnlineEvent-DGsW96ZK.js";
+import MercadoPagoCheckout from "./MercadoPagoCheckout-nDEZk1xj.js";
 var top = "top";
 var bottom = "bottom";
 var right = "right";
@@ -5102,7 +5103,8 @@ const _sfc_main = {
   components: {
     PaginationComponent,
     OnlineEvent,
-    CreateGoogleEvent
+    CreateGoogleEvent,
+    MercadoPagoCheckout
   },
   data() {
     return {
@@ -5118,7 +5120,12 @@ const _sfc_main = {
       // 🔄 Controle de polling PIX
       paymentPolling: {},
       paymentConfirmed: {},
-      pollingIntervals: {}
+      pollingIntervals: {},
+      // 🔄 Controle de retry de pagamento
+      selectedBookingForRetry: null,
+      paymentHistory: [],
+      showRetryCheckout: false,
+      retryBookingData: null
     };
   },
   computed: {
@@ -5235,22 +5242,120 @@ const _sfc_main = {
       return ["credit_card", "debit_card"].includes(transaction.payment_method_type);
     },
     // Retentar pagamento (débito/crédito pendente ou rejeitado)
-    retryPayment(booking) {
-      var _a;
-      const retryData = {
-        booking_id: booking.id,
-        event_id: booking.event_id,
-        ticket_id: booking.ticket_id,
-        ticket_title: booking.ticket_title,
-        net_price: booking.net_price,
-        transaction_id: (_a = booking.mercadopago_transaction) == null ? void 0 : _a.id,
-        event_slug: booking.event_slug
-      };
-      localStorage.setItem("mercadopago_retry_payment", JSON.stringify(retryData));
-      this.showNotification("info", trans("em.opening_checkout") || "Abrindo formulário de pagamento...");
+    async retryPayment(booking) {
+      try {
+        this.selectedBookingForRetry = booking;
+        await this.loadPaymentHistory(booking.id);
+        this.retryBookingData = {
+          booking_id: booking.id,
+          event_id: booking.event_id,
+          ticket_id: booking.ticket_id,
+          ticket_title: booking.ticket_title,
+          net_price: booking.net_price,
+          quantity: booking.quantity,
+          event_title: booking.event_title,
+          event_slug: booking.event_slug,
+          is_retry: true
+        };
+        this.showRetryCheckout = true;
+        const modalElement = document.getElementById("retryPaymentModal");
+        if (modalElement) {
+          const modal = new Modal(modalElement);
+          modal.show();
+        } else {
+          console.error("Modal de retry não encontrado");
+        }
+      } catch (error) {
+        console.error("Erro ao abrir modal de retry:", error);
+        this.showNotification("error", "Erro ao carregar formulário de pagamento");
+      }
+    },
+    // 📊 Carregar histórico de tentativas de pagamento
+    async loadPaymentHistory(bookingId) {
+      try {
+        const response = await axios.get(`/mybookings/api/payment-history/${bookingId}`);
+        if (response.data.status && response.data.data) {
+          this.paymentHistory = response.data.data;
+        } else {
+          this.paymentHistory = [];
+        }
+      } catch (error) {
+        console.error("Erro ao carregar histórico:", error);
+        this.paymentHistory = [];
+      }
+    },
+    // ✅ Manipular sucesso no retry
+    handleRetrySuccess(paymentData) {
+      console.log("✅ Retry bem-sucedido:", paymentData);
+      const modalElement = document.getElementById("retryPaymentModal");
+      if (modalElement) {
+        const modal = Modal.getInstance(modalElement);
+        if (modal) modal.hide();
+      }
+      this.showNotification("success", "Pagamento processado com sucesso! 🎉");
       setTimeout(() => {
-        window.location.href = route("eventmie.events_show", [booking.event_slug]);
-      }, 500);
+        window.location.reload();
+      }, 2e3);
+    },
+    // ❌ Manipular erro no retry
+    handleRetryError(errorData) {
+      console.error("❌ Erro no retry:", errorData);
+      if (this.selectedBookingForRetry) {
+        this.loadPaymentHistory(this.selectedBookingForRetry.id);
+      }
+      this.showNotification("error", "Falha no pagamento. Verifique os dados e tente novamente.");
+    },
+    // 🎨 Obter classe CSS para badge de status
+    getStatusBadgeClass(status) {
+      const classes = {
+        "approved": "bg-success",
+        "pending": "bg-warning",
+        "rejected": "bg-danger",
+        "cancelled": "bg-secondary",
+        "in_process": "bg-info"
+      };
+      return classes[status] || "bg-secondary";
+    },
+    // 📝 Obter texto do status
+    getStatusText(status) {
+      const texts = {
+        "approved": "Aprovado",
+        "pending": "Pendente",
+        "rejected": "Rejeitado",
+        "cancelled": "Cancelado",
+        "in_process": "Processando"
+      };
+      return texts[status] || status;
+    },
+    // 💳 Obter texto do método de pagamento
+    getPaymentMethodText(method) {
+      const methods = {
+        "credit_card": "Cartão de Crédito",
+        "debit_card": "Cartão de Débito",
+        "pix": "PIX",
+        "boleto": "Boleto",
+        "account_money": "Carteira MP"
+      };
+      return methods[method] || method;
+    },
+    // 📋 Obter texto detalhado do motivo de rejeição
+    getStatusDetailText(statusDetail) {
+      const details = {
+        "cc_rejected_insufficient_amount": "Saldo insuficiente",
+        "cc_rejected_bad_filled_card_number": "Número do cartão inválido",
+        "cc_rejected_bad_filled_date": "Data de vencimento inválida",
+        "cc_rejected_bad_filled_security_code": "Código de segurança inválido",
+        "cc_rejected_bad_filled_other": "Dados do cartão incorretos",
+        "cc_rejected_blacklist": "Cartão bloqueado",
+        "cc_rejected_call_for_authorize": "Autorização necessária",
+        "cc_rejected_card_disabled": "Cartão desabilitado",
+        "cc_rejected_duplicated_payment": "Pagamento duplicado",
+        "cc_rejected_high_risk": "Transação de alto risco",
+        "cc_rejected_invalid_installments": "Parcelas inválidas",
+        "cc_rejected_max_attempts": "Muitas tentativas",
+        "cc_rejected_other_reason": "Rejeitado pelo banco"
+      };
+      return details[statusDetail] || statusDetail;
     },
     // 🔄 Iniciar polling de status do pagamento PIX
     startPaymentPolling(bookingId) {
@@ -5366,7 +5471,7 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  null
+  "80f0d76b"
 );
 const MyBooking = __component__.exports;
 const routes = new VueRouter({
@@ -5393,4 +5498,4 @@ window.app = new Vue({
   el: "#eventmie_app",
   router: routes
 });
-//# sourceMappingURL=index-CF8euZ7H.js.map
+//# sourceMappingURL=index-wPMATGD3.js.map

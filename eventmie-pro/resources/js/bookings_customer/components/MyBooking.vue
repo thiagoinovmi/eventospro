@@ -263,6 +263,117 @@
         </div>
         </div>
     </div>
+
+    <!-- Modal de Retry de Pagamento -->
+    <div class="modal fade" id="retryPaymentModal" tabindex="-1" aria-labelledby="retryPaymentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl" style="max-height: 90vh;">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="retryPaymentModalLabel">
+                        <i class="fas fa-redo me-2"></i>{{ trans('em.retry_payment') || 'Retentar Pagamento' }}
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0" v-if="selectedBookingForRetry">
+                    <div class="row g-0">
+                        <!-- Coluna Esquerda: Histórico de Tentativas -->
+                        <div class="col-lg-4 bg-light border-end">
+                            <div class="p-4">
+                                <h6 class="mb-3">
+                                    <i class="fas fa-history me-2"></i>{{ trans('em.payment_history') || 'Histórico de Tentativas' }}
+                                </h6>
+                                
+                                <!-- Lista de Tentativas -->
+                                <div v-if="paymentHistory.length > 0" class="payment-history-list">
+                                    <div v-for="(transaction, index) in paymentHistory" :key="transaction.id" 
+                                         class="card mb-3 border-0 shadow-sm">
+                                        <div class="card-body p-3">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <span class="badge" :class="getStatusBadgeClass(transaction.status)">
+                                                    {{ getStatusText(transaction.status) }}
+                                                </span>
+                                                <small class="text-muted">
+                                                    Tentativa {{ paymentHistory.length - index }}
+                                                </small>
+                                            </div>
+                                            
+                                            <div class="mb-2">
+                                                <small class="text-muted d-block">{{ trans('em.payment_method') || 'Método' }}:</small>
+                                                <span class="fw-bold">{{ getPaymentMethodText(transaction.payment_method_type) }}</span>
+                                            </div>
+                                            
+                                            <div class="mb-2">
+                                                <small class="text-muted d-block">{{ trans('em.date') || 'Data' }}:</small>
+                                                <span>{{ userTimezone(transaction.created_at, 'YYYY-MM-DD HH:mm:ss').format('DD/MM/YYYY HH:mm') }}</span>
+                                            </div>
+                                            
+                                            <div v-if="transaction.status_detail" class="mb-2">
+                                                <small class="text-muted d-block">{{ trans('em.reason') || 'Motivo' }}:</small>
+                                                <span class="text-danger small">{{ getStatusDetailText(transaction.status_detail) }}</span>
+                                            </div>
+                                            
+                                            <div v-if="transaction.installments > 1" class="mb-2">
+                                                <small class="text-muted d-block">{{ trans('em.installments') || 'Parcelas' }}:</small>
+                                                <span>{{ transaction.installments }}x</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div v-else class="text-center text-muted py-4">
+                                    <i class="fas fa-clock fa-2x mb-2"></i>
+                                    <p>{{ trans('em.no_attempts') || 'Nenhuma tentativa anterior' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Coluna Direita: Formulário de Pagamento -->
+                        <div class="col-lg-8">
+                            <div class="p-4">
+                                <!-- Informações da Reserva -->
+                                <div class="card mb-4 border-0 bg-light">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-8">
+                                                <h6 class="mb-1">{{ selectedBookingForRetry.event_title }}</h6>
+                                                <p class="text-muted mb-1">
+                                                    <i class="fas fa-ticket me-1"></i>
+                                                    {{ selectedBookingForRetry.ticket_title }} x{{ selectedBookingForRetry.quantity }}
+                                                </p>
+                                                <p class="text-muted mb-0">
+                                                    <i class="fas fa-hashtag me-1"></i>
+                                                    {{ trans('em.order') || 'Pedido' }}: #{{ selectedBookingForRetry.order_number }}
+                                                </p>
+                                            </div>
+                                            <div class="col-md-4 text-end">
+                                                <h5 class="text-primary mb-0">{{ currency }} {{ selectedBookingForRetry.net_price }}</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Componente de Checkout Mercado Pago -->
+                                <div id="retry-checkout-container">
+                                    <mercado-pago-checkout 
+                                        v-if="showRetryCheckout"
+                                        :booking-data="retryBookingData"
+                                        :is-retry="true"
+                                        @payment-success="handleRetrySuccess"
+                                        @payment-error="handleRetryError">
+                                    </mercado-pago-checkout>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        {{ trans('em.close') || 'Fechar' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 
 
@@ -273,6 +384,7 @@ import PaginationComponent from '../../common_components/Pagination.vue'
 import mixinsFilters from '../../mixins.js';
 import OnlineEvent from './OnlineEvent.vue';
 import CreateGoogleEvent from './CreateGoogleEvent.vue';
+import MercadoPagoCheckout from '../../events_show/components/MercadoPagoCheckout.vue';
 
 export default {
     
@@ -294,7 +406,8 @@ export default {
     components: {
         PaginationComponent,
         OnlineEvent,
-        CreateGoogleEvent
+        CreateGoogleEvent,
+        MercadoPagoCheckout
     },
     
     data() {
@@ -312,6 +425,11 @@ export default {
             paymentPolling: {},
             paymentConfirmed: {},
             pollingIntervals: {},
+            // 🔄 Controle de retry de pagamento
+            selectedBookingForRetry: null,
+            paymentHistory: [],
+            showRetryCheckout: false,
+            retryBookingData: null,
         }
     },
 
@@ -456,27 +574,146 @@ export default {
         },
 
         // Retentar pagamento (débito/crédito pendente ou rejeitado)
-        retryPayment(booking) {
-            // Armazenar dados do booking na sessão para retentar pagamento
-            const retryData = {
-                booking_id: booking.id,
-                event_id: booking.event_id,
-                ticket_id: booking.ticket_id,
-                ticket_title: booking.ticket_title,
-                net_price: booking.net_price,
-                transaction_id: booking.mercadopago_transaction?.id,
-                event_slug: booking.event_slug
-            };
+        async retryPayment(booking) {
+            try {
+                // Definir booking selecionado
+                this.selectedBookingForRetry = booking;
+                
+                // Carregar histórico de tentativas
+                await this.loadPaymentHistory(booking.id);
+                
+                // Preparar dados para o checkout
+                this.retryBookingData = {
+                    booking_id: booking.id,
+                    event_id: booking.event_id,
+                    ticket_id: booking.ticket_id,
+                    ticket_title: booking.ticket_title,
+                    net_price: booking.net_price,
+                    quantity: booking.quantity,
+                    event_title: booking.event_title,
+                    event_slug: booking.event_slug,
+                    is_retry: true
+                };
+                
+                // Mostrar checkout
+                this.showRetryCheckout = true;
+                
+                // Abrir modal
+                const modalElement = document.getElementById('retryPaymentModal');
+                if (modalElement) {
+                    const modal = new Modal(modalElement);
+                    modal.show();
+                } else {
+                    console.error('Modal de retry não encontrado');
+                }
+                
+            } catch (error) {
+                console.error('Erro ao abrir modal de retry:', error);
+                this.showNotification('error', 'Erro ao carregar formulário de pagamento');
+            }
+        },
+
+        // 📊 Carregar histórico de tentativas de pagamento
+        async loadPaymentHistory(bookingId) {
+            try {
+                const response = await axios.get(`/mybookings/api/payment-history/${bookingId}`);
+                if (response.data.status && response.data.data) {
+                    this.paymentHistory = response.data.data;
+                } else {
+                    this.paymentHistory = [];
+                }
+            } catch (error) {
+                console.error('Erro ao carregar histórico:', error);
+                this.paymentHistory = [];
+            }
+        },
+
+        // ✅ Manipular sucesso no retry
+        handleRetrySuccess(paymentData) {
+            console.log('✅ Retry bem-sucedido:', paymentData);
             
-            // Salvar na localStorage para recuperar na página do evento
-            localStorage.setItem('mercadopago_retry_payment', JSON.stringify(retryData));
+            // Fechar modal
+            const modalElement = document.getElementById('retryPaymentModal');
+            if (modalElement) {
+                const modal = Modal.getInstance(modalElement);
+                if (modal) modal.hide();
+            }
             
-            this.showNotification('info', trans('em.opening_checkout') || 'Abrindo formulário de pagamento...');
+            // Mostrar notificação
+            this.showNotification('success', 'Pagamento processado com sucesso! 🎉');
             
-            // Redirecionar para a página do evento
+            // Recarregar página após 2 segundos
             setTimeout(() => {
-                window.location.href = route('eventmie.events_show', [booking.event_slug]);
-            }, 500);
+                window.location.reload();
+            }, 2000);
+        },
+
+        // ❌ Manipular erro no retry
+        handleRetryError(errorData) {
+            console.error('❌ Erro no retry:', errorData);
+            
+            // Recarregar histórico para mostrar nova tentativa
+            if (this.selectedBookingForRetry) {
+                this.loadPaymentHistory(this.selectedBookingForRetry.id);
+            }
+            
+            this.showNotification('error', 'Falha no pagamento. Verifique os dados e tente novamente.');
+        },
+
+        // 🎨 Obter classe CSS para badge de status
+        getStatusBadgeClass(status) {
+            const classes = {
+                'approved': 'bg-success',
+                'pending': 'bg-warning',
+                'rejected': 'bg-danger',
+                'cancelled': 'bg-secondary',
+                'in_process': 'bg-info'
+            };
+            return classes[status] || 'bg-secondary';
+        },
+
+        // 📝 Obter texto do status
+        getStatusText(status) {
+            const texts = {
+                'approved': 'Aprovado',
+                'pending': 'Pendente',
+                'rejected': 'Rejeitado',
+                'cancelled': 'Cancelado',
+                'in_process': 'Processando'
+            };
+            return texts[status] || status;
+        },
+
+        // 💳 Obter texto do método de pagamento
+        getPaymentMethodText(method) {
+            const methods = {
+                'credit_card': 'Cartão de Crédito',
+                'debit_card': 'Cartão de Débito',
+                'pix': 'PIX',
+                'boleto': 'Boleto',
+                'account_money': 'Carteira MP'
+            };
+            return methods[method] || method;
+        },
+
+        // 📋 Obter texto detalhado do motivo de rejeição
+        getStatusDetailText(statusDetail) {
+            const details = {
+                'cc_rejected_insufficient_amount': 'Saldo insuficiente',
+                'cc_rejected_bad_filled_card_number': 'Número do cartão inválido',
+                'cc_rejected_bad_filled_date': 'Data de vencimento inválida',
+                'cc_rejected_bad_filled_security_code': 'Código de segurança inválido',
+                'cc_rejected_bad_filled_other': 'Dados do cartão incorretos',
+                'cc_rejected_blacklist': 'Cartão bloqueado',
+                'cc_rejected_call_for_authorize': 'Autorização necessária',
+                'cc_rejected_card_disabled': 'Cartão desabilitado',
+                'cc_rejected_duplicated_payment': 'Pagamento duplicado',
+                'cc_rejected_high_risk': 'Transação de alto risco',
+                'cc_rejected_invalid_installments': 'Parcelas inválidas',
+                'cc_rejected_max_attempts': 'Muitas tentativas',
+                'cc_rejected_other_reason': 'Rejeitado pelo banco'
+            };
+            return details[statusDetail] || statusDetail;
         },
 
         // 🔄 Iniciar polling de status do pagamento PIX
@@ -599,5 +836,90 @@ export default {
     }
 }
 </script>
+
+<style scoped>
+/* Modal de Retry - Responsividade */
+@media (max-width: 991px) {
+    .modal-xl .row.g-0 {
+        flex-direction: column;
+    }
+    
+    .modal-xl .col-lg-4 {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+}
+
+/* Histórico de Tentativas */
+.payment-history-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.payment-history-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.payment-history-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.payment-history-list::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.payment-history-list::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Cards do histórico */
+.payment-history-list .card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.payment-history-list .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+}
+
+/* Modal responsivo */
+.modal-xl {
+    max-width: 95vw;
+}
+
+@media (min-width: 1200px) {
+    .modal-xl {
+        max-width: 1140px;
+    }
+}
+
+/* Badges de status */
+.badge {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.75rem;
+}
+
+/* Container do checkout no modal */
+#retry-checkout-container {
+    min-height: 400px;
+}
+
+/* Ajustes para mobile */
+@media (max-width: 576px) {
+    .modal-xl .modal-dialog {
+        margin: 0.5rem;
+    }
+    
+    .modal-xl .p-4 {
+        padding: 1rem !important;
+    }
+    
+    .payment-history-list .card-body {
+        padding: 0.75rem !important;
+    }
+}
+</style>
 
 

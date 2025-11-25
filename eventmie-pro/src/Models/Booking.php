@@ -316,10 +316,20 @@ class Booking extends Model
     }
 
     /**
-     * Get the Mercado Pago transaction for the booking.
+     * Get the Mercado Pago transaction for the booking (latest).
      */
     public function mercadopago_transaction()
     {
-        return $this->hasOne(\Classiebit\Eventmie\Models\MercadoPagoTransaction::class, 'booking_id');
+        return $this->hasOne(\Classiebit\Eventmie\Models\MercadoPagoTransaction::class, 'booking_id')
+                    ->latest('created_at');
+    }
+
+    /**
+     * Get all Mercado Pago transactions for the booking.
+     */
+    public function mercadopago_transactions()
+    {
+        return $this->hasMany(\Classiebit\Eventmie\Models\MercadoPagoTransaction::class, 'booking_id')
+                    ->orderBy('created_at', 'desc');
     }
 }

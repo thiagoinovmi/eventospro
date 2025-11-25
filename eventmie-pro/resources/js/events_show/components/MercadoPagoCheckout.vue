@@ -364,6 +364,10 @@ export default {
         total: Number,
         currency: String,
         bookingData: Object,
+        isRetry: {
+            type: Boolean,
+            default: false
+        },
         paymentMethods: {
             type: Object,
             default: () => ({})
@@ -861,6 +865,16 @@ export default {
                     else if (response.data.payment_method === 'credit_card' || response.data.payment_method === 'debit_card') {
                         console.log('✅ Cartão processado com sucesso');
                         
+                        // Se for retry, emitir evento de sucesso
+                        if (this.isRetry) {
+                            this.$emit('payment-success', {
+                                payment_method: response.data.payment_method,
+                                booking_id: response.data.booking_id,
+                                transaction_id: response.data.transaction_id
+                            });
+                            return;
+                        }
+                        
                         // Definir como confirmado (remove o formulário)
                         this.paymentConfirmed = true;
                         this.successMessage = 'Pagamento realizado com sucesso!';
@@ -881,13 +895,34 @@ export default {
                     }
                 } else {
                     console.error('❌ Erro na resposta:', response.data);
-                    this.errorMessage = response.data.message || 'Erro ao processar pagamento';
+                    const errorMessage = response.data.message || 'Erro ao processar pagamento';
+                    
+                    // Se for retry, emitir evento de erro
+                    if (this.isRetry) {
+                        this.$emit('payment-error', {
+                            message: errorMessage,
+                            details: response.data
+                        });
+                        return;
+                    }
+                    
+                    this.errorMessage = errorMessage;
                 }
             } catch (error) {
                 console.error('❌ Payment error:', error);
                 console.error('Resposta de erro:', error.response);
                 
                 const errorMessage = error.response?.data?.message || 'Erro ao processar pagamento. Tente novamente.';
+                
+                // Se for retry, emitir evento de erro
+                if (this.isRetry) {
+                    this.$emit('payment-error', {
+                        message: errorMessage,
+                        details: error.response?.data
+                    });
+                    return;
+                }
+                
                 this.errorMessage = errorMessage;
             }
         },

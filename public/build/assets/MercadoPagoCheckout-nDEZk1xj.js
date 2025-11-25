@@ -6,6 +6,10 @@ const _sfc_main = {
     total: Number,
     currency: String,
     bookingData: Object,
+    isRetry: {
+      type: Boolean,
+      default: false
+    },
     paymentMethods: {
       type: Object,
       default: () => ({})
@@ -279,7 +283,7 @@ const _sfc_main = {
       return isValid;
     },
     async processPayment() {
-      var _a, _b;
+      var _a, _b, _c;
       console.log("=== PROCESS PAYMENT INICIADO ===");
       console.log("selectedMethod:", this.selectedMethod);
       console.log("selectedTicket:", this.selectedTicket);
@@ -383,6 +387,14 @@ const _sfc_main = {
             this.waitForWebhookConfirmation(response.data.booking_id);
           } else if (response.data.payment_method === "credit_card" || response.data.payment_method === "debit_card") {
             console.log("✅ Cartão processado com sucesso");
+            if (this.isRetry) {
+              this.$emit("payment-success", {
+                payment_method: response.data.payment_method,
+                booking_id: response.data.booking_id,
+                transaction_id: response.data.transaction_id
+              });
+              return;
+            }
             this.paymentConfirmed = true;
             this.successMessage = "Pagamento realizado com sucesso!";
             setTimeout(() => {
@@ -397,12 +409,27 @@ const _sfc_main = {
           }
         } else {
           console.error("❌ Erro na resposta:", response.data);
-          this.errorMessage = response.data.message || "Erro ao processar pagamento";
+          const errorMessage = response.data.message || "Erro ao processar pagamento";
+          if (this.isRetry) {
+            this.$emit("payment-error", {
+              message: errorMessage,
+              details: response.data
+            });
+            return;
+          }
+          this.errorMessage = errorMessage;
         }
       } catch (error) {
         console.error("❌ Payment error:", error);
         console.error("Resposta de erro:", error.response);
         const errorMessage = ((_b = (_a = error.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || "Erro ao processar pagamento. Tente novamente.";
+        if (this.isRetry) {
+          this.$emit("payment-error", {
+            message: errorMessage,
+            details: (_c = error.response) == null ? void 0 : _c.data
+          });
+          return;
+        }
         this.errorMessage = errorMessage;
       }
     },
@@ -668,10 +695,10 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "54101295"
+  "11dbafe9"
 );
 const MercadoPagoCheckout = __component__.exports;
 export {
   MercadoPagoCheckout as default
 };
-//# sourceMappingURL=MercadoPagoCheckout-D4foxifj.js.map
+//# sourceMappingURL=MercadoPagoCheckout-nDEZk1xj.js.map

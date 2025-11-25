@@ -225,5 +225,41 @@ class MyBookingsController extends Controller
         }
     }
 
+    /**
+     * Get payment history for a booking (all attempts)
+     */
+    public function getPaymentHistory($bookingId)
+    {
+        try {
+            // Verificar se o booking pertence ao usuário logado
+            $booking = $this->booking->where('id', $bookingId)
+                ->where('customer_id', Auth::id())
+                ->first();
+            
+            if (!$booking) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Reserva não encontrada'
+                ], 404);
+            }
+            
+            // Buscar todas as transações deste booking ordenadas por data (mais recente primeiro)
+            $transactions = \Classiebit\Eventmie\Models\MercadoPagoTransaction::where('booking_id', $bookingId)
+                ->orderBy('created_at', 'desc')
+                ->get();
+            
+            return response()->json([
+                'status' => true,
+                'data' => $transactions
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Erro ao carregar histórico: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
 
 }
