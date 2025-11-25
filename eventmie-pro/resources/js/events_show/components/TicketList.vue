@@ -236,7 +236,7 @@
                                     <div class="col-12 mt-4" v-if="payment_method == 2 && total > 0">
                                         <mercadopago-checkout
                                             ref="mercadoPagoCheckout"
-                                            :event-id="event.id"
+                                            :event-id="event ? event.id : null"
                                             :tickets="tickets"
                                             :total="parseFloat(total)"
                                             :currency="currency"
@@ -382,6 +382,8 @@ export default {
         console.log('=== DEBUG TICKET LIST ===');
         console.log('is_admin:', this.is_admin);
         console.log('is_mercadopago:', this.is_mercadopago);
+        console.log('🔍 Event object:', this.event);
+        console.log('🔍 Event ID:', this.event ? this.event.id : 'EVENT IS NULL');
         console.log('is_paypal:', this.is_paypal);
         console.log('is_customer:', this.is_customer);
         console.log('is_organiser:', this.is_organiser);

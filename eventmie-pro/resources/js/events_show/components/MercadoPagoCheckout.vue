@@ -89,16 +89,16 @@
                             <h6 class="card-title mb-3">{{ trans('em.order_summary') || 'Resumo do Pedido' }}</h6>
                             <div class="d-flex justify-content-between mb-2">
                                 <span>{{ trans('em.subtotal') || 'Subtotal' }}:</span>
-                                <strong>{{ subtotal }} {{ currency }}</strong>
+                                <strong>{{ currency }} {{ subtotal }}</strong>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span>{{ trans('em.tax') || 'Taxa' }}:</span>
-                                <strong>{{ tax }} {{ currency }}</strong>
+                                <strong>{{ currency }} {{ tax }}</strong>
                             </div>
                             <hr>
                             <div class="d-flex justify-content-between">
                                 <span class="h6">{{ trans('em.total') || 'Total' }}:</span>
-                                <strong class="h6">{{ total }} {{ currency }}</strong>
+                                <strong class="h6">{{ currency }} {{ total }}</strong>
                             </div>
                         </div>
                     </div>
