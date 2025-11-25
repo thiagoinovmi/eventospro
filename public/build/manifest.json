@@ -98,7 +98,7 @@
     "name": "vuex.esm"
   },
   "eventmie-pro/resources/js/bookings_customer/index.js": {
-    "file": "assets/index-DRb410Nt.js",
+    "file": "assets/index-Da7tFCbs.js",
     "name": "index",
     "src": "eventmie-pro/resources/js/bookings_customer/index.js",
     "isEntry": true,
@@ -109,7 +109,7 @@
       "eventmie-pro/resources/js/events_show/components/MercadoPagoCheckout.vue"
     ],
     "css": [
-      "assets/index-MnURGw5g.css"
+      "assets/index-DSSAfmaB.css"
     ]
   },
   "eventmie-pro/resources/js/bookings_organiser/index.js": {

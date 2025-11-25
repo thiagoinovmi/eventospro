@@ -274,8 +274,11 @@
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body p-0" v-if="selectedBookingForRetry">
-                    <div class="row g-0">
+                <div class="modal-body p-0">
+                    <div v-if="!selectedBookingForRetry" class="p-4 text-center">
+                        <p class="text-muted">Carregando dados do pagamento...</p>
+                    </div>
+                    <div v-else class="row g-0">
                         <!-- Coluna Esquerda: Histórico de Tentativas -->
                         <div class="col-lg-4 bg-light border-end">
                             <div class="p-4">
@@ -365,6 +368,7 @@
                             </div>
                         </div>
                     </div>
+                    </div> <!-- Fechamento do v-else -->
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
