@@ -5244,7 +5244,9 @@ const _sfc_main = {
     // Retentar pagamento (débito/crédito pendente ou rejeitado)
     async retryPayment(booking) {
       try {
+        console.log("🚀 Iniciando retry para booking:", booking.id);
         this.selectedBookingForRetry = booking;
+        console.log("📋 selectedBookingForRetry definido:", this.selectedBookingForRetry);
         await this.loadPaymentHistory(booking.id);
         this.retryBookingData = {
           booking_id: booking.id,
@@ -5259,16 +5261,19 @@ const _sfc_main = {
         };
         this.showRetryCheckout = true;
         this.$nextTick(() => {
-          console.log("🔍 Procurando modal de retry...");
+          console.log("Procurando modal de retry...");
+          console.log("selectedBookingForRetry no nextTick:", this.selectedBookingForRetry);
+          console.log("showRetryCheckout:", this.showRetryCheckout);
           const modalElement = document.getElementById("retryPaymentModal");
-          console.log("📋 Modal element:", modalElement);
+          console.log("Modal element:", modalElement);
           if (modalElement) {
-            console.log("✅ Modal encontrado, abrindo...");
+            console.log("Modal encontrado, abrindo...");
             const modal = new Modal(modalElement);
             modal.show();
           } else {
-            console.error("❌ Modal de retry não encontrado");
-            console.log("🔍 Elementos disponíveis:", document.querySelectorAll('[id*="Modal"]'));
+            console.error("Modal de retry não encontrado");
+            console.log("Todos os elementos com ID:", document.querySelectorAll("[id]"));
+            console.log("Elementos com Modal no ID:", document.querySelectorAll('[id*="Modal"]'));
           }
         });
       } catch (error) {
@@ -5276,7 +5281,7 @@ const _sfc_main = {
         this.showNotification("error", "Erro ao carregar formulário de pagamento");
       }
     },
-    // 📊 Carregar histórico de tentativas de pagamento
+    // Carregar histórico de tentativas de pagamento
     async loadPaymentHistory(bookingId) {
       try {
         const response = await axios.get(`/mybookings/api/payment-history/${bookingId}`);
@@ -5477,7 +5482,7 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "84f2dc71"
+  "3196754f"
 );
 const MyBooking = __component__.exports;
 const routes = new VueRouter({
@@ -5504,4 +5509,4 @@ window.app = new Vue({
   el: "#eventmie_app",
   router: routes
 });
-//# sourceMappingURL=index-CFibF_xC.js.map
+//# sourceMappingURL=index-DRb410Nt.js.map
