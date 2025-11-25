@@ -35,8 +35,28 @@
                 <hr>
             </div>
 
+            <!-- ✅ ALERTA - Dados Completos -->
+            <div v-if="userDataComplete" class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <strong>Perfeito!</strong> Todos os seus dados estão preenchidos corretamente no perfil.
+                
+                <div class="mt-2 small">
+                    <div class="mb-1">
+                        <i class="fas fa-check-circle text-success me-1"></i> CPF/CNPJ preenchido
+                    </div>
+                    <div class="mb-1">
+                        <i class="fas fa-check-circle text-success me-1"></i> Telefone preenchido
+                    </div>
+                    <div class="mb-1">
+                        <i class="fas fa-check-circle text-success me-1"></i> Endereço completo
+                    </div>
+                </div>
+                
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
             <!-- ⚠️ ALERTA - Dados Incompletos -->
-            <div v-if="!userDataComplete" class="alert alert-warning alert-dismissible fade show mb-4" role="alert">
+            <div v-else-if="window.currentUser" class="alert alert-warning alert-dismissible fade show mb-4" role="alert">
                 <i class="fas fa-exclamation-triangle me-2"></i>
                 <strong>Atenção!</strong> Para garantir a aprovação do seu pagamento, é importante que seus dados estejam completos.
                 
