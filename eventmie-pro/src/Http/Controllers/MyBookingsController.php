@@ -189,7 +189,41 @@ class MyBookingsController extends Controller
         
     }
 
-    
+    /**
+     * Get transaction status for PIX polling
+     */
+    public function getTransactionStatus($transactionId)
+    {
+        try {
+            // Buscar transação do usuário logado
+            $transaction = \Classiebit\Eventmie\Models\MercadoPagoTransaction::where('id', $transactionId)
+                ->where('user_id', Auth::id())
+                ->first();
+            
+            if (!$transaction) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Transação não encontrada'
+                ], 404);
+            }
+            
+            return response()->json([
+                'status' => true,
+                'data' => [
+                    'transaction_status' => $transaction->status,
+                    'payment_id' => $transaction->payment_id,
+                    'is_paid' => $transaction->booking ? $transaction->booking->is_paid : false,
+                    'updated_at' => $transaction->updated_at
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Erro ao verificar status da transação: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 
 
 }

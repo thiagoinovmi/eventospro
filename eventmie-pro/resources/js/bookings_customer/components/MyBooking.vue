@@ -520,7 +520,7 @@ export default {
 
         // 📡 Verificar status do pagamento via API
         checkPaymentStatus(bookingId, transactionId) {
-            axios.get(`/api/mercadopago/transaction/${transactionId}/status`)
+            axios.get(`/mybookings/api/transaction/${transactionId}/status`)
                 .then(response => {
                     console.log('📡 Status da transação:', response.data);
                     

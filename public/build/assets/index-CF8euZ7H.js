@@ -5281,7 +5281,7 @@ const _sfc_main = {
     },
     // 📡 Verificar status do pagamento via API
     checkPaymentStatus(bookingId, transactionId) {
-      axios.get(`/api/mercadopago/transaction/${transactionId}/status`).then((response) => {
+      axios.get(`/mybookings/api/transaction/${transactionId}/status`).then((response) => {
         console.log("📡 Status da transação:", response.data);
         if (response.data.status && response.data.data) {
           const { transaction_status, is_paid } = response.data.data;
@@ -5393,4 +5393,4 @@ window.app = new Vue({
   el: "#eventmie_app",
   router: routes
 });
-//# sourceMappingURL=index-BGTrou42.js.map
+//# sourceMappingURL=index-CF8euZ7H.js.map
