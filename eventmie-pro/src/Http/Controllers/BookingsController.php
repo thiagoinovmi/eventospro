@@ -1539,6 +1539,9 @@ class BookingsController extends Controller
                 $paymentData['device_id'] = $validated['device_id'];
             }
 
+            // 🔔 Adicionar Webhook notification_url (obrigatório)
+            $paymentData['notification_url'] = env('APP_URL') . '/api/mercadopago/webhook';
+
             // Validate token
             if (empty($paymentData['token'])) {
                 \Log::error('Token do cartão está vazio!');
@@ -1790,6 +1793,9 @@ class BookingsController extends Controller
                 $paymentData['device_id'] = $validated['device_id'];
             }
 
+            // 🔔 Adicionar Webhook notification_url (obrigatório)
+            $paymentData['notification_url'] = env('APP_URL') . '/api/mercadopago/webhook';
+
             // Validate token
             if (empty($paymentData['token'])) {
                 \Log::error('Token do cartão está vazio para DÉBITO!');
@@ -2027,7 +2033,8 @@ class BookingsController extends Controller
                 ]
             ],
             "external_reference" => "BOOKING-" . time() . "-" . $user->id,
-            "statement_descriptor" => "EVENTO"
+            "statement_descriptor" => "EVENTO",
+            "notification_url" => env('APP_URL') . '/api/mercadopago/webhook'
         ];
         
         \Log::info('Dados PIX preparados:', $paymentData);
@@ -2178,7 +2185,8 @@ class BookingsController extends Controller
                 ]
             ],
             "external_reference" => "BOOKING-" . time() . "-" . $user->id,
-            "statement_descriptor" => "EVENTO"
+            "statement_descriptor" => "EVENTO",
+            "notification_url" => env('APP_URL') . '/api/mercadopago/webhook'
         ];
         
         \Log::info('Dados Boleto preparados:', $paymentData);
@@ -2311,7 +2319,8 @@ class BookingsController extends Controller
                 ]
             ],
             "external_reference" => "BOOKING-" . time() . "-" . $user->id,
-            "statement_descriptor" => "EVENTO"
+            "statement_descriptor" => "EVENTO",
+            "notification_url" => env('APP_URL') . '/api/mercadopago/webhook'
         ];
         
         \Log::info('Dados Carteira preparados:', $paymentData);
