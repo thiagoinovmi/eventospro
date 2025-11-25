@@ -1534,6 +1534,11 @@ class BookingsController extends Controller
                 "statement_descriptor" => "EVENTO"
             ];
 
+            // 🔐 Adicionar Device ID para segurança (SDK Mercado Pago V2)
+            if (!empty($validated['device_id'])) {
+                $paymentData['device_id'] = $validated['device_id'];
+            }
+
             // Validate token
             if (empty($paymentData['token'])) {
                 \Log::error('Token do cartão está vazio!');
@@ -1779,6 +1784,11 @@ class BookingsController extends Controller
                 "external_reference" => "BOOKING-" . time() . "-" . $user->id,
                 "statement_descriptor" => "EVENTO"
             ];
+
+            // 🔐 Adicionar Device ID para segurança (SDK Mercado Pago V2)
+            if (!empty($validated['device_id'])) {
+                $paymentData['device_id'] = $validated['device_id'];
+            }
 
             // Validate token
             if (empty($paymentData['token'])) {

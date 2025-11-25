@@ -53,11 +53,16 @@ const _sfc_main = {
       paymentCheckInterval: null,
       paymentConfirmed: false,
       timerCounter: 0,
-      timerInterval: null
+      timerInterval: null,
+      deviceId: null,
+      // 🔐 Device ID para segurança Mercado Pago
+      mp: null
+      // 🔐 Instância do SDK Mercado Pago
     };
   },
   mounted() {
     this.loadPaymentMethods();
+    this.initializeMercadoPagoSDK();
     this.timerInterval = setInterval(() => {
       this.timerCounter++;
     }, 1e3);
@@ -96,6 +101,45 @@ const _sfc_main = {
     setSelectedTicket(ticket) {
       console.log("Ticket selecionado no MercadoPagoCheckout:", ticket);
       this.selectedTicket = ticket;
+    },
+    // 🔐 Inicializar SDK Mercado Pago V2 para obter Device ID
+    initializeMercadoPagoSDK() {
+      var _a;
+      try {
+        if (typeof MercadoPago === "undefined") {
+          console.warn("SDK Mercado Pago não carregado. Carregando via CDN...");
+          this.loadMercadoPagoSDK();
+          return;
+        }
+        const publicKey = (_a = document.querySelector('meta[name="mercadopago-public-key"]')) == null ? void 0 : _a.content;
+        if (!publicKey) {
+          console.error("Chave pública Mercado Pago não encontrada");
+          return;
+        }
+        this.mp = new MercadoPago(publicKey);
+        this.mp.getIdentifier().then((identifier) => {
+          this.deviceId = identifier;
+          console.log("✅ Device ID obtido:", this.deviceId);
+        }).catch((error) => {
+          console.error("❌ Erro ao obter Device ID:", error);
+        });
+      } catch (error) {
+        console.error("Erro ao inicializar SDK Mercado Pago:", error);
+      }
+    },
+    // 🔐 Carregar SDK Mercado Pago via CDN se não estiver disponível
+    loadMercadoPagoSDK() {
+      const script = document.createElement("script");
+      script.src = "https://sdk.mercadopago.com/js/v2";
+      script.async = true;
+      script.onload = () => {
+        console.log("✅ SDK Mercado Pago V2 carregado");
+        this.initializeMercadoPagoSDK();
+      };
+      script.onerror = () => {
+        console.error("❌ Erro ao carregar SDK Mercado Pago");
+      };
+      document.head.appendChild(script);
     },
     loadPaymentMethods() {
       var _a, _b;
@@ -248,6 +292,9 @@ const _sfc_main = {
           }
           paymentData.card_token = cardToken;
           paymentData.installments = this.cardData.installments || 1;
+          if (this.deviceId) {
+            paymentData.device_id = this.deviceId;
+          }
           if (this.selectedMethod === "credit_card") {
             paymentData.payment_method_id = this.cardData.paymentMethodId;
           }
@@ -255,6 +302,7 @@ const _sfc_main = {
             card_token: cardToken,
             installments: paymentData.installments,
             payment_method_id: paymentData.payment_method_id,
+            device_id: paymentData.device_id,
             selected_method: this.selectedMethod,
             note: this.selectedMethod === "debit_card" ? "Débito - payment_method_id não enviado" : "Crédito - payment_method_id enviado"
           });
@@ -539,10 +587,10 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "d05904d6"
+  "bb70ec65"
 );
 const MercadoPagoCheckout = __component__.exports;
 export {
   MercadoPagoCheckout as default
 };
-//# sourceMappingURL=MercadoPagoCheckout-Bv5nrFNv.js.map
+//# sourceMappingURL=MercadoPagoCheckout-CjX8ufZs.js.map

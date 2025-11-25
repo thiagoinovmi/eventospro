@@ -365,12 +365,17 @@ export default {
             paymentCheckInterval: null,
             paymentConfirmed: false,
             timerCounter: 0,
-            timerInterval: null
+            timerInterval: null,
+            deviceId: null, // 🔐 Device ID para segurança Mercado Pago
+            mp: null // 🔐 Instância do SDK Mercado Pago
         }
     },
 
     mounted() {
         this.loadPaymentMethods();
+        
+        // 🔐 Inicializar SDK Mercado Pago V2 para Device ID
+        this.initializeMercadoPagoSDK();
         
         // Iniciar timer para atualizar contagem regressiva a cada segundo
         this.timerInterval = setInterval(() => {
@@ -417,6 +422,52 @@ export default {
         setSelectedTicket(ticket) {
             console.log('Ticket selecionado no MercadoPagoCheckout:', ticket);
             this.selectedTicket = ticket;
+        },
+
+        // 🔐 Inicializar SDK Mercado Pago V2 para obter Device ID
+        initializeMercadoPagoSDK() {
+            try {
+                // Verificar se SDK está disponível
+                if (typeof MercadoPago === 'undefined') {
+                    console.warn('SDK Mercado Pago não carregado. Carregando via CDN...');
+                    this.loadMercadoPagoSDK();
+                    return;
+                }
+
+                // Inicializar com chave pública
+                const publicKey = document.querySelector('meta[name="mercadopago-public-key"]')?.content;
+                if (!publicKey) {
+                    console.error('Chave pública Mercado Pago não encontrada');
+                    return;
+                }
+
+                this.mp = new MercadoPago(publicKey);
+                
+                // Obter Device ID
+                this.mp.getIdentifier().then(identifier => {
+                    this.deviceId = identifier;
+                    console.log('✅ Device ID obtido:', this.deviceId);
+                }).catch(error => {
+                    console.error('❌ Erro ao obter Device ID:', error);
+                });
+            } catch (error) {
+                console.error('Erro ao inicializar SDK Mercado Pago:', error);
+            }
+        },
+
+        // 🔐 Carregar SDK Mercado Pago via CDN se não estiver disponível
+        loadMercadoPagoSDK() {
+            const script = document.createElement('script');
+            script.src = 'https://sdk.mercadopago.com/js/v2';
+            script.async = true;
+            script.onload = () => {
+                console.log('✅ SDK Mercado Pago V2 carregado');
+                this.initializeMercadoPagoSDK();
+            };
+            script.onerror = () => {
+                console.error('❌ Erro ao carregar SDK Mercado Pago');
+            };
+            document.head.appendChild(script);
         },
 
         loadPaymentMethods() {
@@ -627,7 +678,12 @@ export default {
                     paymentData.card_token = cardToken;
                     paymentData.installments = this.cardData.installments || 1;
                     
-                    // 🔑 IMPORTANTE: Para crédito, enviar a marca do cartão (visa, master, etc)
+                    // � Adicionar Device ID para segurança (SDK Mercado Pago V2)
+                    if (this.deviceId) {
+                        paymentData.device_id = this.deviceId;
+                    }
+                    
+                    // �🔑 IMPORTANTE: Para crédito, enviar a marca do cartão (visa, master, etc)
                     // Para débito, NÃO enviar payment_method_id (backend usa "debit_card")
                     if (this.selectedMethod === 'credit_card') {
                         paymentData.payment_method_id = this.cardData.paymentMethodId; // Send detected card brand for credit
@@ -638,6 +694,7 @@ export default {
                         card_token: cardToken,
                         installments: paymentData.installments,
                         payment_method_id: paymentData.payment_method_id,
+                        device_id: paymentData.device_id,
                         selected_method: this.selectedMethod,
                         note: this.selectedMethod === 'debit_card' ? 'Débito - payment_method_id não enviado' : 'Crédito - payment_method_id enviado'
                     });
