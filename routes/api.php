@@ -13,3 +13,11 @@ use App\Http\Controllers\MercadoPagoWebhookController;
 
 Route::post('/mercadopago/webhook', [MercadoPagoWebhookController::class, 'handle'])
     ->name('api.mercadopago.webhook');
+
+// Rota para obter dados do usuário logado
+Route::middleware('auth')->get('/user', function (Request $request) {
+    return response()->json([
+        'status' => true,
+        'data' => $request->user()
+    ]);
+});

@@ -356,6 +356,15 @@
 @section('javascript')
     <script type="text/javascript">
         var google_map_key = {!! json_encode($google_map_key) !!};
+        
+        // 👤 Dados do usuário para o frontend
+        @auth
+        window.currentUser = {!! json_encode(auth()->user()) !!};
+        console.log('✅ Dados do usuário carregados via Blade:', window.currentUser);
+        @else
+        window.currentUser = null;
+        console.log('⚠️ Usuário não logado');
+        @endauth
     </script>
     <script src="https://cdn.jsdelivr.net/npm/v-mask/dist/v-mask.min.js"></script>
     @vite(['eventmie-pro/resources/js/events_show/index.js'])

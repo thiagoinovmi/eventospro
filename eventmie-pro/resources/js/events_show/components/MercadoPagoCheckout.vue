@@ -1101,25 +1101,58 @@ export default {
         // 👤 Carregar dados do usuário
         loadUserData() {
             try {
-                // Tentar obter dados do localStorage primeiro
-                const storedUser = localStorage.getItem('currentUser');
-                if (storedUser) {
-                    window.currentUser = JSON.parse(storedUser);
-                    console.log('✅ Dados do usuário carregados do localStorage');
+                // 1. Verificar se já existe window.currentUser (carregado via Blade)
+                if (window.currentUser && typeof window.currentUser === 'object' && window.currentUser.id) {
+                    console.log('✅ Dados do usuário já disponíveis via Blade');
+                    localStorage.setItem('currentUser', JSON.stringify(window.currentUser));
                     return;
                 }
 
-                // Se não estiver no localStorage, tentar da API
+                // 2. Tentar obter dados do localStorage
+                const storedUser = localStorage.getItem('currentUser');
+                if (storedUser) {
+                    try {
+                        const parsedUser = JSON.parse(storedUser);
+                        if (parsedUser && parsedUser.id) {
+                            window.currentUser = parsedUser;
+                            console.log('✅ Dados do usuário carregados do localStorage');
+                            return;
+                        }
+                    } catch (e) {
+                        console.warn('⚠️ Dados corrompidos no localStorage, removendo...');
+                        localStorage.removeItem('currentUser');
+                    }
+                }
+
+                // 3. Se não estiver disponível, tentar da API
+                console.log('🔄 Carregando dados do usuário da API...');
                 axios.get('/api/user')
                     .then(response => {
-                        if (response.data && response.data.data) {
+                        console.log('📡 Resposta da API /api/user:', response.data);
+                        
+                        if (response.data && response.data.status && response.data.data) {
                             window.currentUser = response.data.data;
                             localStorage.setItem('currentUser', JSON.stringify(window.currentUser));
                             console.log('✅ Dados do usuário carregados da API');
+                            
+                            // Forçar re-render dos computed properties
+                            this.$forceUpdate();
+                        } else {
+                            console.warn('⚠️ Resposta da API não contém dados válidos');
                         }
                     })
                     .catch(error => {
-                        console.warn('⚠️ Erro ao carregar dados do usuário:', error);
+                        console.warn('⚠️ Erro ao carregar dados do usuário da API:', error);
+                        
+                        if (error.response) {
+                            console.warn('Status:', error.response.status);
+                            console.warn('Data:', error.response.data);
+                            
+                            if (error.response.status === 401) {
+                                console.warn('❌ Usuário não autenticado');
+                                window.currentUser = null;
+                            }
+                        }
                     });
             } catch (error) {
                 console.error('❌ Erro ao processar dados do usuário:', error);
