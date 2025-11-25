@@ -193,6 +193,44 @@
                 </div>
             </div>
 
+            <!-- Card Payment Confirmation (waiting for approval) -->
+            <div v-if="isWaitingPayment && ['credit_card', 'debit_card'].includes(selectedMethod)" class="row mb-4">
+                <div class="col-12">
+                    <div class="card border-info">
+                        <div class="card-body text-center">
+                            <h6 class="card-title mb-4">
+                                <i class="fas fa-credit-card me-2 text-info"></i>
+                                {{ selectedMethod === 'credit_card' ? (trans('em.credit_card') || 'Cartão de Crédito') : (trans('em.debit_card') || 'Cartão de Débito') }}
+                            </h6>
+                            
+                            <!-- Processing Message -->
+                            <div class="mb-4">
+                                <div class="spinner-border text-info" role="status">
+                                    <span class="visually-hidden">Processando...</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Status -->
+                            <div class="alert alert-info">
+                                <i class="fas fa-hourglass-half me-2"></i>
+                                {{ trans('em.processing_payment') || 'Processando seu pagamento...' }}
+                            </div>
+                            
+                            <!-- Info Message -->
+                            <p class="text-muted mb-3">
+                                {{ trans('em.payment_processing_info') || 'Seu pagamento está sendo processado. Isso pode levar alguns segundos.' }}
+                            </p>
+                            
+                            <!-- Waiting Message -->
+                            <div class="alert alert-warning">
+                                <i class="fas fa-info-circle me-2"></i>
+                                {{ trans('em.waiting_payment_confirmation') || 'Aguardando confirmação do pagamento...' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- PIX QR Code (waiting for payment) -->
             <div v-if="isWaitingPayment && selectedMethod === 'pix'" class="row mb-4">
                 <div class="col-12">

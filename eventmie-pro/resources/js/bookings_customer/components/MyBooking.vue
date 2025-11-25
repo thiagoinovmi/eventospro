@@ -46,7 +46,24 @@
                                     
                                     <td class="align-middle" :data-title="trans('em.ticket')"><i class="fas fa-ticket"></i> {{ booking.ticket_title }} <strong>{{ ' x '+booking.quantity }}</strong></td>
                                     <td class="align-middle" :data-title="trans('em.order_total')">{{ currency + ' ' + (booking.net_price || '0.00') }} </td>
-                                    <td class="align-middle" :data-title="trans('em.booked_on')">{{ userTimezone(booking.created_at, 'YYYY-MM-DD HH:mm:ss').format('DD/MM/YYYY HH:mm') }}</td>
+                                    <td class="align-middle" :data-title="trans('em.booked_on')">
+                                        <div>{{ userTimezone(booking.created_at, 'YYYY-MM-DD HH:mm:ss').format('DD/MM/YYYY HH:mm') }}</div>
+                                        <!-- 🔴 Status de Pagamento Mercado Pago -->
+                                        <div v-if="booking.payment_type === 'mercadopago' && booking.mercadopago_transaction" class="mt-2">
+                                            <!-- Processando -->
+                                            <span v-if="booking.mercadopago_transaction.status === 'pending'" class="badge bg-warning text-dark">
+                                                <i class="fas fa-hourglass-half me-1"></i> {{ trans('em.processing') || 'Processando' }}
+                                            </span>
+                                            <!-- Rejeitado -->
+                                            <span v-else-if="booking.mercadopago_transaction.status === 'rejected'" class="badge bg-danger text-white">
+                                                <i class="fas fa-times-circle me-1"></i> {{ trans('em.rejected') || 'Rejeitado' }}
+                                            </span>
+                                            <!-- Cancelado -->
+                                            <span v-else-if="booking.mercadopago_transaction.status === 'cancelled'" class="badge bg-secondary text-white">
+                                                <i class="fas fa-ban me-1"></i> {{ trans('em.cancelled') || 'Cancelado' }}
+                                            </span>
+                                        </div>
+                                    </td>
                                     <td class="align-middle text-capitalize" :data-title="trans('em.payment')">
                                         <span class="badge bg-secondary text-white" v-if="booking.payment_type == 'offline'">
                                             {{ booking.payment_type }} 
@@ -96,6 +113,13 @@
                                         <div v-if="booking.payment_type === 'mercadopago' && booking.mercadopago_transaction && booking.mercadopago_transaction.qr_code_base64 && !booking.is_paid" class="mb-2">
                                             <button type="button" class="btn btn-sm btn-warning text-white" @click="openPixModal(booking.id)">
                                                 <i class="fas fa-qrcode"></i> PIX QR Code
+                                            </button>
+                                        </div>
+
+                                        <!-- Botão para Retentar Pagamento (Débito/Crédito Pendente ou Rejeitado) -->
+                                        <div v-if="booking.payment_type === 'mercadopago' && booking.mercadopago_transaction && ['pending', 'rejected', 'cancelled'].includes(booking.mercadopago_transaction.status) && !booking.is_paid" class="mb-2">
+                                            <button type="button" class="btn btn-sm btn-info text-white" @click="retryPayment(booking)">
+                                                <i class="fas fa-redo me-1"></i> {{ trans('em.retry_payment') || 'Retentar Pagamento' }}
                                             </button>
                                         </div>
 
@@ -405,6 +429,22 @@ export default {
             const now = moment();
             const expiration = moment(expiresAt);
             return now.isAfter(expiration);
+        },
+
+        // Retentar pagamento (débito/crédito pendente ou rejeitado)
+        retryPayment(booking) {
+            // Emitir evento para abrir o checkout novamente
+            // O componente pai (SelectDates) irá capturar este evento
+            this.$emit('retry-payment', {
+                booking_id: booking.id,
+                event_id: booking.event_id,
+                ticket_id: booking.ticket_id,
+                ticket_title: booking.ticket_title,
+                net_price: booking.net_price,
+                transaction_id: booking.mercadopago_transaction?.id
+            });
+            
+            this.showNotification('info', trans('em.opening_checkout') || 'Abrindo formulário de pagamento...');
         },
     },
     mounted() {
