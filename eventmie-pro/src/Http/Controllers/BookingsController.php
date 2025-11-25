@@ -1675,12 +1675,56 @@ class BookingsController extends Controller
     }
 
     /**
+     * Detect card brand from token using Mercado Pago API
+     * This gets the actual card brand (visa, master, amex, etc) from the token
+     */
+    private function detectCardBrandFromToken($token)
+    {
+        try {
+            $accessToken = setting('mercadopago.access_token');
+            
+            if (!$accessToken || !$token) {
+                return 'visa'; // Default fallback
+            }
+
+            // Call Mercado Pago API to get token info
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, "https://api.mercadopago.com/v1/card_tokens/{$token}");
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . $accessToken
+            ]);
+
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($httpCode === 200) {
+                $data = json_decode($response, true);
+                
+                if (isset($data['payment_method']['id'])) {
+                    $brand = $data['payment_method']['id'];
+                    \Log::info('Card brand detectado do token:', ['brand' => $brand]);
+                    return $brand;
+                }
+            }
+
+            return 'visa'; // Default fallback
+        } catch (\Exception $e) {
+            \Log::error('Erro ao detectar brand do token:', ['error' => $e->getMessage()]);
+            return 'visa'; // Default fallback
+        }
+    }
+
+    /**
      * Process debit card payment (separate from credit card)
      * 
      * Debit cards have different rules:
-     * - No installments
-     * - Must use debit_card as payment_method_id
-     * - Immediate authorization required
+     * - No installments (always 1x)
+     * - Use card brand as payment_method_id (visa, master, amex, etc)
+     * - Two-step payment (capture=false for authorization, then capture later)
+     * - Requires CPF/CNPJ in payer identification
      */
     private function processDebitCardPayment($validated, $user)
     {
@@ -1705,14 +1749,15 @@ class BookingsController extends Controller
                 'document' => $user->document ?? 'vazio'
             ]);
 
-            // CRITICAL: For debit cards, ALWAYS use 'debit_card' as payment_method_id
-            // NOT the card brand (visa, master, etc)
-            // This is the key difference from credit cards
-            $paymentMethodId = 'debit_card';
+            // CRITICAL: For debit cards, use the CARD BRAND as payment_method_id
+            // Just like credit cards! (visa, master, amex, etc)
+            // The difference is that debit cards require capture=false (two-step payment)
+            // We detect the brand from the token's BIN
+            $paymentMethodId = $this->detectCardBrandFromToken($validated['card_token']) ?? 'visa';
             
             \Log::info('Payment method ID para DÉBITO:', [
                 'payment_method_id' => $paymentMethodId,
-                'note' => 'Débito sempre usa debit_card, não a marca do cartão'
+                'note' => 'Débito usa a marca do cartão (visa, master, etc), não debit_card'
             ]);
             
             // Prepare payment data for debit card payment
