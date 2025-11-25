@@ -1338,17 +1338,17 @@ class BookingsController extends Controller
                     if ($validated['selected_method'] === 'credit_card') {
                         // Process credit card payment
                         \Log::info('Chamando processCardPayment para CRÉDITO...');
-                        $paymentResult = $this->processCardPayment($validated, Auth::user());
+                        $paymentResult = $this->processCardPayment($validated, Auth::user(), $ticket, $event);
                         \Log::info('Resultado de processCardPayment:', ['result' => $paymentResult]);
                     } else if ($validated['selected_method'] === 'debit_card') {
                         // Process debit card payment
                         \Log::info('Chamando processDebitCardPayment para DÉBITO...');
-                        $paymentResult = $this->processDebitCardPayment($validated, Auth::user());
+                        $paymentResult = $this->processDebitCardPayment($validated, Auth::user(), $ticket, $event);
                         \Log::info('Resultado de processDebitCardPayment:', ['result' => $paymentResult]);
                     } else if ($validated['selected_method'] === 'pix') {
                         // Process PIX payment
                         \Log::info('Chamando processPixPayment...');
-                        $paymentResult = $this->processPixPayment($validated, Auth::user());
+                        $paymentResult = $this->processPixPayment($validated, Auth::user(), $ticket, $event);
                         \Log::info('Resultado de processPixPayment:', ['result' => $paymentResult]);
                     }
                 } catch (\Exception $e) {
@@ -1479,7 +1479,7 @@ class BookingsController extends Controller
     /**
      * Process card payment (credit or debit)
      */
-    private function processCardPayment($validated, $user)
+    private function processCardPayment($validated, $user, $ticket = null, $event = null)
     {
         try {
             // CACHE BUSTER: ' . time() . '
@@ -1541,6 +1541,20 @@ class BookingsController extends Controller
 
             // 🔔 Adicionar Webhook notification_url (obrigatório)
             $paymentData['notification_url'] = env('APP_URL') . '/api/mercadopago/webhook';
+
+            // 📦 Adicionar Items - Detalhes do carrinho (recomendado)
+            if ($ticket && $event) {
+                $paymentData['items'] = [
+                    [
+                        'id' => (string)$ticket->id,
+                        'title' => $ticket->title,
+                        'description' => 'Ingresso para evento: ' . $event->title,
+                        'category_id' => 'event_ticket',
+                        'quantity' => (int)($validated['quantity'] ?? 1),
+                        'unit_price' => (float)$ticket->price
+                    ]
+                ];
+            }
 
             // Validate token
             if (empty($paymentData['token'])) {
@@ -1726,15 +1740,13 @@ class BookingsController extends Controller
     }
 
     /**
-     * Process debit card payment (separate from credit card)
-     * 
-     * Debit cards have different rules:
-     * - No installments (always 1x)
-     * - Use card brand as payment_method_id (visa, master, amex, etc)
+     * Process debit card payment
+     * Rules:
+     * - Must use card brand as payment_method_id (visa, master, amex, etc)
      * - Two-step payment (capture=false for authorization, then capture later)
      * - Requires CPF/CNPJ in payer identification
      */
-    private function processDebitCardPayment($validated, $user)
+    private function processDebitCardPayment($validated, $user, $ticket = null, $event = null)
     {
         try {
             \Log::info('=== INICIANDO PROCESSAMENTO DE DÉBITO === ' . date('Y-m-d H:i:s'));
@@ -1795,6 +1807,20 @@ class BookingsController extends Controller
 
             // 🔔 Adicionar Webhook notification_url (obrigatório)
             $paymentData['notification_url'] = env('APP_URL') . '/api/mercadopago/webhook';
+
+            // 📦 Adicionar Items - Detalhes do carrinho (recomendado)
+            if ($ticket && $event) {
+                $paymentData['items'] = [
+                    [
+                        'id' => (string)$ticket->id,
+                        'title' => $ticket->title,
+                        'description' => 'Ingresso para evento: ' . $event->title,
+                        'category_id' => 'event_ticket',
+                        'quantity' => (int)($validated['quantity'] ?? 1),
+                        'unit_price' => (float)$ticket->price
+                    ]
+                ];
+            }
 
             // Validate token
             if (empty($paymentData['token'])) {
@@ -1972,7 +1998,7 @@ class BookingsController extends Controller
      * Process payment based on payment method type
      * Supports: credit_card, debit_card, pix, boleto, wallet
      */
-    private function processPaymentByMethod($paymentMethod, $validated, $user)
+    private function processPaymentByMethod($paymentMethod, $validated, $user, $ticket = null, $event = null)
     {
         \Log::info('Processando pagamento por método:', [
             'method' => $paymentMethod,
@@ -1982,16 +2008,16 @@ class BookingsController extends Controller
         switch ($paymentMethod) {
             case 'credit_card':
             case 'debit_card':
-                return $this->processCardPayment($validated, $user);
+                return $this->processCardPayment($validated, $user, $ticket, $event);
             
             case 'pix':
-                return $this->processPixPayment($validated, $user);
+                return $this->processPixPayment($validated, $user, $ticket, $event);
             
             case 'boleto':
-                return $this->processBoletoPayment($validated, $user);
+                return $this->processBoletoPayment($validated, $user, $ticket, $event);
             
             case 'wallet':
-                return $this->processWalletPayment($validated, $user);
+                return $this->processWalletPayment($validated, $user, $ticket, $event);
             
             default:
                 return [
@@ -2004,7 +2030,7 @@ class BookingsController extends Controller
     /**
      * Process PIX payment
      */
-    private function processPixPayment($validated, $user)
+    private function processPixPayment($validated, $user, $ticket = null, $event = null)
     {
         \Log::info('=== INICIANDO PROCESSAMENTO DE PIX ===');
         
@@ -2036,6 +2062,20 @@ class BookingsController extends Controller
             "statement_descriptor" => "EVENTO",
             "notification_url" => env('APP_URL') . '/api/mercadopago/webhook'
         ];
+
+        // 📦 Adicionar Items - Detalhes do carrinho (recomendado)
+        if ($ticket && $event) {
+            $paymentData['items'] = [
+                [
+                    'id' => (string)$ticket->id,
+                    'title' => $ticket->title,
+                    'description' => 'Ingresso para evento: ' . $event->title,
+                    'category_id' => 'event_ticket',
+                    'quantity' => (int)($validated['quantity'] ?? 1),
+                    'unit_price' => (float)$ticket->price
+                ]
+            ];
+        }
         
         \Log::info('Dados PIX preparados:', $paymentData);
         
@@ -2156,7 +2196,7 @@ class BookingsController extends Controller
     /**
      * Process Boleto payment
      */
-    private function processBoletoPayment($validated, $user)
+    private function processBoletoPayment($validated, $user, $ticket = null, $event = null)
     {
         \Log::info('=== INICIANDO PROCESSAMENTO DE BOLETO ===');
         
@@ -2188,6 +2228,20 @@ class BookingsController extends Controller
             "statement_descriptor" => "EVENTO",
             "notification_url" => env('APP_URL') . '/api/mercadopago/webhook'
         ];
+
+        // 📦 Adicionar Items - Detalhes do carrinho (recomendado)
+        if ($ticket && $event) {
+            $paymentData['items'] = [
+                [
+                    'id' => (string)$ticket->id,
+                    'title' => $ticket->title,
+                    'description' => 'Ingresso para evento: ' . $event->title,
+                    'category_id' => 'event_ticket',
+                    'quantity' => (int)($validated['quantity'] ?? 1),
+                    'unit_price' => (float)$ticket->price
+                ]
+            ];
+        }
         
         \Log::info('Dados Boleto preparados:', $paymentData);
         
@@ -2290,7 +2344,7 @@ class BookingsController extends Controller
     /**
      * Process Wallet (Mercado Pago Wallet) payment
      */
-    private function processWalletPayment($validated, $user)
+    private function processWalletPayment($validated, $user, $ticket = null, $event = null)
     {
         \Log::info('=== INICIANDO PROCESSAMENTO DE CARTEIRA MERCADO PAGO ===');
         
@@ -2322,6 +2376,20 @@ class BookingsController extends Controller
             "statement_descriptor" => "EVENTO",
             "notification_url" => env('APP_URL') . '/api/mercadopago/webhook'
         ];
+
+        // 📦 Adicionar Items - Detalhes do carrinho (recomendado)
+        if ($ticket && $event) {
+            $paymentData['items'] = [
+                [
+                    'id' => (string)$ticket->id,
+                    'title' => $ticket->title,
+                    'description' => 'Ingresso para evento: ' . $event->title,
+                    'category_id' => 'event_ticket',
+                    'quantity' => (int)($validated['quantity'] ?? 1),
+                    'unit_price' => (float)$ticket->price
+                ]
+            ];
+        }
         
         \Log::info('Dados Carteira preparados:', $paymentData);
         
