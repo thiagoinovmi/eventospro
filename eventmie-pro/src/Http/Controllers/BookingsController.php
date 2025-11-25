@@ -56,7 +56,8 @@ class BookingsController extends Controller
             // if event not found then access denied
             if(empty($event))
                 return ['status' => false, 'error' =>  __('eventmie-pro::em.event').' '.__('eventmie-pro::em.not_found')];
-
+            
+                
             // organiser can't book other organiser event's tikcets but  admin can book any organiser events'tikcets for customer
             if(Auth::user()->hasRole('organiser'))
             {
@@ -64,6 +65,7 @@ class BookingsController extends Controller
                     return false;
             }
 
+          
             /* CUSTOM */
             // Assign organizer permissions to POS
             if(Auth::user()->hasRole('pos'))
@@ -102,10 +104,13 @@ class BookingsController extends Controller
                 $this->customer_id = $request->customer_id;
             }
 
+          
+
             return true;
         }    
     }
 
+    
     // check for available seats
     protected function availability_validation($params = [])
     {
@@ -208,6 +213,7 @@ class BookingsController extends Controller
             ]);
         }
 
+        
         if(!empty($request->merge_schedule))
         {
             $request->validate([
@@ -297,6 +303,7 @@ class BookingsController extends Controller
         
         return ['status' => true];    
     }
+    
 
     // book tickets
     public function book_tickets(Request $request)
@@ -332,6 +339,7 @@ class BookingsController extends Controller
         $selected_tickets   = $data['selected_tickets'];
         $tickets            = $data['tickets'];
 
+        
         $booking_date = $request->booking_date;
 
         $params  = [
@@ -413,6 +421,7 @@ class BookingsController extends Controller
                 // calculating net price
                 $net_price    = $this->calculate_price($params);
 
+        
                 $booking[$key]['tax']        = number_format((float)($net_price['tax']), 2, '.', '');
                 $booking[$key]['net_price']  = number_format((float)($net_price['net_price']), 2, '.', '');
                 
@@ -421,6 +430,7 @@ class BookingsController extends Controller
 
                 //  admin_tax
                 $admin_tax[$key]['admin_tax']  = number_format((float)($net_price['admin_tax']), 2, '.', '');
+
 
                 // if payment method is offline then is_paid will be 0
                 if($request->payment_method == 'offline')
@@ -433,7 +443,8 @@ class BookingsController extends Controller
                 {
                     $booking[$key]['is_paid'] = 1;  
                 }
-
+    
+                
                 //CUSTOM
                 if(Auth::user()->hasRole('pos'))
                     $booking[$key]['pos_id'] = Auth::id(); 
@@ -441,7 +452,8 @@ class BookingsController extends Controller
 
                 $key++;
             }
-
+            
+            
         }
         
         // calculate commission 
@@ -487,8 +499,11 @@ class BookingsController extends Controller
             if(Auth::user()->hasRole('admin'))
                 $url = route('voyager.bookings.index');
 
+            
             if(Auth::user()->hasRole('pos'))
                 $url = route('eventmie.pos.index');
+           
+          
 
             return response([
                 'status'    => true,
@@ -676,7 +691,8 @@ class BookingsController extends Controller
         // if fail
         // redirect no matter what so that it never turns back
         $msg = __('eventmie-pro::em.payment').' '.__('eventmie-pro::em.failed');
-
+        
+        
         if(\Request::wantsJson()) 
             return response(['status' => false, 'url'=>$url, 'message'=>$msg], Response::HTTP_OK);
         
@@ -799,6 +815,7 @@ class BookingsController extends Controller
                             $admin_tax = $admin_tax + $tax;
 
                     }
+                    
 
                     // in case of excluding
                     if($tax_v->net_price == 'excluding')
@@ -809,6 +826,7 @@ class BookingsController extends Controller
                         if(!$tax_v->admin_tax)
                             $excluding_tax_organiser  = $tax + $excluding_tax_organiser;
 
+                        
                         //admin tax
                         if($tax_v->admin_tax)
                             $admin_tax = $admin_tax + $tax;    
@@ -830,12 +848,14 @@ class BookingsController extends Controller
                         if(!$tax_v->admin_tax)
                             $including_tax_organiser  = $tax + $including_tax_organiser;
 
+                        
                         //admin tax
                         if($tax_v->admin_tax)
                             $admin_tax = $admin_tax + $tax;    
 
                     }
-
+                    
+                    
                     // // in case of excluding
                     if($tax_v->net_price == 'excluding')
                     {
@@ -845,6 +865,7 @@ class BookingsController extends Controller
                         if(!$tax_v->admin_tax)
                             $excluding_tax_organiser  = $tax + $excluding_tax_organiser;
 
+                            
                         //admin tax
                         if($tax_v->admin_tax)
                             $admin_tax = $admin_tax + $tax;
@@ -1020,6 +1041,7 @@ class BookingsController extends Controller
         return redirect()->route('eventmie.register_show');
     }
 
+
     /**
      *  check that how much tickets can booked by customer
      */
@@ -1044,8 +1066,10 @@ class BookingsController extends Controller
                 return ['status' => false, 'error' => $ticket->title.':-'.$msg];
             }
         }
+    
 
     }
+
 
       /*====================== Payment Method Store In Session =======================*/
     
@@ -1090,6 +1114,7 @@ class BookingsController extends Controller
 
         session(['payment_method' => $payment_method]);
     }
+
 
     /*===========================multiple payment method ===============*/
     
@@ -1310,41 +1335,16 @@ class BookingsController extends Controller
                 $paymentResult = null;
                 
                 try {
-                    \Log::info('=== SELEÇÃO DE MÉTODO DE PAGAMENTO ===');
-                    \Log::info('selected_method recebido:', ['method' => $validated['selected_method']]);
-                    
-                    if ($validated['selected_method'] === 'credit_card') {
-                        // Process credit card payment
-                        \Log::info('Chamando processCardPayment para CRÉDITO...');
-                        $paymentResult = $this->processCardPayment($validated, Auth::user(), $ticket, $event);
+                    if ($validated['selected_method'] === 'credit_card' || $validated['selected_method'] === 'debit_card') {
+                        // Process card payment
+                        \Log::info('Chamando processCardPayment...');
+                        $paymentResult = $this->processCardPayment($validated, Auth::user());
                         \Log::info('Resultado de processCardPayment:', ['result' => $paymentResult]);
-                    } else if ($validated['selected_method'] === 'debit_card') {
-                        // Process debit card payment
-                        \Log::info('Chamando processDebitCardPayment para DÉBITO...');
-                        $paymentResult = $this->processDebitCardPayment($validated, Auth::user(), $ticket, $event);
-                        \Log::info('Resultado de processDebitCardPayment:', ['result' => $paymentResult]);
                     } else if ($validated['selected_method'] === 'pix') {
                         // Process PIX payment
                         \Log::info('Chamando processPixPayment...');
-                        $paymentResult = $this->processPixPayment($validated, Auth::user(), $ticket, $event);
+                        $paymentResult = $this->processPixPayment($validated, Auth::user());
                         \Log::info('Resultado de processPixPayment:', ['result' => $paymentResult]);
-                    } else if ($validated['selected_method'] === 'boleto') {
-                        // Process Boleto payment
-                        \Log::info('Chamando processBoletoPayment...');
-                        $paymentResult = $this->processBoletoPayment($validated, Auth::user(), $ticket, $event);
-                        \Log::info('Resultado de processBoletoPayment:', ['result' => $paymentResult]);
-                    } else if ($validated['selected_method'] === 'mercadopago_wallet') {
-                        // Process Wallet payment
-                        \Log::info('Chamando processWalletPayment...');
-                        $paymentResult = $this->processWalletPayment($validated, Auth::user(), $ticket, $event);
-                        \Log::info('Resultado de processWalletPayment:', ['result' => $paymentResult]);
-                    } else {
-                        // Método não reconhecido
-                        \Log::error('Método de pagamento não reconhecido:', ['method' => $validated['selected_method']]);
-                        $paymentResult = [
-                            'status' => false,
-                            'message' => 'Método de pagamento não suportado: ' . $validated['selected_method']
-                        ];
                     }
                 } catch (\Exception $e) {
                     \Log::error('Exceção ao processar pagamento:', [
@@ -1474,7 +1474,7 @@ class BookingsController extends Controller
     /**
      * Process card payment (credit or debit)
      */
-    private function processCardPayment($validated, $user, $ticket = null, $event = null)
+    private function processCardPayment($validated, $user)
     {
         try {
             // CACHE BUSTER: ' . time() . '
@@ -1516,26 +1516,18 @@ class BookingsController extends Controller
                 "payment_method_id" => $paymentMethodId,
                 "installments" => (int)($validated['installments'] ?? 1),
                 "token" => $validated['card_token'] ?? null,
-                "payer" => $this->buildPayerData($user),
+                "payer" => [
+                    "email" => $user->email,
+                    "first_name" => $user->name,
+                    "last_name" => "User",
+                    "identification" => [
+                        "type" => "CPF",
+                        "number" => str_replace(['.', '-'], '', $user->document ?? '12345678909')
+                    ]
+                ],
                 "external_reference" => "BOOKING-" . time() . "-" . $user->id,
                 "statement_descriptor" => "EVENTO"
             ];
-
-            // 🔐 Adicionar Device ID para segurança (SDK Mercado Pago V2)
-            if (!empty($validated['device_id'])) {
-                $paymentData['device_id'] = $validated['device_id'];
-            }
-
-            // 🔔 Adicionar Webhook notification_url (obrigatório)
-            $paymentData['notification_url'] = env('APP_URL') . '/api/mercadopago/webhook';
-
-            // 🏦 Adicionar Issuer ID se disponível (evita erros de processamento)
-            if (!empty($validated['issuer_id'])) {
-                $paymentData['issuer_id'] = (int)$validated['issuer_id'];
-            }
-
-            // ⚠️ NOTA: Items NÃO são suportados em pagamentos com cartão tokenizado
-            // Items funcionam apenas com PIX, Boleto e Carteira
 
             // Validate token
             if (empty($paymentData['token'])) {
@@ -1678,256 +1670,6 @@ class BookingsController extends Controller
     }
 
     /**
-     * Detect card brand from token using Mercado Pago API
-     * This gets the actual card brand (visa, master, amex, etc) from the token
-     */
-    private function detectCardBrandFromToken($token)
-    {
-        try {
-            $accessToken = setting('mercadopago.access_token');
-            
-            if (!$accessToken || !$token) {
-                return 'visa'; // Default fallback
-            }
-
-            // Call Mercado Pago API to get token info
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, "https://api.mercadopago.com/v1/card_tokens/{$token}");
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Content-Type: application/json',
-                'Authorization: Bearer ' . $accessToken
-            ]);
-
-            $response = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
-
-            if ($httpCode === 200) {
-                $data = json_decode($response, true);
-                
-                if (isset($data['payment_method']['id'])) {
-                    $brand = $data['payment_method']['id'];
-                    \Log::info('Card brand detectado do token:', ['brand' => $brand]);
-                    return $brand;
-                }
-            }
-
-            return 'visa'; // Default fallback
-        } catch (\Exception $e) {
-            \Log::error('Erro ao detectar brand do token:', ['error' => $e->getMessage()]);
-            return 'visa'; // Default fallback
-        }
-    }
-
-    /**
-     * Process debit card payment
-     * Rules:
-     * - Must use card brand as payment_method_id (visa, master, amex, etc)
-     * - Two-step payment (capture=false for authorization, then capture later)
-     * - Requires CPF/CNPJ in payer identification
-     */
-    private function processDebitCardPayment($validated, $user, $ticket = null, $event = null)
-    {
-        try {
-            \Log::info('=== INICIANDO PROCESSAMENTO DE DÉBITO === ' . date('Y-m-d H:i:s'));
-            \Log::info('Validated data:', $validated);
-            
-            // Get token from settings table (Voyager)
-            $accessToken = setting('mercadopago.access_token');
-            \Log::info('Token obtido:', ['token_length' => strlen($accessToken ?? ''), 'token_preview' => substr($accessToken ?? '', 0, 20)]);
-            
-            if (!$accessToken) {
-                return [
-                    'status' => false,
-                    'message' => 'Mercado Pago não está configurado'
-                ];
-            }
-
-            \Log::info('Dados do usuário:', [
-                'email' => $user->email,
-                'name' => $user->name,
-                'document' => $user->document ?? 'vazio'
-            ]);
-
-            // CRITICAL: For debit cards, use the CARD BRAND as payment_method_id
-            // Just like credit cards! (visa, master, amex, etc)
-            // The difference is that debit cards require capture=false (two-step payment)
-            // We detect the brand from the token's BIN
-            $paymentMethodId = $this->detectCardBrandFromToken($validated['card_token']) ?? 'visa';
-            
-            \Log::info('Payment method ID para DÉBITO:', [
-                'payment_method_id' => $paymentMethodId,
-                'note' => 'Débito usa a marca do cartão (visa, master, etc), não debit_card'
-            ]);
-            
-            // Prepare payment data for debit card payment
-            $paymentData = [
-                "transaction_amount" => (float)$validated['total'],
-                "description" => "Pagamento de ingresso (DÉBITO) - Evento #{$validated['event_id']}",
-                "payment_method_id" => $paymentMethodId,
-                "installments" => 1,  // Débito não permite parcelamento
-                "token" => $validated['card_token'] ?? null,
-                "payer" => $this->buildPayerData($user),
-                "external_reference" => "BOOKING-" . time() . "-" . $user->id,
-                "statement_descriptor" => "EVENTO"
-            ];
-
-            // 🔐 Adicionar Device ID para segurança (SDK Mercado Pago V2)
-            if (!empty($validated['device_id'])) {
-                $paymentData['device_id'] = $validated['device_id'];
-            }
-
-            // 🔔 Adicionar Webhook notification_url (obrigatório)
-            $paymentData['notification_url'] = env('APP_URL') . '/api/mercadopago/webhook';
-
-            // 🏦 Adicionar Issuer ID se disponível (evita erros de processamento)
-            if (!empty($validated['issuer_id'])) {
-                $paymentData['issuer_id'] = (int)$validated['issuer_id'];
-            }
-
-            // ⚠️ NOTA: Items NÃO são suportados em pagamentos com cartão tokenizado
-            // Items funcionam apenas com PIX, Boleto e Carteira
-
-            // Validate token
-            if (empty($paymentData['token'])) {
-                \Log::error('Token do cartão está vazio para DÉBITO!');
-                return [
-                    'status' => false,
-                    'message' => 'Token do cartão não foi gerado. Verifique os dados do cartão.'
-                ];
-            }
-            
-            \Log::info('Dados do pagamento DÉBITO preparados:', [
-                'amount' => $paymentData['transaction_amount'],
-                'method' => $paymentData['payment_method_id'],
-                'installments' => $paymentData['installments'],
-                'email' => $paymentData['payer']['email'],
-                'token_length' => strlen($paymentData['token'] ?? ''),
-                'token_preview' => substr($paymentData['token'] ?? '', 0, 20),
-                'cpf' => $paymentData['payer']['identification']['number'],
-                'payer_email' => $paymentData['payer']['email'],
-                'payer_name' => $paymentData['payer']['first_name'] . ' ' . $paymentData['payer']['last_name']
-            ]);
-            
-            // Log the complete payment data as JSON
-            \Log::info('Payment data JSON (DÉBITO):', [
-                'json' => json_encode($paymentData, JSON_PRETTY_PRINT)
-            ]);
-
-            // Make cURL request to Mercado Pago API
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, 'https://api.mercadopago.com/v1/payments');
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($paymentData));
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Content-Type: application/json',
-                'Authorization: Bearer ' . $accessToken,
-                'X-Idempotency-Key: ' . \Illuminate\Support\Str::uuid()
-            ]);
-
-            $response = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $curlError = curl_error($ch);
-            curl_close($ch);
-
-            \Log::info('DEBUG - Requisição DÉBITO enviada para Mercado Pago:', [
-                'url' => 'https://api.mercadopago.com/v1/payments',
-                'token_length' => strlen($accessToken),
-                'token_preview' => substr($accessToken, 0, 20) . '...',
-                'payment_data' => $paymentData,
-                'payment_data_json' => json_encode($paymentData)
-            ]);
-
-            \Log::info('Resposta do Mercado Pago (DÉBITO):', [
-                'httpCode' => $httpCode,
-                'response' => $response,
-                'curlError' => $curlError
-            ]);
-
-            // Decode response
-            $responseData = json_decode($response, true);
-
-            if ($httpCode === 201 || $httpCode === 200) {
-                if (isset($responseData['id']) && isset($responseData['status'])) {
-                    $status = $responseData['status'];
-                    $isApproved = ($status === 'approved');
-
-                    \Log::info('Pagamento DÉBITO processado:', [
-                        'payment_id' => $responseData['id'],
-                        'status' => $status,
-                        'approved' => $isApproved
-                    ]);
-
-                    return [
-                        'status' => true,
-                        'payment_id' => $responseData['id'],
-                        'is_paid' => $isApproved ? 1 : 0,
-                        'booking_status' => $isApproved ? 1 : 0,
-                        'message' => $isApproved ? 'Pagamento por débito aprovado!' : 'Pagamento por débito pendente de confirmação',
-                        'response_data' => $responseData
-                    ];
-                }
-            }
-
-            \Log::error('Erro ao processar pagamento DÉBITO - HTTP ' . $httpCode, [
-                'response' => $response,
-                'responseData' => $responseData
-            ]);
-
-            $errorMsg = 'Erro desconhecido';
-            
-            // Handle specific error messages
-            if (isset($responseData['message'])) {
-                $errorMsg = $responseData['message'];
-                
-                // Provide user-friendly messages for common errors
-                if ($responseData['message'] === 'bin_not_found') {
-                    $errorMsg = 'Cartão inválido ou não reconhecido. Verifique o número do cartão.';
-                } elseif ($responseData['message'] === 'diff_param_bins') {
-                    $errorMsg = 'Os dados do cartão não correspondem ao token gerado. Tente novamente com outro cartão.';
-                } elseif ($responseData['message'] === 'invalid_token') {
-                    $errorMsg = 'Token do cartão inválido ou expirado. Tente novamente.';
-                } elseif ($responseData['message'] === 'debit_card_not_supported') {
-                    $errorMsg = 'Este cartão de débito não é suportado. Tente com outro cartão.';
-                }
-            }
-            
-            if (isset($responseData['cause']) && is_array($responseData['cause'])) {
-                $causes = array_map(function($c) { return $c['description'] ?? ''; }, $responseData['cause']);
-                \Log::error('Causas do erro DÉBITO:', $causes);
-            }
-
-            \Log::error('Erro ao processar pagamento DÉBITO:', [
-                'httpCode' => $httpCode,
-                'response' => $response,
-                'errorMsg' => $errorMsg
-            ]);
-
-            return [
-                'status' => false,
-                'message' => 'Erro ao processar pagamento: ' . $errorMsg
-            ];
-
-        } catch (\Throwable $e) {
-            \Log::error('EXCEÇÃO CAPTURADA ao processar pagamento DÉBITO:', [
-                'exception_class' => get_class($e),
-                'message' => $e->getMessage(),
-                'code' => $e->getCode(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            return [
-                'status' => false,
-                'message' => 'Erro ao processar pagamento: ' . $e->getMessage()
-            ];
-        }
-    }
-
-    /**
      * Check payment status
      */
     public function checkPaymentStatus($transactionId)
@@ -1965,7 +1707,7 @@ class BookingsController extends Controller
      * Process payment based on payment method type
      * Supports: credit_card, debit_card, pix, boleto, wallet
      */
-    private function processPaymentByMethod($paymentMethod, $validated, $user, $ticket = null, $event = null)
+    private function processPaymentByMethod($paymentMethod, $validated, $user)
     {
         \Log::info('Processando pagamento por método:', [
             'method' => $paymentMethod,
@@ -1975,16 +1717,16 @@ class BookingsController extends Controller
         switch ($paymentMethod) {
             case 'credit_card':
             case 'debit_card':
-                return $this->processCardPayment($validated, $user, $ticket, $event);
+                return $this->processCardPayment($validated, $user);
             
             case 'pix':
-                return $this->processPixPayment($validated, $user, $ticket, $event);
+                return $this->processPixPayment($validated, $user);
             
             case 'boleto':
-                return $this->processBoletoPayment($validated, $user, $ticket, $event);
+                return $this->processBoletoPayment($validated, $user);
             
             case 'wallet':
-                return $this->processWalletPayment($validated, $user, $ticket, $event);
+                return $this->processWalletPayment($validated, $user);
             
             default:
                 return [
@@ -1997,7 +1739,7 @@ class BookingsController extends Controller
     /**
      * Process PIX payment
      */
-    private function processPixPayment($validated, $user, $ticket = null, $event = null)
+    private function processPixPayment($validated, $user)
     {
         \Log::info('=== INICIANDO PROCESSAMENTO DE PIX ===');
         
@@ -2016,25 +1758,18 @@ class BookingsController extends Controller
             "transaction_amount" => (float)$validated['total'],
             "description" => "Pagamento de ingresso - Evento #{$validated['event_id']}",
             "payment_method_id" => "pix",
-            "payer" => $this->buildPayerData($user),
-            "external_reference" => "BOOKING-" . time() . "-" . $user->id,
-            "statement_descriptor" => "EVENTO",
-            "notification_url" => env('APP_URL') . '/api/mercadopago/webhook'
-        ];
-
-        // 📦 Adicionar Items - Detalhes do carrinho (recomendado)
-        if ($ticket && $event) {
-            $paymentData['items'] = [
-                [
-                    'id' => (string)$ticket->id,
-                    'title' => $ticket->title,
-                    'description' => 'Ingresso para evento: ' . $event->title,
-                    'category_id' => 'event_ticket',
-                    'quantity' => (int)($validated['quantity'] ?? 1),
-                    'unit_price' => (float)$ticket->price
+            "payer" => [
+                "email" => $user->email,
+                "first_name" => $user->name,
+                "last_name" => "User",
+                "identification" => [
+                    "type" => "CPF",
+                    "number" => str_replace(['.', '-'], '', $user->document ?? '12345678909')
                 ]
-            ];
-        }
+            ],
+            "external_reference" => "BOOKING-" . time() . "-" . $user->id,
+            "statement_descriptor" => "EVENTO"
+        ];
         
         \Log::info('Dados PIX preparados:', $paymentData);
         
@@ -2155,7 +1890,7 @@ class BookingsController extends Controller
     /**
      * Process Boleto payment
      */
-    private function processBoletoPayment($validated, $user, $ticket = null, $event = null)
+    private function processBoletoPayment($validated, $user)
     {
         \Log::info('=== INICIANDO PROCESSAMENTO DE BOLETO ===');
         
@@ -2174,25 +1909,18 @@ class BookingsController extends Controller
             "transaction_amount" => (float)$validated['total'],
             "description" => "Pagamento de ingresso - Evento #{$validated['event_id']}",
             "payment_method_id" => "bolbradesco",
-            "payer" => $this->buildPayerData($user),
-            "external_reference" => "BOOKING-" . time() . "-" . $user->id,
-            "statement_descriptor" => "EVENTO",
-            "notification_url" => env('APP_URL') . '/api/mercadopago/webhook'
-        ];
-
-        // 📦 Adicionar Items - Detalhes do carrinho (recomendado)
-        if ($ticket && $event) {
-            $paymentData['items'] = [
-                [
-                    'id' => (string)$ticket->id,
-                    'title' => $ticket->title,
-                    'description' => 'Ingresso para evento: ' . $event->title,
-                    'category_id' => 'event_ticket',
-                    'quantity' => (int)($validated['quantity'] ?? 1),
-                    'unit_price' => (float)$ticket->price
+            "payer" => [
+                "email" => $user->email,
+                "first_name" => $user->name,
+                "last_name" => "User",
+                "identification" => [
+                    "type" => "CPF",
+                    "number" => str_replace(['.', '-'], '', $user->document ?? '12345678909')
                 ]
-            ];
-        }
+            ],
+            "external_reference" => "BOOKING-" . time() . "-" . $user->id,
+            "statement_descriptor" => "EVENTO"
+        ];
         
         \Log::info('Dados Boleto preparados:', $paymentData);
         
@@ -2288,186 +2016,48 @@ class BookingsController extends Controller
         return [
             'status' => false,
             'message' => 'Erro ao processar Boleto: ' . ($responseData['message'] ?? 'Erro desconhecido'),
-            'http_code' => $httpCode,
-            'error_code' => 'BOLETO_ERROR'
-        ];
-    }
-
-        $paymentData = [
-            "transaction_amount" => (float)$validated['total'],
-            "description" => "Pagamento de ingresso - Evento #{$validated['event_id']}",
-            "payment_method_id" => "account_money",
-            "payer" => $this->buildPayerData($user),
-            "external_reference" => "BOOKING-" . time() . "-" . $user->id,
-            "statement_descriptor" => "EVENTO",
-            "notification_url" => env('APP_URL') . '/api/mercadopago/webhook'
-        ];
-
-        // Adicionar Items para Carteira (suportado)
-        if ($ticket && $event) {
-            $paymentData['items'] = [
-                [
-                    'id' => (string)$ticket->id,
-                    'title' => $ticket->title,
-                    'description' => 'Ingresso para evento: ' . $event->title,
-                    'category_id' => 'event_ticket',
-                    'quantity' => (int)($validated['quantity'] ?? 1),
-                    'unit_price' => (float)$ticket->price
-                ]
-            ];
-        }
-        
-        \Log::info('Dados Carteira preparados:', $paymentData);
-        
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, 'https://api.mercadopago.com/v1/payments');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($paymentData));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Authorization: Bearer ' . $accessToken,
-            'X-Idempotency-Key: ' . \Illuminate\Support\Str::uuid()
-        ]);
-
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        $responseData = json_decode($response, true);
-
-        \Log::info('Resposta Carteira:', [
-            'httpCode' => $httpCode,
-            'status' => $responseData['status'] ?? null
-        ]);
-
-        if ($httpCode === 201 || $httpCode === 200) {
-            if (isset($responseData['id'])) {
-                $status = $responseData['status'] ?? 'pending';
-                $isApproved = ($status === 'approved');
-
-                return [
-                    'status' => true,
-                    'payment_id' => $responseData['id'],
-                    'payment_method' => 'wallet',
-                    'is_paid' => $isApproved ? 1 : 0,
-                    'booking_status' => $isApproved ? 1 : 0,
-                    'message' => $isApproved ? 'Pagamento via carteira aprovado!' : 'Pagamento via carteira pendente',
-                    'response_data' => $responseData
-                ];
-            }
-        }
-
-        return [
-            'status' => false,
-            'message' => 'Erro ao processar Carteira: ' . ($responseData['message'] ?? 'Erro desconhecido'),
-            'http_code' => $httpCode
-        ];
-    }
-
-        $paymentData = [
-            "transaction_amount" => (float)$validated['total'],
-            "description" => "Pagamento de ingresso - Evento #{$validated['event_id']}",
-            "payment_method_id" => "account_money",
-            "payer" => $this->buildPayerData($user),
-            "external_reference" => "BOOKING-" . time() . "-" . $user->id,
-            "statement_descriptor" => "EVENTO",
-            "notification_url" => env('APP_URL') . '/api/mercadopago/webhook'
-        ];
-
-        // Adicionar Items para Carteira (suportado)
-        if ($ticket && $event) {
-            $paymentData['items'] = [
-                [
-                    'id' => (string)$ticket->id,
-                    'title' => $ticket->title,
-                    'description' => 'Ingresso para evento: ' . $event->title,
-                    'category_id' => 'event_ticket',
-                    'quantity' => (int)($validated['quantity'] ?? 1),
-                    'unit_price' => (float)$ticket->price
-                ]
-            ];
-        }
-        
-        \Log::info('Dados Carteira preparados:', $paymentData);
-        
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, 'https://api.mercadopago.com/v1/payments');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($paymentData));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Authorization: Bearer ' . $accessToken,
-            'X-Idempotency-Key: ' . \Illuminate\Support\Str::uuid()
-        ]);
-
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        $responseData = json_decode($response, true);
-
-        \Log::info('Resposta Carteira:', [
-            'httpCode' => $httpCode,
-            'status' => $responseData['status'] ?? null
-        ]);
-
-        if ($httpCode === 201 || $httpCode === 200) {
-            if (isset($responseData['id'])) {
-                $status = $responseData['status'] ?? 'pending';
-                $isApproved = ($status === 'approved');
-
-                return [
-                    'status' => true,
-                    'payment_id' => $responseData['id'],
-                    'payment_method' => 'wallet',
-                    'is_paid' => $isApproved ? 1 : 0,
-                    'booking_status' => $isApproved ? 1 : 0,
-                    'message' => $isApproved ? 'Pagamento via carteira aprovado!' : 'Pagamento via carteira pendente',
-                    'response_data' => $responseData
-                ];
-            }
-        }
-
-        return [
-            'status' => false,
-            'message' => 'Erro ao processar Carteira: ' . ($responseData['message'] ?? 'Erro desconhecido'),
             'http_code' => $httpCode
         ];
     }
 
     /**
-     * Process Wallet payment (Mercado Pago Account)
+     * Process Wallet (Mercado Pago Wallet) payment
      */
-    private function processWalletPayment($validated, $user, $ticket = null, $event = null)
+    private function processWalletPayment($validated, $user)
     {
-        \Log::info('=== PROCESSAMENTO DE CARTEIRA ===');
+        \Log::info('=== INICIANDO PROCESSAMENTO DE CARTEIRA MERCADO PAGO ===');
         
+        // Use o mesmo token do cartão (mercadopago.access_token)
         $accessToken = setting('mercadopago.access_token');
+        
         if (!$accessToken) {
-            return ['status' => false, 'message' => 'Token não configurado'];
+            \Log::error('Access token do Mercado Pago não configurado para Carteira');
+            return [
+                'status' => false,
+                'message' => 'Mercado Pago não está configurado para Carteira'
+            ];
         }
         
         $paymentData = [
             "transaction_amount" => (float)$validated['total'],
-            "description" => "Pagamento - Evento #{$validated['event_id']}",
-            "payment_method_id" => "account_money",
-            "payer" => $this->buildPayerData($user),
+            "description" => "Pagamento de ingresso - Evento #{$validated['event_id']}",
+            "payment_method_id" => "wallet_purchase",
+            "payer" => [
+                "email" => $user->email,
+                "first_name" => $user->name,
+                "last_name" => "User",
+                "identification" => [
+                    "type" => "CPF",
+                    "number" => str_replace(['.', '-'], '', $user->document ?? '12345678909')
+                ]
+            ],
             "external_reference" => "BOOKING-" . time() . "-" . $user->id,
-            "notification_url" => env('APP_URL') . '/api/mercadopago/webhook'
+            "statement_descriptor" => "EVENTO"
         ];
-
-        if ($ticket && $event) {
-            $paymentData['items'] = [[
-                'id' => (string)$ticket->id,
-                'title' => $ticket->title,
-                'description' => 'Ingresso: ' . $event->title,
-                'quantity' => 1,
-                'unit_price' => (float)$ticket->price
-            ]];
-        }
         
+        \Log::info('Dados Carteira preparados:', $paymentData);
+        
+        // Make cURL request to Mercado Pago API
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, 'https://api.mercadopago.com/v1/payments');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -2475,29 +2065,83 @@ class BookingsController extends Controller
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($paymentData));
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Content-Type: application/json',
-            'Authorization: Bearer ' . $accessToken
+            'Authorization: Bearer ' . $accessToken,
+            'X-Idempotency-Key: ' . \Illuminate\Support\Str::uuid()
         ]);
 
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
         curl_close($ch);
+
         $responseData = json_decode($response, true);
 
-        if ($httpCode === 201 && isset($responseData['id'])) {
+        // Log completo da resposta do Mercado Pago
+        \Log::info('=== RESPOSTA COMPLETA DO MERCADO PAGO (CARTEIRA) ===');
+        \Log::info('HTTP Code: ' . $httpCode);
+        \Log::info('Response Raw:', ['response' => $response]);
+        \Log::info('Response Decoded:', $responseData);
+        
+        \Log::info('Resposta Carteira recebida:', [
+            'httpCode' => $httpCode,
+            'status' => $responseData['status'] ?? null,
+            'message' => $responseData['message'] ?? null
+        ]);
+
+        if ($httpCode === 201 || $httpCode === 200) {
+            if (isset($responseData['id'])) {
+                $status = $responseData['status'] ?? 'pending';
+                
+                \Log::info('Carteira processada com sucesso:', [
+                    'payment_id' => $responseData['id'],
+                    'status' => $status
+                ]);
+
+                // Register transaction
+                try {
+                    $this->registerMercadoPagoTransaction(
+                        $responseData,
+                        $validated,
+                        $user,
+                        'wallet'
+                    );
+                } catch (\Exception $e) {
+                    \Log::error('Erro ao registrar transação Carteira:', ['message' => $e->getMessage()]);
+                }
+
+                return [
+                    'status' => true,
+                    'payment_id' => $responseData['id'],
+                    'payment_method' => 'wallet',
+                    'wallet_status' => $status,
+                    'message' => 'Pagamento via Carteira Mercado Pago processado'
+                ];
+            }
+        }
+
+        // Handle 403 - PolicyAgent UNAUTHORIZED
+        if ($httpCode === 403) {
+            \Log::warning('Carteira retornou 403 - Verificar permissões do token', [
+                'message' => $responseData['message'] ?? 'PolicyAgent UNAUTHORIZED',
+                'code' => $responseData['code'] ?? null
+            ]);
+            
             return [
-                'status' => true,
-                'payment_id' => $responseData['id'],
-                'payment_method' => 'wallet',
-                'is_paid' => ($responseData['status'] === 'approved') ? 1 : 0,
-                'booking_status' => ($responseData['status'] === 'approved') ? 1 : 0,
-                'message' => 'Pagamento processado',
-                'response_data' => $responseData
+                'status' => false,
+                'message' => 'Carteira Mercado Pago não está habilitada para este token. Verifique as permissões na conta Mercado Pago.',
+                'error_code' => 'WALLET_UNAUTHORIZED'
             ];
         }
 
+        \Log::error('Erro ao processar Carteira - HTTP ' . $httpCode, [
+            'response' => $response,
+            'responseData' => $responseData
+        ]);
+        
         return [
             'status' => false,
-            'message' => 'Erro: ' . ($responseData['message'] ?? 'Desconhecido')
+            'message' => 'Erro ao processar Carteira: ' . ($responseData['message'] ?? 'Erro desconhecido'),
+            'http_code' => $httpCode
         ];
     }
 
@@ -2704,22 +2348,6 @@ class BookingsController extends Controller
         }
 
         return $payerData;
-    }
-
-    /**
-     * 🏦 Extrair issuer_id do token do cartão
-     * O issuer_id identifica o banco emissor do cartão
-     * Necessário para evitar erros de processamento
-     */
-    private function extractIssuerIdFromToken($token)
-    {
-        // Nota: O issuer_id é retornado pelo Mercado Pago ao gerar o token
-        // Aqui tentamos extrair informações básicas do token
-        // Em produção, o frontend deveria enviar o issuer_id junto com o token
-        
-        // Por enquanto, retornamos null e deixamos o Mercado Pago detectar
-        // Isso é aceitável, mas issuer_id explícito melhora a taxa de aprovação
-        return null;
     }
 
 }
