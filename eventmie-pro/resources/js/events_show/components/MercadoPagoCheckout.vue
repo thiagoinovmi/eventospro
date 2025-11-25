@@ -375,21 +375,22 @@ export default {
         installmentOptions: {
             type: Array,
             default: () => {
+                const options = [];
+                for (let i = 1; i <= 12; i++) {
+                    options.push({
+                        value: i,
+                        label: i === 1 ? '1x sem juros' : `${i}x ${i <= 6 ? 'sem juros' : 'com juros'}`
+                    });
+                }
+                return options;
+            }
         }
     },
 
     data() {
         return {
             selectedMethod: 'credit_card',
-            isProcessing: false,
-            showPaymentForm: false,
-            showPixQR: false,
-            pixData: null,
-            isWaitingPayment: false,
-            paymentConfirmed: false,
-            timerCounter: 0,
-            
-            // Dados do cartão
+            selectedTicket: null,
             cardData: {
                 holderName: '',
                 number: '',
@@ -404,37 +405,38 @@ export default {
                 cardExpiry: '',
                 cardCvv: ''
             },
-            
-            // Métodos de pagamento disponíveis
-            paymentMethods: [
-                { id: 'credit_card', name: 'Cartão de Crédito', icon: 'fas fa-credit-card' },
-                { id: 'debit_card', name: 'Cartão de Débito', icon: 'fas fa-credit-card' },
-                { id: 'boleto', name: 'Boleto Bancário', icon: 'fas fa-barcode' },
-                { id: 'pix', name: 'PIX', icon: 'fas fa-qrcode' },
-                { id: 'mercadopago_wallet', name: 'Carteira Mercado Pago', icon: 'fas fa-wallet' }
-            ],
-            
-            // Opções de parcelamento
-            installmentOptions: [
-                { value: 1, label: '1x sem juros' },
-                { value: 2, label: '2x sem juros' },
-                { value: 3, label: '3x sem juros' },
-                { value: 4, label: '4x sem juros' },
-                { value: 5, label: '5x sem juros' },
-                { value: 6, label: '6x sem juros' },
-                { value: 7, label: '7x sem juros' },
-                { value: 8, label: '8x sem juros' },
-                { value: 9, label: '9x sem juros' },
-                { value: 10, label: '10x sem juros' },
-                { value: 11, label: '11x sem juros' },
-                { value: 12, label: '12x sem juros' }
-            ],
-            
-            // Referência ao window para uso no template
-            window: window
+            errorMessage: '',
+            successMessage: '',
+            loadedMethods: {},
+            pixData: null,
+            pixQrCode: null,
+            pixExpiration: null,
+            isWaitingPayment: false,
+            paymentCheckInterval: null,
+            paymentConfirmed: false,
+            timerCounter: 0,
+            timerInterval: null,
+            deviceId: null, // 🔐 Device ID para segurança Mercado Pago
+            mp: null, // 🔐 Instância do SDK Mercado Pago
+            window: window // 🔧 Referência ao window para uso no template
         }
     },
-    
+
+    mounted() {
+        this.loadPaymentMethods();
+        
+        // 🔐 Inicializar SDK Mercado Pago V2 para Device ID
+        this.initializeMercadoPagoSDK();
+        
+        // 👤 Carregar dados do usuário do localStorage ou API
+        this.loadUserData();
+        
+        // Iniciar timer para atualizar contagem regressiva a cada segundo
+        this.timerInterval = setInterval(() => {
+            this.timerCounter++;
+        }, 1000);
+    },
+
     beforeDestroy() {
         // Limpar interval quando componente é destruído
         if (this.timerInterval) {
