@@ -312,6 +312,7 @@ const _sfc_main = {
             this.waitForWebhookConfirmation(response.data.booking_id);
           } else if (response.data.payment_method === "credit_card" || response.data.payment_method === "debit_card") {
             console.log("✅ Cartão processado com sucesso");
+            this.paymentConfirmed = true;
             this.successMessage = "Pagamento realizado com sucesso!";
             setTimeout(() => {
               window.location.href = "/mybookings";
@@ -538,10 +539,10 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "6d400d15"
+  "d05904d6"
 );
 const MercadoPagoCheckout = __component__.exports;
 export {
   MercadoPagoCheckout as default
 };
-//# sourceMappingURL=MercadoPagoCheckout-By8Ze8XR.js.map
+//# sourceMappingURL=MercadoPagoCheckout-Bv5nrFNv.js.map

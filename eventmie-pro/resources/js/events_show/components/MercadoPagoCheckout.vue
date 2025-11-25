@@ -726,7 +726,8 @@ export default {
                     else if (response.data.payment_method === 'credit_card' || response.data.payment_method === 'debit_card') {
                         console.log('✅ Cartão processado com sucesso');
                         
-                        // Mostrar mensagem de sucesso
+                        // Definir como confirmado (remove o formulário)
+                        this.paymentConfirmed = true;
                         this.successMessage = 'Pagamento realizado com sucesso!';
                         
                         // Redirecionar após 2 segundos
