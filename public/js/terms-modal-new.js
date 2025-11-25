@@ -1,0 +1,292 @@
+// Script para gerenciar dois modais separados
+// Um para Política de Privacidade, outro para Termos e Condições
+// Botão de registro só libera quando ambos forem confirmados
+
+(function() {
+    'use strict';
+
+    const state = {
+        privacyRead: false,
+        privacyConfirmed: false,
+        termsRead: false,
+        termsConfirmed: false
+    };
+
+    function initTermsModals() {
+        // Carregar Política de Privacidade
+        fetch('/api/pages/2')
+            .then(response => response.json())
+            .then(data => {
+                const privacyTitle = document.getElementById('privacy-title');
+                const privacyContent = document.getElementById('privacyContent');
+                if (privacyTitle) privacyTitle.textContent = data.title || 'Política de Privacidade';
+                if (privacyContent) privacyContent.innerHTML = data.body || 'Conteúdo não disponível';
+            })
+            .catch(error => {
+                const privacyContent = document.getElementById('privacyContent');
+                if (privacyContent) privacyContent.innerHTML = 'Erro ao carregar conteúdo';
+            });
+
+        // Carregar Termos e Condições
+        fetch('/api/pages/3')
+            .then(response => response.json())
+            .then(data => {
+                const termsTitle = document.getElementById('terms-title');
+                const termsContent = document.getElementById('termsContent');
+                if (termsTitle) termsTitle.textContent = data.title || 'Termos e Condições de Uso';
+                if (termsContent) termsContent.innerHTML = data.body || 'Conteúdo não disponível';
+            })
+            .catch(error => {
+                const termsContent = document.getElementById('termsContent');
+                if (termsContent) termsContent.innerHTML = 'Erro ao carregar conteúdo';
+            });
+
+        // Botão Política de Privacidade
+        const privacyButton = document.querySelector('[data-privacy-button]');
+        if (privacyButton) {
+            privacyButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                openModal('privacyModal');
+            });
+        }
+
+        // Botão Termos e Condições
+        const termsButton = document.querySelector('[data-terms-button]');
+        if (termsButton) {
+            termsButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                openModal('termsModal');
+            });
+        }
+
+        // Monitorar scroll da Política
+        const privacyScrollContent = document.getElementById('privacyScrollContent');
+        if (privacyScrollContent) {
+            privacyScrollContent.addEventListener('scroll', function() {
+                checkScroll('privacy', this);
+            });
+        }
+
+        // Monitorar scroll dos Termos
+        const termsScrollContent = document.getElementById('termsScrollContent');
+        if (termsScrollContent) {
+            termsScrollContent.addEventListener('scroll', function() {
+                checkScroll('terms', this);
+            });
+        }
+
+        // Checkbox e botão de Política
+        const privacyCheckbox = document.getElementById('privacyAcceptCheckbox');
+        const privacyConfirmBtn = document.getElementById('privacyConfirmBtn');
+
+        if (privacyCheckbox && privacyConfirmBtn) {
+            // Inicialmente desabilitado
+            privacyCheckbox.disabled = true;
+            
+            privacyCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    // Marcado: habilitar botão
+                    privacyConfirmBtn.disabled = false;
+                } else {
+                    // Desmarcado: resetar estado e desabilitar botão
+                    state.privacyConfirmed = false;
+                    privacyConfirmBtn.disabled = true;
+                    updateButtons();
+                }
+            });
+
+            privacyConfirmBtn.addEventListener('click', function() {
+                if (!privacyCheckbox.checked) {
+                    alert('Por favor, marque o checkbox');
+                    return;
+                }
+                state.privacyConfirmed = true;
+                updateButtons();
+                closeModal('privacyModal');
+            });
+        }
+
+        // Checkbox e botão de Termos
+        const termsCheckbox = document.getElementById('termsAcceptCheckbox');
+        const termsConfirmBtn = document.getElementById('termsConfirmBtn');
+
+        if (termsCheckbox && termsConfirmBtn) {
+            // Inicialmente desabilitado
+            termsCheckbox.disabled = true;
+            
+            termsCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    // Marcado: habilitar botão
+                    termsConfirmBtn.disabled = false;
+                } else {
+                    // Desmarcado: resetar estado e desabilitar botão
+                    state.termsConfirmed = false;
+                    termsConfirmBtn.disabled = true;
+                    updateButtons();
+                }
+            });
+
+            termsConfirmBtn.addEventListener('click', function() {
+                if (!termsCheckbox.checked) {
+                    alert('Por favor, marque o checkbox');
+                    return;
+                }
+                state.termsConfirmed = true;
+                updateButtons();
+                closeModal('termsModal');
+            });
+        }
+
+        // Fechar modais ao clicar em Cancelar
+        const closeButtons = document.querySelectorAll('[data-dismiss="modal"]');
+        closeButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const modal = this.closest('.modal');
+                if (modal) {
+                    closeModal(modal.id);
+                }
+            });
+        });
+
+        // Validar formulário ao submeter
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                if (!state.privacyConfirmed || !state.termsConfirmed) {
+                    e.preventDefault();
+                    alert('Por favor, confirme ambos os documentos');
+                    return false;
+                }
+            });
+        }
+    }
+
+    function checkScroll(type, element) {
+        const isAtBottom = element.scrollHeight - element.scrollTop <= element.clientHeight + 10;
+
+        if (isAtBottom) {
+            if (type === 'privacy' && !state.privacyRead) {
+                state.privacyRead = true;
+                
+                // Habilitar checkbox
+                const privacyCheckbox = document.getElementById('privacyAcceptCheckbox');
+                if (privacyCheckbox) {
+                    privacyCheckbox.disabled = false;
+                }
+                updateButtons();
+            } else if (type === 'terms' && !state.termsRead) {
+                state.termsRead = true;
+                
+                // Habilitar checkbox
+                const termsCheckbox = document.getElementById('termsAcceptCheckbox');
+                if (termsCheckbox) {
+                    termsCheckbox.disabled = false;
+                }
+                updateButtons();
+            }
+        }
+    }
+
+    function updateButtons() {
+        // Atualizar botão de Política
+        const privacyButton = document.getElementById('privacyButton');
+        const privacyCheckIcon = document.getElementById('privacyCheckIcon');
+        if (privacyButton) {
+            if (state.privacyConfirmed) {
+                privacyButton.classList.remove('btn-danger');
+                privacyButton.classList.add('btn-success');
+                if (privacyCheckIcon) privacyCheckIcon.style.display = 'inline';
+            } else {
+                privacyButton.classList.add('btn-danger');
+                privacyButton.classList.remove('btn-success');
+                if (privacyCheckIcon) privacyCheckIcon.style.display = 'none';
+            }
+        }
+
+        // Atualizar botão de Termos
+        const termsButton = document.getElementById('termsButton');
+        const termsCheckIcon = document.getElementById('termsCheckIcon');
+        if (termsButton) {
+            if (state.termsConfirmed) {
+                termsButton.classList.remove('btn-danger');
+                termsButton.classList.add('btn-success');
+                if (termsCheckIcon) termsCheckIcon.style.display = 'inline';
+            } else {
+                termsButton.classList.add('btn-danger');
+                termsButton.classList.remove('btn-success');
+                if (termsCheckIcon) termsCheckIcon.style.display = 'none';
+            }
+        }
+
+        // Mensagem de aviso
+        const warningMessage = document.getElementById('terms-warning');
+
+        // Habilitar botão de registro
+        const submitButton = document.querySelector('button[type="submit"]');
+        if (submitButton) {
+            if (state.privacyConfirmed && state.termsConfirmed) {
+                submitButton.disabled = false;
+
+                // Atualizar campos hidden
+                document.getElementById('privacy_policy_accepted').value = '1';
+                document.getElementById('terms_conditions_accepted').value = '1';
+                
+                // Formato Laravel: Y-m-d H:i:s
+                const now = new Date();
+                const laravelFormat = now.toISOString().replace('T', ' ').replace(/\.\d{3}Z$/, '');
+                
+                document.getElementById('privacy_policy_accepted_at').value = laravelFormat;
+                document.getElementById('terms_conditions_accepted_at').value = laravelFormat;
+
+                // Esconder mensagem de aviso
+                if (warningMessage) {
+                    warningMessage.style.display = 'none';
+                }
+            } else {
+                submitButton.disabled = true;
+                
+                // Mostrar mensagem de aviso
+                if (warningMessage) {
+                    warningMessage.style.display = 'block';
+                }
+            }
+        }
+    }
+
+    function openModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.add('show');
+            modal.style.display = 'block';
+            document.body.classList.add('modal-open');
+
+            let backdrop = document.querySelector('.modal-backdrop');
+            if (!backdrop) {
+                backdrop = document.createElement('div');
+                backdrop.className = 'modal-backdrop fade show';
+                document.body.appendChild(backdrop);
+            }
+        }
+    }
+
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.remove('show');
+            modal.style.display = 'none';
+            document.body.classList.remove('modal-open');
+
+            const backdrop = document.querySelector('.modal-backdrop');
+            if (backdrop) {
+                backdrop.remove();
+            }
+        }
+    }
+
+    // Inicializar quando o DOM estiver pronto
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initTermsModals);
+    } else {
+        initTermsModals();
+    }
+})();
