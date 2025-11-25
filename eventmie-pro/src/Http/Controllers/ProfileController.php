@@ -75,8 +75,16 @@ class ProfileController extends Controller
         $request->validate([
             'name' => 'required|string',
             'email' => 'required|email|unique:users,email,'.Auth::id(),
+            'phone' => 'nullable|string|max:20',
             'document_type' => 'nullable|in:cpf,cnpj',
             'document' => 'nullable|string|max:32|unique:users,document,'.Auth::id(),
+            'address_zip_code' => 'nullable|string|max:10',
+            'address_street' => 'nullable|string|max:255',
+            'address_number' => 'nullable|string|max:10',
+            'address_complement' => 'nullable|string|max:255',
+            'address_neighborhood' => 'nullable|string|max:100',
+            'address_city' => 'nullable|string|max:100',
+            'address_state' => 'nullable|string|max:2',
             'pix_type' => 'nullable|in:email,cpf,cnpj,phone,random',
             'pix_key' => 'nullable|string|max:255'
         ]);
@@ -86,10 +94,19 @@ class ProfileController extends Controller
         $user->name                  = $request->name;
         // $user->username              = $request->username;
         $user->email                 = $request->email;
-        $user->address               = $request->address;
+        // 🏠 Endereço separado em campos
+        $user->address_zip_code      = $request->address_zip_code;
+        $user->address_street        = $request->address_street;
+        $user->address_number        = $request->address_number;
+        $user->address_complement    = $request->address_complement;
+        $user->address_neighborhood  = $request->address_neighborhood;
+        $user->address_city          = $request->address_city;
+        $user->address_state         = $request->address_state;
+        // Telefone e Documento
         $user->phone                 = $request->phone;
         $user->document_type         = $request->document_type;
         $user->document              = $request->document;
+        // PIX
         $user->pix_type              = $request->pix_type;
         $user->pix_key               = $request->pix_key;
 

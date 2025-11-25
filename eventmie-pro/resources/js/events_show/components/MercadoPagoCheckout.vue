@@ -35,6 +35,32 @@
                 <hr>
             </div>
 
+            <!-- ⚠️ ALERTA - Dados Incompletos -->
+            <div v-if="!userDataComplete" class="alert alert-warning alert-dismissible fade show mb-4" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Atenção!</strong> Para garantir a aprovação do seu pagamento, é importante que seus dados estejam completos.
+                
+                <div class="mt-2 small">
+                    <div v-if="!userCPF" class="mb-1">
+                        <i class="fas fa-times-circle text-danger me-1"></i> CPF/CNPJ não preenchido
+                    </div>
+                    <div v-if="!userPhone" class="mb-1">
+                        <i class="fas fa-times-circle text-danger me-1"></i> Telefone não preenchido
+                    </div>
+                    <div v-if="!userAddressComplete" class="mb-1">
+                        <i class="fas fa-times-circle text-danger me-1"></i> Endereço incompleto
+                    </div>
+                </div>
+                
+                <div class="mt-3">
+                    <a href="/profile" target="_blank" class="btn btn-sm btn-warning">
+                        <i class="fas fa-edit me-1"></i> Atualizar Perfil
+                    </a>
+                </div>
+                
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
             <!-- Order Summary -->
             <div class="row mb-4">
                 <div class="col-md-6">
@@ -377,6 +403,9 @@ export default {
         // 🔐 Inicializar SDK Mercado Pago V2 para Device ID
         this.initializeMercadoPagoSDK();
         
+        // 👤 Carregar dados do usuário do localStorage ou API
+        this.loadUserData();
+        
         // Iniciar timer para atualizar contagem regressiva a cada segundo
         this.timerInterval = setInterval(() => {
             this.timerCounter++;
@@ -404,6 +433,29 @@ export default {
         },
         tax() {
             return (0).toFixed(2);
+        },
+        // 🔍 Verificar se CPF está preenchido
+        userCPF() {
+            return window.currentUser && window.currentUser.document;
+        },
+        // 🔍 Verificar se Telefone está preenchido
+        userPhone() {
+            return window.currentUser && window.currentUser.phone;
+        },
+        // 🔍 Verificar se Endereço está completo
+        userAddressComplete() {
+            if (!window.currentUser) return false;
+            const user = window.currentUser;
+            return user.address_zip_code && 
+                   user.address_street && 
+                   user.address_number && 
+                   user.address_neighborhood && 
+                   user.address_city && 
+                   user.address_state;
+        },
+        // 🔍 Verificar se todos os dados estão completos
+        userDataComplete() {
+            return this.userCPF && this.userPhone && this.userAddressComplete;
         }
     },
 
@@ -1023,6 +1075,34 @@ export default {
                 console.error('Exceção ao gerar token:', error);
                 this.errorMessage = 'Erro ao processar cartão: ' + error.message;
                 return null;
+            }
+        },
+
+        // 👤 Carregar dados do usuário
+        loadUserData() {
+            try {
+                // Tentar obter dados do localStorage primeiro
+                const storedUser = localStorage.getItem('currentUser');
+                if (storedUser) {
+                    window.currentUser = JSON.parse(storedUser);
+                    console.log('✅ Dados do usuário carregados do localStorage');
+                    return;
+                }
+
+                // Se não estiver no localStorage, tentar da API
+                axios.get('/api/user')
+                    .then(response => {
+                        if (response.data && response.data.data) {
+                            window.currentUser = response.data.data;
+                            localStorage.setItem('currentUser', JSON.stringify(window.currentUser));
+                            console.log('✅ Dados do usuário carregados da API');
+                        }
+                    })
+                    .catch(error => {
+                        console.warn('⚠️ Erro ao carregar dados do usuário:', error);
+                    });
+            } catch (error) {
+                console.error('❌ Erro ao processar dados do usuário:', error);
             }
         }
 

@@ -63,6 +63,7 @@ const _sfc_main = {
   mounted() {
     this.loadPaymentMethods();
     this.initializeMercadoPagoSDK();
+    this.loadUserData();
     this.timerInterval = setInterval(() => {
       this.timerCounter++;
     }, 1e3);
@@ -85,6 +86,24 @@ const _sfc_main = {
     },
     tax() {
       return 0 .toFixed(2);
+    },
+    // 🔍 Verificar se CPF está preenchido
+    userCPF() {
+      return window.currentUser && window.currentUser.document;
+    },
+    // 🔍 Verificar se Telefone está preenchido
+    userPhone() {
+      return window.currentUser && window.currentUser.phone;
+    },
+    // 🔍 Verificar se Endereço está completo
+    userAddressComplete() {
+      if (!window.currentUser) return false;
+      const user = window.currentUser;
+      return user.address_zip_code && user.address_street && user.address_number && user.address_neighborhood && user.address_city && user.address_state;
+    },
+    // 🔍 Verificar se todos os dados estão completos
+    userDataComplete() {
+      return this.userCPF && this.userPhone && this.userAddressComplete;
     }
   },
   watch: {
@@ -533,12 +552,34 @@ const _sfc_main = {
         this.errorMessage = "Erro ao processar cartão: " + error.message;
         return null;
       }
+    },
+    // 👤 Carregar dados do usuário
+    loadUserData() {
+      try {
+        const storedUser = localStorage.getItem("currentUser");
+        if (storedUser) {
+          window.currentUser = JSON.parse(storedUser);
+          console.log("✅ Dados do usuário carregados do localStorage");
+          return;
+        }
+        axios.get("/api/user").then((response) => {
+          if (response.data && response.data.data) {
+            window.currentUser = response.data.data;
+            localStorage.setItem("currentUser", JSON.stringify(window.currentUser));
+            console.log("✅ Dados do usuário carregados da API");
+          }
+        }).catch((error) => {
+          console.warn("⚠️ Erro ao carregar dados do usuário:", error);
+        });
+      } catch (error) {
+        console.error("❌ Erro ao processar dados do usuário:", error);
+      }
     }
   }
 };
 var _sfc_render = function render() {
   var _vm = this, _c = _vm._self._c;
-  return _c("div", { staticClass: "mercadopago-checkout-container mt-4 p-4 border rounded bg-light" }, [_vm.paymentConfirmed ? _c("div", { staticClass: "text-center py-5" }, [_vm._m(0), _c("h3", { staticClass: "text-success mb-3" }, [_vm._v(" ✅ Pagamento Recebido e Confirmado! ")]), _c("p", { staticClass: "text-muted mb-4" }, [_vm._v(" Seu pagamento foi processado com sucesso. Você será redirecionado para a página de minhas reservas em breve. ")]), _vm._m(1), _vm._m(2)]) : [_c("div", { staticClass: "mb-4" }, [_c("h5", { staticClass: "mb-3" }, [_c("i", { staticClass: "fas fa-credit-card me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.payment_details") || "Detalhes do Pagamento") + " ")]), _c("hr")]), _c("div", { staticClass: "row mb-4" }, [_c("div", { staticClass: "col-md-6" }, [_c("div", { staticClass: "card" }, [_c("div", { staticClass: "card-body" }, [_c("h6", { staticClass: "card-title mb-3" }, [_vm._v(_vm._s(_vm.trans("em.order_summary") || "Resumo do Pedido"))]), _c("div", { staticClass: "d-flex justify-content-between mb-2" }, [_c("span", [_vm._v(_vm._s(_vm.trans("em.subtotal") || "Subtotal") + ":")]), _c("strong", [_vm._v(_vm._s(_vm.subtotal) + " " + _vm._s(_vm.currency))])]), _c("div", { staticClass: "d-flex justify-content-between mb-2" }, [_c("span", [_vm._v(_vm._s(_vm.trans("em.tax") || "Taxa") + ":")]), _c("strong", [_vm._v(_vm._s(_vm.tax) + " " + _vm._s(_vm.currency))])]), _c("hr"), _c("div", { staticClass: "d-flex justify-content-between" }, [_c("span", { staticClass: "h6" }, [_vm._v(_vm._s(_vm.trans("em.total") || "Total") + ":")]), _c("strong", { staticClass: "h6" }, [_vm._v(_vm._s(_vm.total) + " " + _vm._s(_vm.currency))])])])])]), _c("div", { staticClass: "col-md-6" }, [_c("div", { staticClass: "card" }, [_c("div", { staticClass: "card-body" }, [_c("h6", { staticClass: "card-title mb-3" }, [_vm._v(_vm._s(_vm.trans("em.payment_method") || "Método de Pagamento"))]), _vm.loadedMethods.credit_card ? _c("div", { staticClass: "form-check mb-3" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.selectedMethod, expression: "selectedMethod" }], staticClass: "form-check-input", attrs: { "type": "radio", "id": "method_credit_card", "value": "credit_card" }, domProps: { "checked": _vm._q(_vm.selectedMethod, "credit_card") }, on: { "change": function($event) {
+  return _c("div", { staticClass: "mercadopago-checkout-container mt-4 p-4 border rounded bg-light" }, [_vm.paymentConfirmed ? _c("div", { staticClass: "text-center py-5" }, [_vm._m(0), _c("h3", { staticClass: "text-success mb-3" }, [_vm._v(" ✅ Pagamento Recebido e Confirmado! ")]), _c("p", { staticClass: "text-muted mb-4" }, [_vm._v(" Seu pagamento foi processado com sucesso. Você será redirecionado para a página de minhas reservas em breve. ")]), _vm._m(1), _vm._m(2)]) : [_c("div", { staticClass: "mb-4" }, [_c("h5", { staticClass: "mb-3" }, [_c("i", { staticClass: "fas fa-credit-card me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.payment_details") || "Detalhes do Pagamento") + " ")]), _c("hr")]), !_vm.userDataComplete ? _c("div", { staticClass: "alert alert-warning alert-dismissible fade show mb-4", attrs: { "role": "alert" } }, [_c("i", { staticClass: "fas fa-exclamation-triangle me-2" }), _c("strong", [_vm._v("Atenção!")]), _vm._v(" Para garantir a aprovação do seu pagamento, é importante que seus dados estejam completos. "), _c("div", { staticClass: "mt-2 small" }, [!_vm.userCPF ? _c("div", { staticClass: "mb-1" }, [_c("i", { staticClass: "fas fa-times-circle text-danger me-1" }), _vm._v(" CPF/CNPJ não preenchido ")]) : _vm._e(), !_vm.userPhone ? _c("div", { staticClass: "mb-1" }, [_c("i", { staticClass: "fas fa-times-circle text-danger me-1" }), _vm._v(" Telefone não preenchido ")]) : _vm._e(), !_vm.userAddressComplete ? _c("div", { staticClass: "mb-1" }, [_c("i", { staticClass: "fas fa-times-circle text-danger me-1" }), _vm._v(" Endereço incompleto ")]) : _vm._e()]), _vm._m(3), _c("button", { staticClass: "btn-close", attrs: { "type": "button", "data-bs-dismiss": "alert", "aria-label": "Close" } })]) : _vm._e(), _c("div", { staticClass: "row mb-4" }, [_c("div", { staticClass: "col-md-6" }, [_c("div", { staticClass: "card" }, [_c("div", { staticClass: "card-body" }, [_c("h6", { staticClass: "card-title mb-3" }, [_vm._v(_vm._s(_vm.trans("em.order_summary") || "Resumo do Pedido"))]), _c("div", { staticClass: "d-flex justify-content-between mb-2" }, [_c("span", [_vm._v(_vm._s(_vm.trans("em.subtotal") || "Subtotal") + ":")]), _c("strong", [_vm._v(_vm._s(_vm.subtotal) + " " + _vm._s(_vm.currency))])]), _c("div", { staticClass: "d-flex justify-content-between mb-2" }, [_c("span", [_vm._v(_vm._s(_vm.trans("em.tax") || "Taxa") + ":")]), _c("strong", [_vm._v(_vm._s(_vm.tax) + " " + _vm._s(_vm.currency))])]), _c("hr"), _c("div", { staticClass: "d-flex justify-content-between" }, [_c("span", { staticClass: "h6" }, [_vm._v(_vm._s(_vm.trans("em.total") || "Total") + ":")]), _c("strong", { staticClass: "h6" }, [_vm._v(_vm._s(_vm.total) + " " + _vm._s(_vm.currency))])])])])]), _c("div", { staticClass: "col-md-6" }, [_c("div", { staticClass: "card" }, [_c("div", { staticClass: "card-body" }, [_c("h6", { staticClass: "card-title mb-3" }, [_vm._v(_vm._s(_vm.trans("em.payment_method") || "Método de Pagamento"))]), _vm.loadedMethods.credit_card ? _c("div", { staticClass: "form-check mb-3" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.selectedMethod, expression: "selectedMethod" }], staticClass: "form-check-input", attrs: { "type": "radio", "id": "method_credit_card", "value": "credit_card" }, domProps: { "checked": _vm._q(_vm.selectedMethod, "credit_card") }, on: { "change": function($event) {
     _vm.selectedMethod = "credit_card";
   } } }), _c("label", { staticClass: "form-check-label", attrs: { "for": "method_credit_card" } }, [_c("i", { staticClass: "fas fa-credit-card me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.credit_card") || "Cartão de Crédito") + " ")])]) : _vm._e(), _vm.loadedMethods.debit_card ? _c("div", { staticClass: "form-check mb-3" }, [_c("input", { directives: [{ name: "model", rawName: "v-model", value: _vm.selectedMethod, expression: "selectedMethod" }], staticClass: "form-check-input", attrs: { "type": "radio", "id": "method_debit_card", "value": "debit_card" }, domProps: { "checked": _vm._q(_vm.selectedMethod, "debit_card") }, on: { "change": function($event) {
     _vm.selectedMethod = "debit_card";
@@ -570,7 +611,7 @@ var _sfc_render = function render() {
     _vm.$set(_vm.cardData, "installments", $event.target.multiple ? $$selectedVal : $$selectedVal[0]);
   } } }, _vm._l(_vm.installmentOptions, function(option) {
     return _c("option", { key: option.value, domProps: { "value": option.value } }, [_vm._v(" " + _vm._s(option.label) + " ")]);
-  }), 0)]) : _vm._e()])])])]) : _vm._e(), _vm.isWaitingPayment && ["credit_card", "debit_card"].includes(_vm.selectedMethod) ? _c("div", { staticClass: "row mb-4" }, [_c("div", { staticClass: "col-12" }, [_c("div", { staticClass: "card border-info" }, [_c("div", { staticClass: "card-body text-center" }, [_c("h6", { staticClass: "card-title mb-4" }, [_c("i", { staticClass: "fas fa-credit-card me-2 text-info" }), _vm._v(" " + _vm._s(_vm.selectedMethod === "credit_card" ? _vm.trans("em.credit_card") || "Cartão de Crédito" : _vm.trans("em.debit_card") || "Cartão de Débito") + " ")]), _vm._m(3), _c("div", { staticClass: "alert alert-info" }, [_c("i", { staticClass: "fas fa-hourglass-half me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.processing_payment") || "Processando seu pagamento...") + " ")]), _c("p", { staticClass: "text-muted mb-3" }, [_vm._v(" " + _vm._s(_vm.trans("em.payment_processing_info") || "Seu pagamento está sendo processado. Isso pode levar alguns segundos.") + " ")]), _c("div", { staticClass: "alert alert-warning" }, [_c("i", { staticClass: "fas fa-info-circle me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.waiting_payment_confirmation") || "Aguardando confirmação do pagamento...") + " ")])])])])]) : _vm._e(), _vm.isWaitingPayment && _vm.selectedMethod === "pix" ? _c("div", { staticClass: "row mb-4" }, [_c("div", { staticClass: "col-12" }, [_c("div", { staticClass: "card border-success" }, [_c("div", { staticClass: "card-body text-center" }, [_c("h6", { staticClass: "card-title mb-4" }, [_c("i", { staticClass: "fas fa-mobile-alt me-2 text-success" }), _vm._v(" " + _vm._s(_vm.trans("em.waiting_pix_payment") || "Aguardando Pagamento PIX") + " ")]), _vm.pixQrCode ? _c("div", { staticClass: "mb-4" }, [_c("img", { staticClass: "img-fluid", staticStyle: { "max-width": "300px" }, attrs: { "src": _vm.pixQrCode, "alt": "PIX QR Code" } })]) : _vm._e(), _vm.pixData ? _c("div", { staticClass: "mb-4" }, [_c("p", { staticClass: "text-muted mb-2" }, [_vm._v(_vm._s(_vm.trans("em.or_copy_code") || "Ou copie o código:"))]), _c("div", { staticClass: "input-group" }, [_c("input", { staticClass: "form-control", attrs: { "type": "text", "readonly": "", "id": "pixCode" }, domProps: { "value": _vm.pixData } }), _c("button", { staticClass: "btn btn-outline-primary", attrs: { "type": "button" }, on: { "click": _vm.copyToClipboard } }, [_c("i", { staticClass: "fas fa-copy me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.copy") || "Copiar") + " ")])])]) : _vm._e(), _vm.pixExpiration ? _c("div", { staticClass: "alert alert-info" }, [_c("i", { staticClass: "fas fa-clock me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.pix_expires_in") || "PIX expira em") + ": "), _c("strong", { key: _vm.timerTrigger }, [_vm._v(_vm._s(_vm.formatTimeRemaining(_vm.pixExpiration)))])]) : _vm._e(), _c("div", { staticClass: "alert alert-warning" }, [_c("i", { staticClass: "fas fa-hourglass-half me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.waiting_payment_confirmation") || "Aguardando confirmação do pagamento...") + " ")])])])])]) : _vm._e(), _vm.errorMessage ? _c("div", { staticClass: "alert alert-danger alert-dismissible fade show", attrs: { "role": "alert" } }, [_c("i", { staticClass: "fas fa-exclamation-circle me-2" }), _vm._v(" " + _vm._s(_vm.errorMessage) + " "), _c("button", { staticClass: "btn-close", attrs: { "type": "button", "aria-label": "Close" }, on: { "click": function($event) {
+  }), 0)]) : _vm._e()])])])]) : _vm._e(), _vm.isWaitingPayment && ["credit_card", "debit_card"].includes(_vm.selectedMethod) ? _c("div", { staticClass: "row mb-4" }, [_c("div", { staticClass: "col-12" }, [_c("div", { staticClass: "card border-info" }, [_c("div", { staticClass: "card-body text-center" }, [_c("h6", { staticClass: "card-title mb-4" }, [_c("i", { staticClass: "fas fa-credit-card me-2 text-info" }), _vm._v(" " + _vm._s(_vm.selectedMethod === "credit_card" ? _vm.trans("em.credit_card") || "Cartão de Crédito" : _vm.trans("em.debit_card") || "Cartão de Débito") + " ")]), _vm._m(4), _c("div", { staticClass: "alert alert-info" }, [_c("i", { staticClass: "fas fa-hourglass-half me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.processing_payment") || "Processando seu pagamento...") + " ")]), _c("p", { staticClass: "text-muted mb-3" }, [_vm._v(" " + _vm._s(_vm.trans("em.payment_processing_info") || "Seu pagamento está sendo processado. Isso pode levar alguns segundos.") + " ")]), _c("div", { staticClass: "alert alert-warning" }, [_c("i", { staticClass: "fas fa-info-circle me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.waiting_payment_confirmation") || "Aguardando confirmação do pagamento...") + " ")])])])])]) : _vm._e(), _vm.isWaitingPayment && _vm.selectedMethod === "pix" ? _c("div", { staticClass: "row mb-4" }, [_c("div", { staticClass: "col-12" }, [_c("div", { staticClass: "card border-success" }, [_c("div", { staticClass: "card-body text-center" }, [_c("h6", { staticClass: "card-title mb-4" }, [_c("i", { staticClass: "fas fa-mobile-alt me-2 text-success" }), _vm._v(" " + _vm._s(_vm.trans("em.waiting_pix_payment") || "Aguardando Pagamento PIX") + " ")]), _vm.pixQrCode ? _c("div", { staticClass: "mb-4" }, [_c("img", { staticClass: "img-fluid", staticStyle: { "max-width": "300px" }, attrs: { "src": _vm.pixQrCode, "alt": "PIX QR Code" } })]) : _vm._e(), _vm.pixData ? _c("div", { staticClass: "mb-4" }, [_c("p", { staticClass: "text-muted mb-2" }, [_vm._v(_vm._s(_vm.trans("em.or_copy_code") || "Ou copie o código:"))]), _c("div", { staticClass: "input-group" }, [_c("input", { staticClass: "form-control", attrs: { "type": "text", "readonly": "", "id": "pixCode" }, domProps: { "value": _vm.pixData } }), _c("button", { staticClass: "btn btn-outline-primary", attrs: { "type": "button" }, on: { "click": _vm.copyToClipboard } }, [_c("i", { staticClass: "fas fa-copy me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.copy") || "Copiar") + " ")])])]) : _vm._e(), _vm.pixExpiration ? _c("div", { staticClass: "alert alert-info" }, [_c("i", { staticClass: "fas fa-clock me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.pix_expires_in") || "PIX expira em") + ": "), _c("strong", { key: _vm.timerTrigger }, [_vm._v(_vm._s(_vm.formatTimeRemaining(_vm.pixExpiration)))])]) : _vm._e(), _c("div", { staticClass: "alert alert-warning" }, [_c("i", { staticClass: "fas fa-hourglass-half me-2" }), _vm._v(" " + _vm._s(_vm.trans("em.waiting_payment_confirmation") || "Aguardando confirmação do pagamento...") + " ")])])])])]) : _vm._e(), _vm.errorMessage ? _c("div", { staticClass: "alert alert-danger alert-dismissible fade show", attrs: { "role": "alert" } }, [_c("i", { staticClass: "fas fa-exclamation-circle me-2" }), _vm._v(" " + _vm._s(_vm.errorMessage) + " "), _c("button", { staticClass: "btn-close", attrs: { "type": "button", "aria-label": "Close" }, on: { "click": function($event) {
     _vm.errorMessage = "";
   } } })]) : _vm._e(), _vm.successMessage ? _c("div", { staticClass: "alert alert-success alert-dismissible fade show", attrs: { "role": "alert" } }, [_c("i", { staticClass: "fas fa-check-circle me-2" }), _vm._v(" " + _vm._s(_vm.successMessage) + " "), _c("button", { staticClass: "btn-close", attrs: { "type": "button", "aria-label": "Close" }, on: { "click": function($event) {
     _vm.successMessage = "";
@@ -587,6 +628,9 @@ var _sfc_staticRenderFns = [function() {
   return _c("div", { staticClass: "spinner-border text-success mt-3", attrs: { "role": "status" } }, [_c("span", { staticClass: "visually-hidden" }, [_vm._v("Carregando...")])]);
 }, function() {
   var _vm = this, _c = _vm._self._c;
+  return _c("div", { staticClass: "mt-3" }, [_c("a", { staticClass: "btn btn-sm btn-warning", attrs: { "href": "/profile", "target": "_blank" } }, [_c("i", { staticClass: "fas fa-edit me-1" }), _vm._v(" Atualizar Perfil ")])]);
+}, function() {
+  var _vm = this, _c = _vm._self._c;
   return _c("div", { staticClass: "mb-4" }, [_c("div", { staticClass: "spinner-border text-info", attrs: { "role": "status" } }, [_c("span", { staticClass: "visually-hidden" }, [_vm._v("Processando...")])])]);
 }];
 var __component__ = /* @__PURE__ */ normalizeComponent(
@@ -595,10 +639,10 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "141d506e"
+  "0c9297e2"
 );
 const MercadoPagoCheckout = __component__.exports;
 export {
   MercadoPagoCheckout as default
 };
-//# sourceMappingURL=MercadoPagoCheckout-CE0akarj.js.map
+//# sourceMappingURL=MercadoPagoCheckout-BlxqGex9.js.map
