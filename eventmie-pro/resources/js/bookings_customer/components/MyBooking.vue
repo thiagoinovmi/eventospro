@@ -88,6 +88,13 @@ export default {
     
     mounted() {
         this.getMyBookings();
+        
+        // Debug: verificar se modal existe após montagem
+        this.$nextTick(() => {
+            const modalElement = document.getElementById('retryPaymentModal');
+            console.log('🔍 Modal no mounted:', modalElement);
+            console.log('🔍 Todos os modais:', document.querySelectorAll('.modal'));
+        });
     },
     
     methods: {
