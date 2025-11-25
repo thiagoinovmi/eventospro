@@ -262,9 +262,8 @@
             </div>
         </div>
         </div>
-    </div>
-
-    <!-- Modal de Retry de Pagamento -->
+        
+        <!-- Modal de Retry de Pagamento -->
     <div class="modal fade" id="retryPaymentModal" tabindex="-1" aria-labelledby="retryPaymentModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl" style="max-height: 90vh;">
             <div class="modal-content">
@@ -373,8 +372,6 @@
                 </div>
             </div>
         </div>
-    </div>
-    
     </div> <!-- Fechamento do div principal -->
 </template>
 
@@ -825,7 +822,7 @@ export default {
         }, 1000);
     },
 
-    beforeUnmount() {
+    beforeDestroy() {
         // Limpar timer ao desmontar o componente
         if (this.timerInterval) {
             clearInterval(this.timerInterval);
