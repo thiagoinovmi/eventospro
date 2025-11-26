@@ -369,9 +369,7 @@ class MercadoPagoService
         }
 
         // 🎯 OPTIMIZATION 1: Items (+14 points)
-        // TODO: SDK do Mercado Pago não aceita 'items' no formato esperado
-        // Será implementado após validação da documentação oficial
-        /*
+        // ✅ ATIVADO: Adiciona descrição detalhada do produto para melhor análise de fraude
         if (!empty($paymentData['event']) && !empty($paymentData['ticket'])) {
             $event = $paymentData['event'];
             $ticket = $paymentData['ticket'];
@@ -384,25 +382,27 @@ class MercadoPagoService
                     'category_id' => 'event_ticket',
                     'quantity' => (int)($paymentData['quantity'] ?? 1),
                     'unit_price' => (float)$ticket->price,
-                    'picture_url' => $event->poster ? url('storage/' . $event->poster) : null,
-                    'warranty' => 'Garantia do evento'
+                    'picture_url' => $event->poster ? url('storage/' . $event->poster) : null
                 ]
             ];
 
-            \Log::info('📋 Items adicionados:', $payload['items']);
+            \Log::info('📋 Items adicionados (+14 pontos):', [
+                'ticket_id' => $ticket->id,
+                'title' => $ticket->title,
+                'quantity' => $paymentData['quantity'] ?? 1,
+                'unit_price' => $ticket->price
+            ]);
         }
-        */
 
         // 🎯 OPTIMIZATION 2: Additional Info (+15 points)
-        // TODO: Validar formato correto do SDK para additional_info
-        /*
+        // ✅ ATIVADO: Adiciona dados de telefone e endereço para melhor análise de fraude
         if (!empty($paymentData['user'])) {
             $user = $paymentData['user'];
             
             $payload['additional_info'] = [
                 'payer' => [
-                    'first_name' => $payload['payer']['first_name'],
-                    'last_name' => $payload['payer']['last_name']
+                    'first_name' => $payload['payer']['first_name'] ?? 'Cliente',
+                    'last_name' => $payload['payer']['last_name'] ?? 'Silva'
                 ]
             ];
 
@@ -417,6 +417,11 @@ class MercadoPagoService
                         'area_code' => $areaCode,
                         'number' => $number
                     ];
+                    
+                    \Log::info('📱 Telefone adicionado:', [
+                        'area_code' => $areaCode,
+                        'number_length' => strlen($number)
+                    ]);
                 }
             }
 
@@ -432,11 +437,18 @@ class MercadoPagoService
                 $payload['additional_info']['shipments'] = [
                     'receiver_address' => $payload['additional_info']['payer']['address']
                 ];
+                
+                \Log::info('📍 Endereço adicionado (+15 pontos):', [
+                    'zip_code' => $user->zip_code,
+                    'street_name' => $user->street_name,
+                    'street_number' => $user->street_number
+                ]);
+            } else {
+                \Log::warning('⚠️ Endereço não preenchido para usuário:', ['user_id' => $user->id]);
             }
 
             \Log::info('📍 Additional info adicionado:', $payload['additional_info']);
         }
-        */
 
         // 🎯 OPTIMIZATION 3: Device ID (+10 points)
         if (!empty($paymentData['device_id'])) {
