@@ -631,47 +631,59 @@ export default {
                 console.log('Débito selecionado - payment_method_id não será enviado');
             }
         },
-        
         detectCardBrand(cardNumber) {
             // Remove non-digits
             const cleanNumber = cardNumber.replace(/\D/g, '');
             
+            console.log('🔍 detectCardBrand() chamado');
+            console.log('   Número original:', cardNumber);
+            console.log('   Número limpo:', cleanNumber);
+            console.log('   Primeiros 6 dígitos:', cleanNumber.substring(0, 6));
+            
             if (!cleanNumber) {
                 this.cardData.paymentMethodId = 'credit_card';
+                console.log('   ❌ Número vazio, definindo como credit_card');
                 return;
             }
             
             // Visa: starts with 4
             if (/^4/.test(cleanNumber)) {
                 this.cardData.paymentMethodId = 'visa';
+                console.log('   ✅ VISA detectado');
             }
             // Mastercard: starts with 51-55
             else if (/^5[1-5]/.test(cleanNumber)) {
-                this.cardData.paymentMethodId = 'mastercard';  // ✅ CORRIGIDO: 'master' → 'mastercard'
+                this.cardData.paymentMethodId = 'mastercard';
+                console.log('   ✅ MASTERCARD detectado');
             }
             // American Express: starts with 34 or 37
             else if (/^3[47]/.test(cleanNumber)) {
                 this.cardData.paymentMethodId = 'amex';
+                console.log('   ✅ AMEX detectado');
             }
             // Elo: starts with 6363, 6364, 6365, 6366, 6367, 6368, 6369
             else if (/^636[3-9]/.test(cleanNumber)) {
                 this.cardData.paymentMethodId = 'elo';
+                console.log('   ✅ ELO detectado');
             }
             // Diners: starts with 36, 38, 39
             else if (/^3[689]/.test(cleanNumber)) {
                 this.cardData.paymentMethodId = 'diners';
+                console.log('   ✅ DINERS detectado');
             }
             // Discover: starts with 6011 or 65
             else if (/^6(?:011|5)/.test(cleanNumber)) {
                 this.cardData.paymentMethodId = 'discover';
+                console.log('   ✅ DISCOVER detectado');
             }
             else {
                 this.cardData.paymentMethodId = 'credit_card';
+                console.log('   ❌ Nenhuma marca detectada, usando credit_card');
             }
             
-            console.log('Card brand detected:', this.cardData.paymentMethodId);
+            console.log('   📌 paymentMethodId agora é:', this.cardData.paymentMethodId);
         },
-
+        
         formatCardExpiry() {
             let value = this.cardData.expiry.replace(/\D/g, '');
             if (value.length >= 2) {
@@ -787,18 +799,22 @@ export default {
                     // Para débito, NÃO enviar payment_method_id (backend usa "debit_card")
                     if (this.selectedMethod === 'credit_card') {
                         paymentData.payment_method_id = this.cardData.paymentMethodId; // Send detected card brand for credit
+                        console.log('💳 CRÉDITO: Enviando payment_method_id:', this.cardData.paymentMethodId);
                     }
                     // Para débito, não enviar payment_method_id - backend usa "debit_card" automaticamente
                     
-                    console.log('Card payment data:', {
+                    console.log('💰 Card payment data:', {
                         card_token: tokenData.id,
                         issuer_id: tokenData.issuer_id,
                         installments: paymentData.installments,
                         payment_method_id: paymentData.payment_method_id,
                         device_id: paymentData.device_id,
                         selected_method: this.selectedMethod,
+                        cardData_paymentMethodId: this.cardData.paymentMethodId,
                         note: this.selectedMethod === 'debit_card' ? 'Débito - payment_method_id não enviado' : 'Crédito - payment_method_id enviado'
                     });
+                    
+                    console.log('📤 PAYLOAD FINAL SENDO ENVIADO:', JSON.stringify(paymentData, null, 2));
                 }
 
                 const apiUrl = '/bookings/api/mercadopago/process';
