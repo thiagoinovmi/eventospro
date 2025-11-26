@@ -369,85 +369,60 @@ class MercadoPagoService
         }
 
         // 🎯 OPTIMIZATION 1: Items (+14 points)
-        // ✅ ATIVADO: Adiciona descrição detalhada do produto para melhor análise de fraude
+        // ⚠️ NOTA: SDK do Mercado Pago v2 não aceita 'items' diretamente
+        // A descrição já está no campo 'description' do payload base
+        // Informações do ingresso estão em 'external_reference' e 'description'
         if (!empty($paymentData['event']) && !empty($paymentData['ticket'])) {
             $event = $paymentData['event'];
             $ticket = $paymentData['ticket'];
             
-            $payload['items'] = [
-                [
-                    'id' => (string)$ticket->id,
-                    'title' => $ticket->title ?? 'Ingresso',
-                    'description' => 'Ingresso para ' . ($event->title ?? 'evento'),
-                    'category_id' => 'event_ticket',
-                    'quantity' => (int)($paymentData['quantity'] ?? 1),
-                    'unit_price' => (float)$ticket->price,
-                    'picture_url' => $event->poster ? url('storage/' . $event->poster) : null
-                ]
-            ];
+            // Melhorar a descrição com informações do ingresso
+            $payload['description'] = 'Ingresso: ' . ($ticket->title ?? 'Ingresso') . 
+                                     ' | Evento: ' . ($event->title ?? 'evento') .
+                                     ' | Qtd: ' . (int)($paymentData['quantity'] ?? 1);
 
-            \Log::info('📋 Items adicionados (+14 pontos):', [
+            \Log::info('📋 Descrição melhorada com dados do ingresso:', [
                 'ticket_id' => $ticket->id,
                 'title' => $ticket->title,
                 'quantity' => $paymentData['quantity'] ?? 1,
-                'unit_price' => $ticket->price
+                'unit_price' => $ticket->price,
+                'description' => $payload['description']
             ]);
         }
 
         // 🎯 OPTIMIZATION 2: Additional Info (+15 points)
-        // ✅ ATIVADO: Adiciona dados de telefone e endereço para melhor análise de fraude
+        // ⚠️ NOTA: SDK do Mercado Pago v2 não aceita 'additional_info' diretamente
+        // Os dados de telefone e endereço já estão no objeto 'payer' do payload
+        // Validar que telefone e endereço estão preenchidos para melhor análise de fraude
         if (!empty($paymentData['user'])) {
             $user = $paymentData['user'];
             
-            $payload['additional_info'] = [
-                'payer' => [
-                    'first_name' => $payload['payer']['first_name'] ?? 'Cliente',
-                    'last_name' => $payload['payer']['last_name'] ?? 'Silva'
-                ]
-            ];
-
-            // Add phone if available
-            if (!empty($user->phone)) {
-                $phone = preg_replace('/\D/', '', $user->phone);
-                if (strlen($phone) >= 10) {
-                    $areaCode = substr($phone, 0, 2);
-                    $number = substr($phone, 2);
-                    
-                    $payload['additional_info']['payer']['phone'] = [
-                        'area_code' => $areaCode,
-                        'number' => $number
-                    ];
-                    
-                    \Log::info('📱 Telefone adicionado:', [
-                        'area_code' => $areaCode,
-                        'number_length' => strlen($number)
-                    ]);
-                }
+            // Validar dados de segurança
+            $hasPhone = !empty($user->phone);
+            $hasAddress = !empty($user->zip_code) && !empty($user->street_name) && !empty($user->street_number);
+            
+            if ($hasPhone) {
+                \Log::info('✅ Telefone preenchido:', [
+                    'phone_length' => strlen(preg_replace('/\D/', '', $user->phone ?? ''))
+                ]);
+            } else {
+                \Log::warning('⚠️ Telefone não preenchido para usuário:', ['user_id' => $user->id]);
             }
-
-            // Add address if available
-            if (!empty($user->zip_code)) {
-                $payload['additional_info']['payer']['address'] = [
-                    'zip_code' => $user->zip_code,
-                    'street_name' => $user->street_name ?? 'Rua Principal',
-                    'street_number' => (int)($user->street_number ?? 1)
-                ];
-
-                // Add shipments (same as payer address for events)
-                $payload['additional_info']['shipments'] = [
-                    'receiver_address' => $payload['additional_info']['payer']['address']
-                ];
-                
-                \Log::info('📍 Endereço adicionado (+15 pontos):', [
+            
+            if ($hasAddress) {
+                \Log::info('✅ Endereço completo preenchido:', [
                     'zip_code' => $user->zip_code,
                     'street_name' => $user->street_name,
                     'street_number' => $user->street_number
                 ]);
             } else {
-                \Log::warning('⚠️ Endereço não preenchido para usuário:', ['user_id' => $user->id]);
+                \Log::warning('⚠️ Endereço incompleto para usuário:', [
+                    'user_id' => $user->id,
+                    'has_zip_code' => !empty($user->zip_code),
+                    'has_street_name' => !empty($user->street_name),
+                    'has_street_number' => !empty($user->street_number)
+                ]);
             }
-
-            \Log::info('📍 Additional info adicionado:', $payload['additional_info']);
         }
 
         // 🎯 OPTIMIZATION 3: Device ID (+10 points)
