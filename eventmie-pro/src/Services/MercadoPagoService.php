@@ -332,8 +332,18 @@ class MercadoPagoService
         ];
 
         // Add payer information
+        $payerEmail = $paymentData['payer_email'] ?? 
+                     ($paymentData['user']->email ?? null) ?? 
+                     'user@example.com';
+        
+        \Log::info('📧 Email do pagador:', [
+            'payer_email_param' => $paymentData['payer_email'] ?? 'null',
+            'user_email' => $paymentData['user']->email ?? 'null',
+            'final_email' => $payerEmail
+        ]);
+        
         $payload['payer'] = [
-            'email' => $paymentData['payer_email'] ?? $paymentData['user']->email ?? 'user@example.com'
+            'email' => $payerEmail
         ];
 
         // Add identification if available
