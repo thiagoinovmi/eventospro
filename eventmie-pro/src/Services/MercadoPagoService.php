@@ -349,6 +349,9 @@ class MercadoPagoService
         }
 
         // 🎯 OPTIMIZATION 1: Items (+14 points)
+        // TODO: SDK do Mercado Pago não aceita 'items' no formato esperado
+        // Será implementado após validação da documentação oficial
+        /*
         if (!empty($paymentData['event']) && !empty($paymentData['ticket'])) {
             $event = $paymentData['event'];
             $ticket = $paymentData['ticket'];
@@ -368,8 +371,11 @@ class MercadoPagoService
 
             \Log::info('📋 Items adicionados:', $payload['items']);
         }
+        */
 
         // 🎯 OPTIMIZATION 2: Additional Info (+15 points)
+        // TODO: Validar formato correto do SDK para additional_info
+        /*
         if (!empty($paymentData['user'])) {
             $user = $paymentData['user'];
             
@@ -410,6 +416,7 @@ class MercadoPagoService
 
             \Log::info('📍 Additional info adicionado:', $payload['additional_info']);
         }
+        */
 
         // 🎯 OPTIMIZATION 3: Device ID (+10 points)
         if (!empty($paymentData['device_id'])) {
