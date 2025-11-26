@@ -567,7 +567,9 @@ const _sfc_main = {
           console.error("Public key não configurada");
           return null;
         }
-        const mp = new window.MercadoPago(publicKey);
+        const mp = new window.MercadoPago(publicKey, {
+          locale: "pt-BR"
+        });
         const cardNumber = this.cardData.number.replace(/\D/g, "");
         console.log("DEBUG - Card data antes de gerar token:", {
           cardData_number_raw: this.cardData.number,
@@ -577,6 +579,30 @@ const _sfc_main = {
           expiry: this.cardData.expiry,
           cvv: this.cardData.cvv
         });
+        console.log("🔍 Validando cartão com getPaymentMethods...");
+        const paymentMethods = await mp.getPaymentMethods({
+          bin: cardNumber.substring(0, 6)
+        });
+        console.log("📊 Payment Methods retornado:", paymentMethods);
+        if (!paymentMethods || !paymentMethods.results || paymentMethods.results.length === 0) {
+          console.error("❌ Cartão não reconhecido pelo Mercado Pago");
+          this.errorMessage = "Cartão de crédito inválido ou não suportado";
+          return null;
+        }
+        const paymentMethod = paymentMethods.results[0];
+        console.log("✅ Cartão validado:", {
+          id: paymentMethod.id,
+          name: paymentMethod.name,
+          bin: cardNumber.substring(0, 6)
+        });
+        if (this.cardData.paymentMethodId !== paymentMethod.id) {
+          console.warn("⚠️ AVISO: payment_method_id detectado não corresponde à API", {
+            detectado: this.cardData.paymentMethodId,
+            api: paymentMethod.id
+          });
+          this.cardData.paymentMethodId = paymentMethod.id;
+          console.log("✅ payment_method_id corrigido para:", paymentMethod.id);
+        }
         const cardData = {
           cardNumber,
           cardholderName: this.cardData.holderName,
@@ -590,23 +616,24 @@ const _sfc_main = {
           cardNumberPreview: cardNumber.substring(0, 6) + "****" + cardNumber.slice(-4),
           cardholderName: cardData.cardholderName,
           cardExpirationMonth: cardData.cardExpirationMonth,
-          cardExpirationYear: cardData.cardExpirationYear
+          cardExpirationYear: cardData.cardExpirationYear,
+          paymentMethodId: this.cardData.paymentMethodId
         });
         const token = await mp.createCardToken(cardData);
         if (token && token.id) {
-          console.log("Token gerado com sucesso:", token.id);
+          console.log("✅ Token gerado com sucesso:", token.id);
           console.log("Issuer ID:", token.issuer_id);
           return {
             id: token.id,
             issuer_id: token.issuer_id
           };
         } else {
-          console.error("Erro ao gerar token:", token);
+          console.error("❌ Erro ao gerar token:", token);
           this.errorMessage = ((_b = (_a = token == null ? void 0 : token.cause) == null ? void 0 : _a[0]) == null ? void 0 : _b.description) || "Erro ao gerar token do cartão";
           return null;
         }
       } catch (error) {
-        console.error("Exceção ao gerar token:", error);
+        console.error("❌ Exceção ao gerar token:", error);
         this.errorMessage = "Erro ao processar cartão: " + error.message;
         return null;
       }
@@ -726,10 +753,10 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "2ddd9b11"
+  "ee1c92b1"
 );
 const MercadoPagoCheckout = __component__.exports;
 export {
   MercadoPagoCheckout as default
 };
-//# sourceMappingURL=MercadoPagoCheckout-0OR-wBrF.js.map
+//# sourceMappingURL=MercadoPagoCheckout-CVP83Aon.js.map

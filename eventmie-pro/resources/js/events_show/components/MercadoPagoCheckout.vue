@@ -1110,7 +1110,9 @@ export default {
                 }
 
                 // Initialize Mercado Pago
-                const mp = new window.MercadoPago(publicKey);
+                const mp = new window.MercadoPago(publicKey, {
+                    locale: 'pt-BR'
+                });
 
                 // Prepare card data - IMPORTANT: cardNumber must be the FULL number without spaces
                 // Remove ALL spaces and non-digit characters
@@ -1124,6 +1126,39 @@ export default {
                     expiry: this.cardData.expiry,
                     cvv: this.cardData.cvv
                 });
+
+                // 🔍 VALIDAÇÃO CONFORME DOCUMENTAÇÃO MERCADO PAGO
+                // Passo 1: Validar o cartão usando getPaymentMethods
+                console.log('🔍 Validando cartão com getPaymentMethods...');
+                const paymentMethods = await mp.getPaymentMethods({
+                    bin: cardNumber.substring(0, 6)
+                });
+
+                console.log('📊 Payment Methods retornado:', paymentMethods);
+
+                if (!paymentMethods || !paymentMethods.results || paymentMethods.results.length === 0) {
+                    console.error('❌ Cartão não reconhecido pelo Mercado Pago');
+                    this.errorMessage = 'Cartão de crédito inválido ou não suportado';
+                    return null;
+                }
+
+                const paymentMethod = paymentMethods.results[0];
+                console.log('✅ Cartão validado:', {
+                    id: paymentMethod.id,
+                    name: paymentMethod.name,
+                    bin: cardNumber.substring(0, 6)
+                });
+
+                // Validar que o payment_method_id detectado corresponde ao retornado pela API
+                if (this.cardData.paymentMethodId !== paymentMethod.id) {
+                    console.warn('⚠️ AVISO: payment_method_id detectado não corresponde à API', {
+                        detectado: this.cardData.paymentMethodId,
+                        api: paymentMethod.id
+                    });
+                    // Usar o valor da API como fonte de verdade
+                    this.cardData.paymentMethodId = paymentMethod.id;
+                    console.log('✅ payment_method_id corrigido para:', paymentMethod.id);
+                }
                 
                 const cardData = {
                     cardNumber: cardNumber,
@@ -1139,14 +1174,15 @@ export default {
                     cardNumberPreview: cardNumber.substring(0, 6) + '****' + cardNumber.slice(-4),
                     cardholderName: cardData.cardholderName,
                     cardExpirationMonth: cardData.cardExpirationMonth,
-                    cardExpirationYear: cardData.cardExpirationYear
+                    cardExpirationYear: cardData.cardExpirationYear,
+                    paymentMethodId: this.cardData.paymentMethodId
                 });
 
                 // Create token
                 const token = await mp.createCardToken(cardData);
 
                 if (token && token.id) {
-                    console.log('Token gerado com sucesso:', token.id);
+                    console.log('✅ Token gerado com sucesso:', token.id);
                     console.log('Issuer ID:', token.issuer_id);
                     
                     // Retornar objeto com token e issuer_id
@@ -1155,13 +1191,13 @@ export default {
                         issuer_id: token.issuer_id
                     };
                 } else {
-                    console.error('Erro ao gerar token:', token);
+                    console.error('❌ Erro ao gerar token:', token);
                     this.errorMessage = token?.cause?.[0]?.description || 'Erro ao gerar token do cartão';
                     return null;
                 }
 
             } catch (error) {
-                console.error('Exceção ao gerar token:', error);
+                console.error('❌ Exceção ao gerar token:', error);
                 this.errorMessage = 'Erro ao processar cartão: ' + error.message;
                 return null;
             }
