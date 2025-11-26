@@ -125,25 +125,28 @@ class MercadoPagoService
         } catch (MPApiException $e) {
             $apiResponse = $e->getApiResponse();
             
+            // Convert object to array if needed
+            $apiResponseArray = is_array($apiResponse) ? $apiResponse : (array)$apiResponse;
+            
             \Log::error('❌ Mercado Pago API Error:', [
                 'message' => $e->getMessage(),
-                'api_response' => $apiResponse,
-                'api_response_full' => json_encode($apiResponse),
-                'api_status' => $apiResponse['status'] ?? null,
-                'api_errors' => $apiResponse['errors'] ?? null,
-                'api_cause' => $apiResponse['cause'] ?? null
+                'api_response' => $apiResponseArray,
+                'api_response_full' => json_encode($apiResponseArray),
+                'api_status' => $apiResponseArray['status'] ?? null,
+                'api_errors' => $apiResponseArray['errors'] ?? null,
+                'api_cause' => $apiResponseArray['cause'] ?? null
             ]);
             
             // Extract detailed error message
             $errorMsg = $e->getMessage();
-            if (isset($apiResponse['errors']) && is_array($apiResponse['errors'])) {
+            if (isset($apiResponseArray['errors']) && is_array($apiResponseArray['errors'])) {
                 $errorMsg = implode(', ', array_map(function($err) {
                     return $err['message'] ?? $err['description'] ?? 'Unknown error';
-                }, $apiResponse['errors']));
-            } elseif (isset($apiResponse['cause']) && is_array($apiResponse['cause'])) {
+                }, $apiResponseArray['errors']));
+            } elseif (isset($apiResponseArray['cause']) && is_array($apiResponseArray['cause'])) {
                 $errorMsg = implode(', ', array_map(function($err) {
                     return $err['description'] ?? 'Unknown error';
-                }, $apiResponse['cause']));
+                }, $apiResponseArray['cause']));
             }
             
             return [
