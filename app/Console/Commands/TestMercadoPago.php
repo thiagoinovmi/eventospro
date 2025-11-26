@@ -45,19 +45,19 @@ class TestMercadoPago extends Command
 
         $paymentClient = new PaymentClient();
 
-        // Test 1: Payload simples com cartão VISA oficial
-        // Cartão: 4111111111111111 | Expiração: 11/30 | CVV: 123
+        // Test 1: Payload simples com cartão MASTERCARD oficial
+        // Cartão: 5031 4332 1540 6351 | Expiração: 11/30 | CVV: 123
         // Este token deve ser gerado no frontend com o SDK do Mercado Pago
         $testPayload = [
             'transaction_amount' => 5.00,
-            'description' => 'Teste de pagamento - VISA',
-            'payment_method_id' => 'visa',
+            'description' => 'Teste de pagamento - MASTERCARD',
+            'payment_method_id' => 'mastercard',
             'payer' => [
                 'email' => 'test@test.com',
                 'first_name' => 'Test',
                 'last_name' => 'User'
             ],
-            'token' => 'INSIRA_TOKEN_GERADO_AQUI', // Será substituído abaixo
+            'token' => 'f140aeff942bef1ff40039516c93ef33', // Token real gerado
             'installments' => 1,
             'capture' => true
         ];
