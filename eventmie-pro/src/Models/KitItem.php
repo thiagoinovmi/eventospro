@@ -9,6 +9,14 @@ class KitItem extends Model
     protected $table = 'kit_items';
     protected $guarded = [];
 
+    protected $fillable = [
+        'kit_id',
+        'name',
+        'description',
+        'image',
+        'order',
+    ];
+
     /**
      * Get the kit that owns this item.
      */
@@ -22,6 +30,10 @@ class KitItem extends Model
      */
     public function getImageAttribute($value)
     {
+        if (empty($value)) {
+            return null;
+        }
+
         if (checkPrefix()) {
             return asset('storage/' . $value);
         }
