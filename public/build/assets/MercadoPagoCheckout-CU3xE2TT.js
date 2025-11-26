@@ -231,7 +231,7 @@ const _sfc_main = {
       if (/^4/.test(cleanNumber)) {
         this.cardData.paymentMethodId = "visa";
       } else if (/^5[1-5]/.test(cleanNumber)) {
-        this.cardData.paymentMethodId = "master";
+        this.cardData.paymentMethodId = "mastercard";
       } else if (/^3[47]/.test(cleanNumber)) {
         this.cardData.paymentMethodId = "amex";
       } else if (/^636[3-9]/.test(cleanNumber)) {
@@ -701,10 +701,10 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "74162198"
+  "9781cbaf"
 );
 const MercadoPagoCheckout = __component__.exports;
 export {
   MercadoPagoCheckout as default
 };
-//# sourceMappingURL=MercadoPagoCheckout-Dm9CKdkm.js.map
+//# sourceMappingURL=MercadoPagoCheckout-CU3xE2TT.js.map

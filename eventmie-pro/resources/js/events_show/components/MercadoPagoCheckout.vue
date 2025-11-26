@@ -635,7 +635,7 @@ export default {
             }
             // Mastercard: starts with 51-55
             else if (/^5[1-5]/.test(cleanNumber)) {
-                this.cardData.paymentMethodId = 'master';
+                this.cardData.paymentMethodId = 'mastercard';  // ✅ CORRIGIDO: 'master' → 'mastercard'
             }
             // American Express: starts with 34 or 37
             else if (/^3[47]/.test(cleanNumber)) {
