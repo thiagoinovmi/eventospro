@@ -2141,7 +2141,7 @@ class BookingsController extends Controller
             // 🔑 CAMPOS ESPECÍFICOS POR TIPO DE PAGAMENTO
             
             // PIX: Salvar QR Code
-            if ($paymentMethodId === 'pix' || $responseData['payment_method_id'] === 'pix') {
+            if ($paymentMethodId === 'pix' || ($responseData['payment_method_id'] ?? null) === 'pix') {
                 $pixData = $responseData['point_of_interaction']['transaction_data'] ?? [];
                 
                 if (isset($pixData['qr_code'])) {
@@ -2168,7 +2168,7 @@ class BookingsController extends Controller
             }
             
             // Boleto: Salvar URL
-            if ($paymentMethodId === 'boleto' || $responseData['payment_method_id'] === 'boleto') {
+            if ($paymentMethodId === 'boleto' || ($responseData['payment_method_id'] ?? null) === 'boleto') {
                 $boletoData = $responseData['transaction_details']['external_resource_url'] ?? null;
                 if ($boletoData) {
                     \Log::info('📄 URL Boleto salvo:', ['url' => $boletoData]);
@@ -2176,11 +2176,11 @@ class BookingsController extends Controller
             }
             
             // Cartão de Crédito/Débito: Informações adicionais
-            if (in_array($paymentMethodId, ['credit_card', 'debit_card']) || in_array($responseData['payment_method_id'] ?? '', ['credit_card', 'debit_card'])) {
+            if (in_array($paymentMethodId, ['credit_card', 'debit_card']) || in_array($responseData['payment_method_id'] ?? null, ['credit_card', 'debit_card'])) {
                 \Log::info('💳 Dados do Cartão:', [
                     'issuer_id' => $responseData['issuer_id'] ?? null,
                     'card_id' => $responseData['card_id'] ?? null,
-                    'cardholder_name' => $responseData['cardholder']['name'] ?? null
+                    'cardholder_name' => ($responseData['cardholder']['name'] ?? null) ?? null
                 ]);
             }
             
