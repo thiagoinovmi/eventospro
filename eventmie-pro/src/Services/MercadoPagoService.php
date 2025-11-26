@@ -378,16 +378,17 @@ class MercadoPagoService
                     'street_number' => $payload['payer']['address']['street_number']
                 ]);
             } else {
-                // Se não tiver endereço, usar valores padrão para não rejeitar
+                // Se não tiver endereço, usar valores padrão com CEP válido
+                // Usar um CEP de teste válido do Mercado Pago
                 $payload['payer']['address'] = [
-                    'zip_code' => '00000000',
+                    'zip_code' => '28000000',  // CEP válido de teste
                     'street_name' => 'Rua Principal',
                     'street_number' => 1
                 ];
                 
                 \Log::warning('⚠️ Endereço não preenchido, usando valores padrão:', [
                     'user_id' => $user->id,
-                    'zip_code' => '00000000',
+                    'zip_code' => '28000000',
                     'street_name' => 'Rua Principal',
                     'street_number' => 1
                 ]);
