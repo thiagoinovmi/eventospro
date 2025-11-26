@@ -1407,15 +1407,16 @@ class BookingsController extends Controller
                     $validated['payment_method_id'] = $validated['selected_method'] ?? 'credit_card';
                 }
                 try {
+                    // 🔑 Passar $paymentResult completo (que contém payment_id, status, etc)
                     $this->registerMercadoPagoTransaction(
-                        $paymentResult['response_data'] ?? [],
+                        $paymentResult,
                         $validated,
                         Auth::user(),
                         $validated['payment_method_id']
                     );
-                    \Log::info('✅ Transação registrada com booking_id:', ['booking_id' => $newBooking->id, 'payment_method_id' => $validated['payment_method_id']]);
+                    \Log::info('✅ Transação registrada com booking_id:', ['booking_id' => $newBooking->id, 'payment_method_id' => $validated['payment_method_id'], 'payment_id' => $paymentResult['payment_id']]);
                 } catch (\Exception $e) {
-                    \Log::error('❌ Erro ao registrar transação após criar booking:', ['message' => $e->getMessage(), 'code' => $e->getCode()]);
+                    \Log::error('❌ Erro ao registrar transação após criar booking:', ['message' => $e->getMessage(), 'code' => $e->getCode(), 'payment_id' => $paymentResult['payment_id'] ?? null]);
                 }
                 
                 $response = [
@@ -1553,21 +1554,8 @@ class BookingsController extends Controller
                 // Pagamento processado com sucesso
                 $isApproved = ($result['status_payment'] === 'approved');
 
-                // 🔑 REGISTRAR TRANSAÇÃO NO BANCO DE DADOS
-                try {
-                    $this->registerMercadoPagoTransaction(
-                        $result,
-                        $validated,
-                        $user,
-                        $validated['payment_method_id'] ?? 'credit_card'
-                    );
-                    \Log::info('✅ Transação registrada com sucesso no banco de dados');
-                } catch (\Exception $e) {
-                    \Log::error('❌ Erro ao registrar transação:', [
-                        'error' => $e->getMessage(),
-                        'payment_id' => $result['payment_id'] ?? null
-                    ]);
-                }
+                // 🔑 NÃO REGISTRAR AQUI - será registrado em mercadopago_process com booking_id
+                // A transação será registrada após criar o booking em mercadopago_process
 
                 return [
                     'status' => true,
