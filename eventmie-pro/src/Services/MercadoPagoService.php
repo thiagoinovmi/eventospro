@@ -363,6 +363,35 @@ class MercadoPagoService
             $nameParts = explode(' ', $user->name ?? 'Cliente');
             $payload['payer']['first_name'] = $nameParts[0];
             $payload['payer']['last_name'] = count($nameParts) > 1 ? implode(' ', array_slice($nameParts, 1)) : 'Silva';
+            
+            // Add address if available (required for fraud analysis)
+            if (!empty($user->zip_code) || !empty($user->street_name) || !empty($user->street_number)) {
+                $payload['payer']['address'] = [
+                    'zip_code' => $user->zip_code ?? '00000000',
+                    'street_name' => $user->street_name ?? 'Rua Principal',
+                    'street_number' => (int)($user->street_number ?? 1)
+                ];
+                
+                \Log::info('📍 Endereço adicionado ao payer:', [
+                    'zip_code' => $payload['payer']['address']['zip_code'],
+                    'street_name' => $payload['payer']['address']['street_name'],
+                    'street_number' => $payload['payer']['address']['street_number']
+                ]);
+            } else {
+                // Se não tiver endereço, usar valores padrão para não rejeitar
+                $payload['payer']['address'] = [
+                    'zip_code' => '00000000',
+                    'street_name' => 'Rua Principal',
+                    'street_number' => 1
+                ];
+                
+                \Log::warning('⚠️ Endereço não preenchido, usando valores padrão:', [
+                    'user_id' => $user->id,
+                    'zip_code' => '00000000',
+                    'street_name' => 'Rua Principal',
+                    'street_number' => 1
+                ]);
+            }
         }
 
         // Add token for card payments
