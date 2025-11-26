@@ -125,6 +125,18 @@ const _sfc_main = {
     // 🔑 NOVO: Emitir evento quando paymentConfirmed muda
     paymentConfirmed(newValue) {
       this.$emit("payment-confirmed-changed", newValue);
+    },
+    // 🔑 NOVO: Detectar marca do cartão quando número muda
+    "cardData.number"(newValue) {
+      if (this.selectedMethod === "credit_card") {
+        const cleanNumber = newValue.replace(/\D/g, "");
+        if (cleanNumber.length >= 6) {
+          this.detectCardBrand(cleanNumber);
+          console.log("🔄 Watch detectou mudança no número do cartão");
+          console.log("   Número limpo:", cleanNumber);
+          console.log("   payment_method_id agora é:", this.cardData.paymentMethodId);
+        }
+      }
     }
   },
   methods: {
@@ -701,10 +713,10 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "9781cbaf"
+  "c6a0500f"
 );
 const MercadoPagoCheckout = __component__.exports;
 export {
   MercadoPagoCheckout as default
 };
-//# sourceMappingURL=MercadoPagoCheckout-CU3xE2TT.js.map
+//# sourceMappingURL=MercadoPagoCheckout-DRWnbQnr.js.map

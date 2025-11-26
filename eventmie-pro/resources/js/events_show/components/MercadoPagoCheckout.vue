@@ -498,6 +498,18 @@ export default {
         // 🔑 NOVO: Emitir evento quando paymentConfirmed muda
         paymentConfirmed(newValue) {
             this.$emit('payment-confirmed-changed', newValue);
+        },
+        // 🔑 NOVO: Detectar marca do cartão quando número muda
+        'cardData.number'(newValue) {
+            if (this.selectedMethod === 'credit_card') {
+                const cleanNumber = newValue.replace(/\D/g, '');
+                if (cleanNumber.length >= 6) {
+                    this.detectCardBrand(cleanNumber);
+                    console.log('🔄 Watch detectou mudança no número do cartão');
+                    console.log('   Número limpo:', cleanNumber);
+                    console.log('   payment_method_id agora é:', this.cardData.paymentMethodId);
+                }
+            }
         }
     },
 
