@@ -162,12 +162,7 @@ const _sfc_main = {
           locale: "pt-BR"
           // 🌍 Localização em português brasileiro
         });
-        this.mp.getIdentifier().then((identifier) => {
-          this.deviceId = identifier;
-          console.log("✅ Device ID obtido:", this.deviceId);
-        }).catch((error) => {
-          console.error("❌ Erro ao obter Device ID:", error);
-        });
+        console.log("✅ SDK Mercado Pago inicializado com sucesso");
       } catch (error) {
         console.error("Erro ao inicializar SDK Mercado Pago:", error);
       }
@@ -731,10 +726,10 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "0f28f27c"
+  "2ddd9b11"
 );
 const MercadoPagoCheckout = __component__.exports;
 export {
   MercadoPagoCheckout as default
 };
-//# sourceMappingURL=MercadoPagoCheckout-CteI1d3b.js.map
+//# sourceMappingURL=MercadoPagoCheckout-0OR-wBrF.js.map

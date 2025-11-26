@@ -540,13 +540,10 @@ export default {
                     locale: 'pt-BR'  // 🌍 Localização em português brasileiro
                 });
                 
-                // Obter Device ID
-                this.mp.getIdentifier().then(identifier => {
-                    this.deviceId = identifier;
-                    console.log('✅ Device ID obtido:', this.deviceId);
-                }).catch(error => {
-                    console.error('❌ Erro ao obter Device ID:', error);
-                });
+                console.log('✅ SDK Mercado Pago inicializado com sucesso');
+                
+                // Nota: Device ID é obtido automaticamente pelo SDK v2
+                // Não é necessário chamar getIdentifier() manualmente
             } catch (error) {
                 console.error('Erro ao inicializar SDK Mercado Pago:', error);
             }
