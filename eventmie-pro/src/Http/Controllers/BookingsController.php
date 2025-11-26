@@ -1402,16 +1402,20 @@ class BookingsController extends Controller
                 
                 // Agora registrar a transação com o booking_id correto
                 $validated['booking_id'] = $newBooking->id;
+                // 🔑 Adicionar payment_method_id se não existir
+                if (!isset($validated['payment_method_id'])) {
+                    $validated['payment_method_id'] = $validated['selected_method'] ?? 'credit_card';
+                }
                 try {
                     $this->registerMercadoPagoTransaction(
                         $paymentResult['response_data'] ?? [],
                         $validated,
                         Auth::user(),
-                        $validated['selected_method']
+                        $validated['payment_method_id']
                     );
-                    \Log::info('Transação registrada com booking_id:', ['booking_id' => $newBooking->id]);
+                    \Log::info('✅ Transação registrada com booking_id:', ['booking_id' => $newBooking->id, 'payment_method_id' => $validated['payment_method_id']]);
                 } catch (\Exception $e) {
-                    \Log::error('Erro ao registrar transação após criar booking:', ['message' => $e->getMessage()]);
+                    \Log::error('❌ Erro ao registrar transação após criar booking:', ['message' => $e->getMessage(), 'code' => $e->getCode()]);
                 }
                 
                 $response = [
