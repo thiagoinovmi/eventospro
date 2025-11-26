@@ -61,7 +61,7 @@ class TestMercadoPago extends Command
                     'number' => '12345678909'  // CPF obrigatório para teste
                 ]
             ],
-            'token' => 'f140aeff942bef1ff40039516c93ef33', // Token real gerado
+            'token' => '82854a36cb3f9285bc2396b493133ad7', // Token real gerado
             'installments' => 1,
             'capture' => true
         ];
