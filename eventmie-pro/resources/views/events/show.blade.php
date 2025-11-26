@@ -366,6 +366,25 @@
         console.log('⚠️ Usuário não logado');
         @endauth
     </script>
+    
+    <!-- 🔑 Meta tag para Public Key do Mercado Pago -->
+    <meta name="mercadopago-public-key" content="{{ setting('mercadopago.public_key') ?? '' }}">
+    
+    <!-- 🔐 Script para carregar SDK Mercado Pago -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const publicKey = document.querySelector('meta[name="mercadopago-public-key"]')?.content;
+            if (publicKey && publicKey.trim() !== '') {
+                console.log('✅ Public Key Mercado Pago carregada:', publicKey.substring(0, 20) + '...');
+                const script = document.createElement('script');
+                script.src = 'https://sdk.mercadopago.com/js/v2';
+                script.async = true;
+                document.head.appendChild(script);
+            } else {
+                console.warn('⚠️ Public Key Mercado Pago não configurada');
+            }
+        });
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/v-mask/dist/v-mask.min.js"></script>
     @vite(['eventmie-pro/resources/js/events_show/index.js'])
     <script type="text/javascript">
