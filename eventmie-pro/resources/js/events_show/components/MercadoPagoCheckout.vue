@@ -651,8 +651,8 @@ export default {
                 this.cardData.paymentMethodId = 'visa';
                 console.log('   ✅ VISA detectado');
             }
-            // Mastercard: starts with 51-55
-            else if (/^5[1-5]/.test(cleanNumber)) {
+            // Mastercard: starts with 50-55 (includes 5031, 5032, etc)
+            else if (/^5[0-5]/.test(cleanNumber)) {
                 this.cardData.paymentMethodId = 'mastercard';
                 console.log('   ✅ MASTERCARD detectado');
             }
