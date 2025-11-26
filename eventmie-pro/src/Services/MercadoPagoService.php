@@ -302,12 +302,12 @@ class MercadoPagoService
      */
     private function buildOptimizedPayload($paymentData)
     {
-        // 🔧 Mapear payment_method_id da API Mercado Pago para valores esperados
-        // A API pode retornar "master" em vez de "mastercard"
+        // 🔧 Mapear payment_method_id para valores oficiais Mercado Pago
+        // Conforme documentação oficial: https://developers.mercadopago.com.br/
         $paymentMethodMapping = [
-            'master' => 'mastercard',
-            'amex' => 'amex',
+            'mastercard' => 'master',
             'visa' => 'visa',
+            'amex' => 'amex',
             'elo' => 'elo',
             'diners' => 'diners',
             'discover' => 'discover'
@@ -318,7 +318,7 @@ class MercadoPagoService
             $paymentMethodId = $paymentMethodMapping[$paymentMethodId];
             \Log::info('🔄 Payment Method ID mapeado:', [
                 'original' => $paymentData['payment_method_id'],
-                'mapeado' => $paymentMethodId
+                'mapeado_para_api' => $paymentMethodId
             ]);
         }
         

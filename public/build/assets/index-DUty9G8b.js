@@ -1,7 +1,7 @@
 import { n as normalizeComponent, m as mixinsFilters } from "./mixins-CO2EmGtw.js";
 import { P as PaginationComponent } from "./Pagination-DVYAWWC9.js";
 import { O as OnlineEvent } from "./OnlineEvent-DGsW96ZK.js";
-import MercadoPagoCheckout from "./MercadoPagoCheckout-CVP83Aon.js";
+import MercadoPagoCheckout from "./MercadoPagoCheckout-CyiCdtOF.js";
 var top = "top";
 var bottom = "bottom";
 var right = "right";
@@ -5507,4 +5507,4 @@ window.app = new Vue({
   el: "#eventmie_app",
   router: routes
 });
-//# sourceMappingURL=index-B1z8GiUr.js.map
+//# sourceMappingURL=index-DUty9G8b.js.map

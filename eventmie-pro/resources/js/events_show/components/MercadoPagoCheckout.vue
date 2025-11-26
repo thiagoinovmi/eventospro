@@ -1149,7 +1149,9 @@ export default {
                     bin: cardNumber.substring(0, 6)
                 });
 
-                // Validar que o payment_method_id detectado corresponde ao retornado pela API
+                // Usar o payment_method_id retornado pela API (fonte de verdade)
+                // A API retorna "master" para Mastercard, "visa" para Visa, etc
+                // Conforme documentação oficial Mercado Pago
                 if (this.cardData.paymentMethodId !== paymentMethod.id) {
                     console.warn('⚠️ AVISO: payment_method_id detectado não corresponde à API', {
                         detectado: this.cardData.paymentMethodId,
