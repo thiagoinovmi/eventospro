@@ -2093,7 +2093,8 @@ class BookingsController extends Controller
             $mpTransaction->status_detail = $responseData['status_detail'] ?? null;
             $mpTransaction->amount = (float)($responseData['transaction_amount'] ?? $validated['total'] ?? 0);
             $mpTransaction->currency = $responseData['currency_id'] ?? 'BRL';
-            $mpTransaction->payment_method_type = $responseData['payment_method_id'] ?? $paymentMethodId;
+            // 🔑 Usar $paymentMethodId (credit_card, debit_card, pix) em vez de payment_method_id da API (master, visa)
+            $mpTransaction->payment_method_type = $paymentMethodId;
             $mpTransaction->installments = (int)($responseData['installments'] ?? $validated['installments'] ?? 1);
             
             // 🔑 Payer info com verificações seguras
