@@ -1472,36 +1472,19 @@ class BookingsController extends Controller
     }
 
     /**
-     * Process card payment (credit or debit)
+     * Process card payment (credit or debit) - MIGRATED TO SDK
      */
     private function processCardPayment($validated, $user, $event = null, $ticket = null)
     {
         try {
-            // CACHE BUSTER: ' . time() . '
-            \Log::info('=== INICIANDO PROCESSAMENTO DE CARTÃO === ' . date('Y-m-d H:i:s'));
-            \Log::info('Validated data:', $validated);
-            \Log::info('User email:', ['email' => $user->email]);
+            \Log::info('🚀 === PROCESSAMENTO CARTÃO VIA SDK === ' . date('Y-m-d H:i:s'));
+            \Log::info('📋 Dados validados:', $validated);
+            \Log::info('👤 Usuário:', ['email' => $user->email, 'id' => $user->id]);
             
-            // Get token from settings table (Voyager)
-            $accessToken = setting('mercadopago.access_token');
-            \Log::info('Token obtido:', ['token_length' => strlen($accessToken ?? ''), 'token_preview' => substr($accessToken ?? '', 0, 20)]);
-            
-            if (!$accessToken) {
-                return [
-                    'status' => false,
-                    'message' => 'Mercado Pago não está configurado'
-                ];
-            }
-
-            \Log::info('Dados do usuário:', [
-                'email' => $user->email,
-                'name' => $user->name,
-                'document' => $user->document ?? 'vazio'
-            ]);
-
-            // Buscar dados do evento e ticket se não foram passados (compatibilidade)
+            // Buscar dados do evento e ticket se não foram passados
             if (!$event) {
                 $event = \Classiebit\Eventmie\Models\Event::find($validated['event_id']);
+                \Log::info('🎫 Evento carregado:', ['id' => $event->id ?? null, 'title' => $event->title ?? null]);
             }
             
             if (!$ticket) {
@@ -1510,185 +1493,84 @@ class BookingsController extends Controller
                 } else {
                     $ticket = \Classiebit\Eventmie\Models\Ticket::where('event_id', $validated['event_id'])->first();
                 }
+                \Log::info('🎟️ Ticket carregado:', ['id' => $ticket->id ?? null, 'title' => $ticket->title ?? null]);
             }
 
-            // Prepare payment data for card payment
-            // According to Mercado Pago API v1 documentation
-            // CRITICAL: Use payment_method_id from frontend (visa, master, amex, etc)
-            // NOT the generic "credit_card" - this causes diff_param_bins error
-            $paymentMethodId = $validated['payment_method_id'] ?? 'visa';
-            
-            \Log::info('Payment method ID being used:', [
-                'from_validated' => $validated['payment_method_id'] ?? 'not provided',
-                'final_payment_method_id' => $paymentMethodId
-            ]);
-            
+            // Preparar dados para o MercadoPagoService
             $paymentData = [
-                "transaction_amount" => (float)$validated['total'],
-                "description" => "Pagamento de ingresso - Evento #{$validated['event_id']}",
-                "payment_method_id" => $paymentMethodId,
-                "installments" => (int)($validated['installments'] ?? 1),
-                "token" => $validated['card_token'] ?? null,
-                "payer" => [
-                    "email" => $user->email,
-                    "first_name" => $user->name,
-                    "last_name" => "User",
-                    "identification" => [
-                        "type" => "CPF",
-                        "number" => str_replace(['.', '-'], '', $user->document ?? '12345678909')
-                    ]
-                ],
-                "external_reference" => "BOOKING-" . time() . "-" . $user->id,
-                "statement_descriptor" => "EVENTO"
+                'amount' => (float)$validated['total'],
+                'description' => 'Pagamento de ingresso - Evento #' . $validated['event_id'],
+                'payment_method_id' => $validated['payment_method_id'] ?? 'visa',
+                'token' => $validated['card_token'] ?? $validated['token'] ?? null,
+                'installments' => (int)($validated['installments'] ?? 1),
+                'external_reference' => 'BOOKING-' . time() . '-' . $user->id,
+                'statement_descriptor' => 'EVENTO',
+                'payer_email' => $user->email,
+                'payer_document' => $user->document ?? '',
+                'user' => $user,
+                'event' => $event,
+                'ticket' => $ticket,
+                'quantity' => $validated['quantity'] ?? 1,
+                'device_id' => $validated['device_id'] ?? null
             ];
 
-            // TODO: Implementar items na API v2 do Mercado Pago
-            // API v1 não suporta parâmetro 'items' - causa erro 400
-            // Remover temporariamente para restaurar funcionamento
-            /*
-            if ($ticket && $event) {
-                $paymentData['items'] = [
-                    [
-                        'id' => (string)$ticket->id,
-                        'title' => $ticket->title,
-                        'description' => 'Ingresso para ' . $event->title,
-                        'category_id' => 'event_ticket',
-                        'quantity' => (int)($validated['quantity'] ?? 1),
-                        'unit_price' => (float)$ticket->price
-                    ]
-                ];
-                
-                \Log::info('Items adicionados ao pagamento:', $paymentData['items']);
-            } else {
-                \Log::warning('Event ou Ticket não encontrados - Items não adicionados');
-            }
-            */
+            \Log::info('📦 Dados preparados para SDK:', [
+                'amount' => $paymentData['amount'],
+                'payment_method_id' => $paymentData['payment_method_id'],
+                'installments' => $paymentData['installments'],
+                'has_event' => !empty($paymentData['event']),
+                'has_ticket' => !empty($paymentData['ticket']),
+                'has_device_id' => !empty($paymentData['device_id']),
+                'token_length' => strlen($paymentData['token'] ?? '')
+            ]);
 
-            // Validate token
+            // Validar token
             if (empty($paymentData['token'])) {
-                \Log::error('Token do cartão está vazio!');
+                \Log::error('❌ Token do cartão está vazio!');
                 return [
                     'status' => false,
                     'message' => 'Token do cartão não foi gerado. Verifique os dados do cartão.'
                 ];
             }
-            
-            \Log::info('Dados do pagamento preparados:', [
-                'amount' => $paymentData['transaction_amount'],
-                'method' => $paymentData['payment_method_id'],
-                'method_from_frontend' => $validated['payment_method_id'] ?? 'não enviado',
-                'selected_method' => $validated['selected_method'],
-                'installments' => $paymentData['installments'],
-                'email' => $paymentData['payer']['email'],
-                'token' => $paymentData['token'] ?? 'VAZIO',
-                'token_length' => strlen($paymentData['token'] ?? ''),
-                'token_preview' => substr($paymentData['token'] ?? '', 0, 20),
-                'token_completo' => $paymentData['token'],
-                'cpf' => $paymentData['payer']['identification']['number'],
-                'payer_email' => $paymentData['payer']['email'],
-                'payer_name' => $paymentData['payer']['first_name'] . ' ' . $paymentData['payer']['last_name']
-            ]);
-            
-            // Log the complete payment data as JSON
-            \Log::info('Payment data JSON:', [
-                'json' => json_encode($paymentData, JSON_PRETTY_PRINT)
+
+            // Usar MercadoPagoService com otimizações
+            $mercadoPagoService = new \Classiebit\Eventmie\Services\MercadoPagoService();
+            $result = $mercadoPagoService->createPaymentWithOptimizations($paymentData);
+
+            \Log::info('📤 Resposta do MercadoPagoService:', [
+                'status' => $result['status'] ?? false,
+                'payment_id' => $result['payment_id'] ?? null,
+                'status_payment' => $result['status_payment'] ?? null,
+                'has_error' => isset($result['error'])
             ]);
 
-            // Make cURL request to Mercado Pago API with correct payment_method_id
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, 'https://api.mercadopago.com/v1/payments');
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($paymentData));
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Content-Type: application/json',
-                'Authorization: Bearer ' . $accessToken,
-                'X-Idempotency-Key: ' . \Illuminate\Support\Str::uuid()
-            ]);
+            if ($result['status']) {
+                // Pagamento processado com sucesso
+                $isApproved = ($result['status_payment'] === 'approved');
 
-            $response = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $curlError = curl_error($ch);
-            curl_close($ch);
+                return [
+                    'status' => true,
+                    'payment_id' => $result['payment_id'],
+                    'is_paid' => $isApproved ? 1 : 0,
+                    'booking_status' => $isApproved ? 1 : 0,
+                    'message' => $result['message'] ?? ($isApproved ? 'Pagamento aprovado!' : 'Pagamento processado'),
+                    'response_data' => $result
+                ];
+            } else {
+                // Erro no processamento
+                \Log::error('❌ Erro no MercadoPagoService:', [
+                    'error' => $result['error'] ?? 'Erro desconhecido',
+                    'message' => $result['message'] ?? 'Sem mensagem'
+                ]);
 
-            \Log::info('DEBUG - Requisição enviada para Mercado Pago:', [
-                'url' => 'https://api.mercadopago.com/v1/payments',
-                'token_length' => strlen($accessToken),
-                'token_preview' => substr($accessToken, 0, 20) . '...',
-                'payment_data' => $paymentData,
-                'payment_data_json' => json_encode($paymentData)
-            ]);
-
-            \Log::info('Resposta do Mercado Pago (cartão):', [
-                'httpCode' => $httpCode,
-                'response' => $response,
-                'curlError' => $curlError
-            ]);
-
-            // Decode response
-            $responseData = json_decode($response, true);
-
-            if ($httpCode === 201 || $httpCode === 200) {
-                if (isset($responseData['id']) && isset($responseData['status'])) {
-                    $status = $responseData['status'];
-                    $isApproved = ($status === 'approved');
-
-                    \Log::info('Pagamento processado:', [
-                        'payment_id' => $responseData['id'],
-                        'status' => $status,
-                        'approved' => $isApproved
-                    ]);
-
-                    return [
-                        'status' => true,
-                        'payment_id' => $responseData['id'],
-                        'is_paid' => $isApproved ? 1 : 0,
-                        'booking_status' => $isApproved ? 1 : 0,
-                        'message' => $isApproved ? 'Pagamento aprovado!' : 'Pagamento pendente de confirmação',
-                        'response_data' => $responseData
-                    ];
-                }
+                return [
+                    'status' => false,
+                    'message' => $result['message'] ?? 'Erro ao processar pagamento'
+                ];
             }
-
-            \Log::error('Erro ao processar pagamento de cartão - HTTP ' . $httpCode, [
-                'response' => $response,
-                'responseData' => $responseData
-            ]);
-
-            $errorMsg = 'Erro desconhecido';
-            
-            // Handle specific error messages
-            if (isset($responseData['message'])) {
-                $errorMsg = $responseData['message'];
-                
-                // Provide user-friendly messages for common errors
-                if ($responseData['message'] === 'bin_not_found') {
-                    $errorMsg = 'Cartão inválido ou não reconhecido. Verifique o número do cartão.';
-                } elseif ($responseData['message'] === 'diff_param_bins') {
-                    $errorMsg = 'Os dados do cartão não correspondem ao token gerado. Tente novamente.';
-                } elseif ($responseData['message'] === 'invalid_token') {
-                    $errorMsg = 'Token do cartão inválido ou expirado. Tente novamente.';
-                }
-            }
-            
-            if (isset($responseData['cause']) && is_array($responseData['cause'])) {
-                $causes = array_map(function($c) { return $c['description'] ?? ''; }, $responseData['cause']);
-                \Log::error('Causas do erro:', $causes);
-            }
-
-            \Log::error('Erro ao processar pagamento de cartão:', [
-                'httpCode' => $httpCode,
-                'response' => $response,
-                'errorMsg' => $errorMsg
-            ]);
-
-            return [
-                'status' => false,
-                'message' => 'Erro ao processar pagamento: ' . $errorMsg
-            ];
 
         } catch (\Throwable $e) {
-            \Log::error('EXCEÇÃO CAPTURADA ao processar pagamento de cartão:', [
+            \Log::error('💥 EXCEÇÃO no processCardPayment:', [
                 'exception_class' => get_class($e),
                 'message' => $e->getMessage(),
                 'code' => $e->getCode(),
