@@ -492,6 +492,22 @@ class MercadoPagoService
         $payload['notification_url'] = url('/api/mercadopago/webhook');
         \Log::info('🔔 Notification URL adicionada:', ['url' => $payload['notification_url']]);
 
+        // 🔍 DEBUG: Mostrar payload completo com endereço
+        \Log::info('📦 PAYLOAD COMPLETO ENVIADO PARA API:', [
+            'transaction_amount' => $payload['transaction_amount'],
+            'payment_method_id' => $payload['payment_method_id'],
+            'payer_email' => $payload['payer']['email'] ?? null,
+            'payer_first_name' => $payload['payer']['first_name'] ?? null,
+            'payer_last_name' => $payload['payer']['last_name'] ?? null,
+            'payer_identification_type' => $payload['payer']['identification']['type'] ?? null,
+            'payer_identification_number' => $payload['payer']['identification']['number'] ?? null,
+            'payer_address_zip_code' => $payload['payer']['address']['zip_code'] ?? null,
+            'payer_address_street_name' => $payload['payer']['address']['street_name'] ?? null,
+            'payer_address_street_number' => $payload['payer']['address']['street_number'] ?? null,
+            'token_present' => !empty($payload['token']),
+            'external_reference' => $payload['external_reference'] ?? null
+        ]);
+
         return $payload;
     }
 
