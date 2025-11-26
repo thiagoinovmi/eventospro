@@ -364,33 +364,49 @@ class MercadoPagoService
             $payload['payer']['first_name'] = $nameParts[0];
             $payload['payer']['last_name'] = count($nameParts) > 1 ? implode(' ', array_slice($nameParts, 1)) : 'Silva';
             
+            // 🔍 DEBUG: Verificar dados do usuário
+            \Log::info('🔍 DEBUG - Dados do usuário no MercadoPagoService:', [
+                'user_id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'document' => $user->document,
+                'phone' => $user->phone,
+                'zip_code' => $user->zip_code,
+                'street_name' => $user->street_name,
+                'street_number' => $user->street_number,
+                'city' => $user->city ?? null,
+                'state' => $user->state ?? null
+            ]);
+            
             // Add address if available (required for fraud analysis)
             if (!empty($user->zip_code) || !empty($user->street_name) || !empty($user->street_number)) {
                 $payload['payer']['address'] = [
-                    'zip_code' => $user->zip_code ?? '00000000',
+                    'zip_code' => $user->zip_code ?? '28000000',
                     'street_name' => $user->street_name ?? 'Rua Principal',
                     'street_number' => (int)($user->street_number ?? 1)
                 ];
                 
-                \Log::info('📍 Endereço adicionado ao payer:', [
+                \Log::info('✅ Endereço DO USUÁRIO adicionado ao payer:', [
                     'zip_code' => $payload['payer']['address']['zip_code'],
                     'street_name' => $payload['payer']['address']['street_name'],
                     'street_number' => $payload['payer']['address']['street_number']
                 ]);
             } else {
                 // Se não tiver endereço, usar valores padrão com CEP válido
-                // Usar um CEP de teste válido do Mercado Pago
                 $payload['payer']['address'] = [
                     'zip_code' => '28000000',  // CEP válido de teste
                     'street_name' => 'Rua Principal',
                     'street_number' => 1
                 ];
                 
-                \Log::warning('⚠️ Endereço não preenchido, usando valores padrão:', [
+                \Log::warning('⚠️ Endereço não preenchido no usuário, usando valores padrão:', [
                     'user_id' => $user->id,
-                    'zip_code' => '28000000',
-                    'street_name' => 'Rua Principal',
-                    'street_number' => 1
+                    'user_zip_code' => $user->zip_code,
+                    'user_street_name' => $user->street_name,
+                    'user_street_number' => $user->street_number,
+                    'default_zip_code' => '28000000',
+                    'default_street_name' => 'Rua Principal',
+                    'default_street_number' => 1
                 ]);
             }
         }
