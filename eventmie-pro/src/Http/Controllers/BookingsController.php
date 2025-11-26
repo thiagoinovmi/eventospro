@@ -1242,7 +1242,8 @@ class BookingsController extends Controller
                 'ticket_id' => 'nullable|integer',
                 'ticket_title' => 'nullable|string',
                 'card_token' => 'nullable|string',
-                'installments' => 'nullable|integer'
+                'installments' => 'nullable|integer',
+                'payment_method_id' => 'nullable|string' // 🔑 ADICIONADO: payment_method_id do frontend
             ]);
 
             \Log::info('VALIDAÇÃO PASSOU');
