@@ -302,11 +302,31 @@ class MercadoPagoService
      */
     private function buildOptimizedPayload($paymentData)
     {
+        // 🔧 Mapear payment_method_id da API Mercado Pago para valores esperados
+        // A API pode retornar "master" em vez de "mastercard"
+        $paymentMethodMapping = [
+            'master' => 'mastercard',
+            'amex' => 'amex',
+            'visa' => 'visa',
+            'elo' => 'elo',
+            'diners' => 'diners',
+            'discover' => 'discover'
+        ];
+        
+        $paymentMethodId = $paymentData['payment_method_id'] ?? 'visa';
+        if (isset($paymentMethodMapping[$paymentMethodId])) {
+            $paymentMethodId = $paymentMethodMapping[$paymentMethodId];
+            \Log::info('🔄 Payment Method ID mapeado:', [
+                'original' => $paymentData['payment_method_id'],
+                'mapeado' => $paymentMethodId
+            ]);
+        }
+        
         // Base payload structure
         $payload = [
             'transaction_amount' => (float)$paymentData['amount'],
             'description' => $paymentData['description'] ?? 'Pagamento de ingresso',
-            'payment_method_id' => $paymentData['payment_method_id'],
+            'payment_method_id' => $paymentMethodId,
             'installments' => (int)($paymentData['installments'] ?? 1),
             'capture' => true
         ];
