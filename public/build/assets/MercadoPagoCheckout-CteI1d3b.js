@@ -158,7 +158,10 @@ const _sfc_main = {
           console.error("Chave pública Mercado Pago não encontrada");
           return;
         }
-        this.mp = new MercadoPago(publicKey);
+        this.mp = new MercadoPago(publicKey, {
+          locale: "pt-BR"
+          // 🌍 Localização em português brasileiro
+        });
         this.mp.getIdentifier().then((identifier) => {
           this.deviceId = identifier;
           console.log("✅ Device ID obtido:", this.deviceId);
@@ -728,10 +731,10 @@ var __component__ = /* @__PURE__ */ normalizeComponent(
   _sfc_staticRenderFns,
   false,
   null,
-  "7d5a238c"
+  "0f28f27c"
 );
 const MercadoPagoCheckout = __component__.exports;
 export {
   MercadoPagoCheckout as default
 };
-//# sourceMappingURL=MercadoPagoCheckout-AptdU8l9.js.map
+//# sourceMappingURL=MercadoPagoCheckout-CteI1d3b.js.map

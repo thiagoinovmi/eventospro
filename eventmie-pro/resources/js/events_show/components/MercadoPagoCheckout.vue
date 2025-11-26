@@ -536,7 +536,9 @@ export default {
                     return;
                 }
 
-                this.mp = new MercadoPago(publicKey);
+                this.mp = new MercadoPago(publicKey, {
+                    locale: 'pt-BR'  // 🌍 Localização em português brasileiro
+                });
                 
                 // Obter Device ID
                 this.mp.getIdentifier().then(identifier => {
