@@ -1408,11 +1408,17 @@ class BookingsController extends Controller
                 }
                 try {
                     // 🔑 Passar $paymentResult completo (que contém payment_id, status, etc)
+                    // Determinar o tipo de método correto (credit_card ou debit_card)
+                    $paymentMethodType = 'credit_card';
+                    if (isset($paymentResult['payment_method']) && $paymentResult['payment_method'] === 'debit_card') {
+                        $paymentMethodType = 'debit_card';
+                    }
+                    
                     $this->registerMercadoPagoTransaction(
                         $paymentResult,
                         $validated,
                         Auth::user(),
-                        $validated['payment_method_id']
+                        $paymentMethodType
                     );
                     \Log::info('✅ Transação registrada com booking_id:', ['booking_id' => $newBooking->id, 'payment_method_id' => $validated['payment_method_id'], 'payment_id' => $paymentResult['payment_id']]);
                 } catch (\Exception $e) {
@@ -2088,8 +2094,8 @@ class BookingsController extends Controller
             $mpTransaction->user_id = $user->id;
             $mpTransaction->event_id = $validated['event_id'] ?? null;
             $mpTransaction->booking_id = $validated['booking_id'] ?? null;
-            $mpTransaction->payment_id = $responseData['id'] ?? null;
-            $mpTransaction->status = $responseData['status'] ?? 'pending';
+            $mpTransaction->payment_id = $responseData['payment_id'] ?? $responseData['id'] ?? null;
+            $mpTransaction->status = $responseData['status_payment'] ?? $responseData['status'] ?? 'pending';
             $mpTransaction->status_detail = $responseData['status_detail'] ?? null;
             $mpTransaction->amount = (float)($responseData['transaction_amount'] ?? $validated['total'] ?? 0);
             $mpTransaction->currency = $responseData['currency_id'] ?? 'BRL';
