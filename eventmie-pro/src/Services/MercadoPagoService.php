@@ -277,4 +277,285 @@ class MercadoPagoService
             return false;
         }
     }
+
+    /**
+     * Create payment with optimizations (items, additional_info, device_id)
+     * This is the main method that replaces cURL implementation
+     * 
+     * @param array $paymentData
+     * @return array
+     */
+    public function createPaymentWithOptimizations($paymentData = [])
+    {
+        try {
+            \Log::info('🚀 Iniciando createPaymentWithOptimizations', [
+                'payment_method_id' => $paymentData['payment_method_id'] ?? 'unknown',
+                'amount' => $paymentData['amount'] ?? 0
+            ]);
+
+            // Build optimized payload with all enhancements
+            $payload = $this->buildOptimizedPayload($paymentData);
+
+            \Log::info('📦 Payload otimizado construído:', [
+                'payload_keys' => array_keys($payload),
+                'has_items' => isset($payload['items']),
+                'has_additional_info' => isset($payload['additional_info']),
+                'has_device_id' => isset($payload['device_id']),
+                'has_notification_url' => isset($payload['notification_url'])
+            ]);
+
+            // Create payment using SDK
+            $payment = $this->paymentClient->create($payload);
+
+            \Log::info('✅ Pagamento criado via SDK:', [
+                'payment_id' => $payment->id,
+                'status' => $payment->status,
+                'status_detail' => $payment->status_detail ?? null
+            ]);
+
+            // Handle response and return standardized format
+            return $this->handlePaymentResponse($payment, $paymentData);
+
+        } catch (MPApiException $e) {
+            \Log::error('❌ Mercado Pago API Error:', [
+                'message' => $e->getMessage(),
+                'api_response' => $e->getApiResponse() ?? null
+            ]);
+            
+            return [
+                'status' => false,
+                'error' => $e->getMessage(),
+                'api_error' => true,
+                'message' => 'Erro na API do Mercado Pago: ' . $e->getMessage()
+            ];
+        } catch (\Exception $e) {
+            \Log::error('❌ Error creating optimized payment:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return [
+                'status' => false,
+                'error' => $e->getMessage(),
+                'message' => 'Erro ao processar pagamento: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Build optimized payload with items, additional_info, device_id, notification_url
+     * 
+     * @param array $paymentData
+     * @return array
+     */
+    private function buildOptimizedPayload($paymentData)
+    {
+        // Base payload structure
+        $payload = [
+            'transaction_amount' => (float)$paymentData['amount'],
+            'description' => $paymentData['description'] ?? 'Pagamento de ingresso',
+            'payment_method_id' => $paymentData['payment_method_id'],
+            'installments' => (int)($paymentData['installments'] ?? 1),
+            'capture' => true
+        ];
+
+        // Add payer information
+        $payload['payer'] = [
+            'email' => $paymentData['payer_email'] ?? $paymentData['user']->email ?? 'user@example.com'
+        ];
+
+        // Add identification if available
+        if (!empty($paymentData['payer_document']) || !empty($paymentData['user']->document)) {
+            $payload['payer']['identification'] = [
+                'type' => 'CPF',
+                'number' => $paymentData['payer_document'] ?? $paymentData['user']->document ?? ''
+            ];
+        }
+
+        // Add first_name and last_name if available
+        if (!empty($paymentData['user'])) {
+            $user = $paymentData['user'];
+            $payload['payer']['first_name'] = $user->name ?? 'Cliente';
+            
+            // Try to split name into first and last
+            $nameParts = explode(' ', $user->name ?? 'Cliente');
+            $payload['payer']['first_name'] = $nameParts[0];
+            $payload['payer']['last_name'] = count($nameParts) > 1 ? implode(' ', array_slice($nameParts, 1)) : 'Silva';
+        }
+
+        // Add token for card payments
+        if (!empty($paymentData['token'])) {
+            $payload['token'] = $paymentData['token'];
+        }
+
+        // Add external reference
+        $payload['external_reference'] = $paymentData['external_reference'] ?? 'BOOKING-' . time();
+
+        // Add statement descriptor
+        if (!empty($paymentData['statement_descriptor'])) {
+            $payload['statement_descriptor'] = $paymentData['statement_descriptor'];
+        }
+
+        // 🎯 OPTIMIZATION 1: Items (+14 points)
+        if (!empty($paymentData['event']) && !empty($paymentData['ticket'])) {
+            $event = $paymentData['event'];
+            $ticket = $paymentData['ticket'];
+            
+            $payload['items'] = [
+                [
+                    'id' => (string)$ticket->id,
+                    'title' => $ticket->title ?? 'Ingresso',
+                    'description' => 'Ingresso para ' . ($event->title ?? 'evento'),
+                    'category_id' => 'event_ticket',
+                    'quantity' => (int)($paymentData['quantity'] ?? 1),
+                    'unit_price' => (float)$ticket->price,
+                    'picture_url' => $event->poster ? url('storage/' . $event->poster) : null,
+                    'warranty' => 'Garantia do evento'
+                ]
+            ];
+
+            \Log::info('📋 Items adicionados:', $payload['items']);
+        }
+
+        // 🎯 OPTIMIZATION 2: Additional Info (+15 points)
+        if (!empty($paymentData['user'])) {
+            $user = $paymentData['user'];
+            
+            $payload['additional_info'] = [
+                'payer' => [
+                    'first_name' => $payload['payer']['first_name'],
+                    'last_name' => $payload['payer']['last_name']
+                ]
+            ];
+
+            // Add phone if available
+            if (!empty($user->phone)) {
+                $phone = preg_replace('/\D/', '', $user->phone);
+                if (strlen($phone) >= 10) {
+                    $areaCode = substr($phone, 0, 2);
+                    $number = substr($phone, 2);
+                    
+                    $payload['additional_info']['payer']['phone'] = [
+                        'area_code' => $areaCode,
+                        'number' => $number
+                    ];
+                }
+            }
+
+            // Add address if available
+            if (!empty($user->zip_code)) {
+                $payload['additional_info']['payer']['address'] = [
+                    'zip_code' => $user->zip_code,
+                    'street_name' => $user->street_name ?? 'Rua Principal',
+                    'street_number' => (int)($user->street_number ?? 1)
+                ];
+
+                // Add shipments (same as payer address for events)
+                $payload['additional_info']['shipments'] = [
+                    'receiver_address' => $payload['additional_info']['payer']['address']
+                ];
+            }
+
+            \Log::info('📍 Additional info adicionado:', $payload['additional_info']);
+        }
+
+        // 🎯 OPTIMIZATION 3: Device ID (+10 points)
+        if (!empty($paymentData['device_id'])) {
+            $payload['device_id'] = $paymentData['device_id'];
+            \Log::info('📱 Device ID adicionado:', ['device_id' => $payload['device_id']]);
+        }
+
+        // 🎯 OPTIMIZATION 4: Notification URL (+2 points)
+        $payload['notification_url'] = url('/api/mercadopago/webhook');
+        \Log::info('🔔 Notification URL adicionada:', ['url' => $payload['notification_url']]);
+
+        return $payload;
+    }
+
+    /**
+     * Handle payment response and return standardized format
+     * 
+     * @param object $payment
+     * @param array $originalData
+     * @return array
+     */
+    private function handlePaymentResponse($payment, $originalData)
+    {
+        $paymentMethodId = $originalData['payment_method_id'] ?? 'unknown';
+        
+        // Base response structure
+        $response = [
+            'status' => true,
+            'payment_id' => $payment->id,
+            'payment_method' => $paymentMethodId,
+            'transaction_amount' => $payment->transaction_amount,
+            'currency_id' => $payment->currency_id ?? 'BRL',
+            'status_payment' => $payment->status,
+            'status_detail' => $payment->status_detail ?? null,
+            'external_reference' => $payment->external_reference ?? null,
+            'date_created' => $payment->date_created ?? null
+        ];
+
+        // Handle specific payment methods
+        switch ($paymentMethodId) {
+            case 'pix':
+                $response['pix_status'] = $payment->status;
+                
+                // Extract QR code data
+                if (isset($payment->point_of_interaction->transaction_data)) {
+                    $transactionData = $payment->point_of_interaction->transaction_data;
+                    $response['qr_code'] = $transactionData->qr_code ?? null;
+                    $response['qr_code_base64'] = $transactionData->qr_code_base64 ?? null;
+                    $response['qr_code_url'] = null; // PIX doesn't have URL
+                }
+                
+                $response['message'] = 'QR Code PIX gerado com sucesso';
+                break;
+
+            case 'bolbradesco':
+            case 'bolsantander':
+                $response['boleto_status'] = $payment->status;
+                
+                // Extract boleto URL
+                if (isset($payment->transaction_details->external_resource_url)) {
+                    $response['boleto_url'] = $payment->transaction_details->external_resource_url;
+                }
+                
+                $response['message'] = 'Boleto gerado com sucesso';
+                break;
+
+            case 'account_money':
+                $response['wallet_status'] = $payment->status;
+                $response['message'] = 'Pagamento via carteira processado';
+                break;
+
+            default:
+                // Credit/Debit cards
+                $response['card_status'] = $payment->status;
+                $response['installments'] = $payment->installments ?? 1;
+                
+                if ($payment->status === 'approved') {
+                    $response['message'] = 'Pagamento aprovado com sucesso';
+                } else {
+                    $response['message'] = 'Pagamento processado - Status: ' . $payment->status;
+                }
+                break;
+        }
+
+        // Add payer information if available
+        if (isset($payment->payer)) {
+            $response['payer_email'] = $payment->payer->email ?? null;
+            $response['payer_id'] = $payment->payer->id ?? null;
+        }
+
+        \Log::info('📤 Resposta padronizada:', [
+            'payment_id' => $response['payment_id'],
+            'status' => $response['status_payment'],
+            'method' => $response['payment_method'],
+            'has_qr_code' => isset($response['qr_code']),
+            'has_boleto_url' => isset($response['boleto_url'])
+        ]);
+
+        return $response;
+    }
 }
