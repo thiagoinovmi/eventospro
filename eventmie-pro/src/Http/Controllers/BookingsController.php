@@ -1549,6 +1549,22 @@ class BookingsController extends Controller
                 // Pagamento processado com sucesso
                 $isApproved = ($result['status_payment'] === 'approved');
 
+                // 🔑 REGISTRAR TRANSAÇÃO NO BANCO DE DADOS
+                try {
+                    $this->registerMercadoPagoTransaction(
+                        $result,
+                        $validated,
+                        $user,
+                        $validated['payment_method_id'] ?? 'credit_card'
+                    );
+                    \Log::info('✅ Transação registrada com sucesso no banco de dados');
+                } catch (\Exception $e) {
+                    \Log::error('❌ Erro ao registrar transação:', [
+                        'error' => $e->getMessage(),
+                        'payment_id' => $result['payment_id'] ?? null
+                    ]);
+                }
+
                 return [
                     'status' => true,
                     'payment_id' => $result['payment_id'],
