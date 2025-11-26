@@ -106,7 +106,8 @@ class MercadoPagoService
                 'has_items' => isset($payload['items']),
                 'has_additional_info' => isset($payload['additional_info']),
                 'has_device_id' => isset($payload['device_id']),
-                'has_notification_url' => isset($payload['notification_url'])
+                'has_notification_url' => isset($payload['notification_url']),
+                'payload_full' => json_encode($payload, JSON_PRETTY_PRINT)
             ]);
 
             // Create payment using SDK
@@ -122,16 +123,34 @@ class MercadoPagoService
             return $this->handlePaymentResponse($payment, $paymentData);
 
         } catch (MPApiException $e) {
+            $apiResponse = $e->getApiResponse();
+            
             \Log::error('❌ Mercado Pago API Error:', [
                 'message' => $e->getMessage(),
-                'api_response' => $e->getApiResponse() ?? null
+                'api_response' => $apiResponse,
+                'api_response_full' => json_encode($apiResponse),
+                'api_status' => $apiResponse['status'] ?? null,
+                'api_errors' => $apiResponse['errors'] ?? null,
+                'api_cause' => $apiResponse['cause'] ?? null
             ]);
+            
+            // Extract detailed error message
+            $errorMsg = $e->getMessage();
+            if (isset($apiResponse['errors']) && is_array($apiResponse['errors'])) {
+                $errorMsg = implode(', ', array_map(function($err) {
+                    return $err['message'] ?? $err['description'] ?? 'Unknown error';
+                }, $apiResponse['errors']));
+            } elseif (isset($apiResponse['cause']) && is_array($apiResponse['cause'])) {
+                $errorMsg = implode(', ', array_map(function($err) {
+                    return $err['description'] ?? 'Unknown error';
+                }, $apiResponse['cause']));
+            }
             
             return [
                 'status' => false,
-                'error' => $e->getMessage(),
+                'error' => $errorMsg,
                 'api_error' => true,
-                'message' => 'Erro na API do Mercado Pago: ' . $e->getMessage()
+                'message' => 'Erro na API do Mercado Pago: ' . $errorMsg
             ];
         } catch (\Exception $e) {
             \Log::error('❌ Error creating optimized payment:', [
