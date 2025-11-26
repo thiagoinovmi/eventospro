@@ -45,18 +45,32 @@ class TestMercadoPago extends Command
 
         $paymentClient = new PaymentClient();
 
-        // Test 1: Payload simples (sem items, sem additional_info)
+        // Test 1: Payload simples com cartão VISA oficial
+        // Cartão: 4111111111111111 | Expiração: 11/30 | CVV: 123
+        // Este token deve ser gerado no frontend com o SDK do Mercado Pago
         $testPayload = [
             'transaction_amount' => 5.00,
-            'description' => 'Teste de pagamento',
+            'description' => 'Teste de pagamento - VISA',
             'payment_method_id' => 'visa',
             'payer' => [
-                'email' => 'test@test.com'
+                'email' => 'test@test.com',
+                'first_name' => 'Test',
+                'last_name' => 'User'
             ],
-            'token' => 'e9761f47e8541504642bae6f69aef646',
+            'token' => 'INSIRA_TOKEN_GERADO_AQUI', // Será substituído abaixo
             'installments' => 1,
             'capture' => true
         ];
+
+        // Para teste, vamos usar um token de teste conhecido
+        // Você deve gerar um novo token no frontend e substituir aqui
+        $this->line('   ⚠️  IMPORTANTE: Este teste usa um token placeholder.');
+        $this->line('   Para testar com sucesso, você precisa:');
+        $this->line('   1. Acessar: https://eventos.inovmi.com.br/events/corrida-outubro-rosa#/checkout');
+        $this->line('   2. Selecionar Mercado Pago → Cartão de Crédito');
+        $this->line('   3. Preencher com: 4111111111111111 | 11/30 | 123');
+        $this->line('   4. Copiar o token gerado e substituir em INSIRA_TOKEN_GERADO_AQUI');
+        $this->newLine();
 
         $this->line('   Payload: ' . json_encode($testPayload, JSON_PRETTY_PRINT));
         $this->newLine();
