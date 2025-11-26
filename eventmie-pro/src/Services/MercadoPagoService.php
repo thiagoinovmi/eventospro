@@ -84,7 +84,8 @@ class MercadoPagoService
     }
 
     /**
-     * Create a payment
+     * Create payment with optimizations (items, additional_info, device_id)
+     * This is the main method that replaces cURL implementation
      * 
      * @param array $paymentData
      * @return array
@@ -92,64 +93,56 @@ class MercadoPagoService
     public function createPayment($paymentData = [])
     {
         try {
-            // Validate required fields
-            $required = ['amount', 'description', 'payer_email', 'payment_method_id', 'token'];
-            foreach ($required as $field) {
-                if (empty($paymentData[$field])) {
-                    return [
-                        'status' => false,
-                        'error' => "Field '{$field}' is required"
-                    ];
-                }
-            }
+            \Log::info('🚀 Iniciando createPayment', [
+                'payment_method_id' => $paymentData['payment_method_id'] ?? 'unknown',
+                'amount' => $paymentData['amount'] ?? 0
+            ]);
 
-            // Prepare payment request
-            $request = [
-                'transaction_amount' => (float)$paymentData['amount'],
-                'description' => $paymentData['description'],
-                'payment_method_id' => $paymentData['payment_method_id'],
-                'payer' => [
-                    'email' => $paymentData['payer_email'],
-                    'first_name' => $paymentData['payer_name'] ?? 'Customer',
-                    'identification' => [
-                        'type' => 'CPF',
-                        'number' => $paymentData['payer_document'] ?? ''
-                    ]
-                ],
-                'token' => $paymentData['token'],
-                'installments' => (int)($paymentData['installments'] ?? 1),
-                'capture' => true
-            ];
+            // Build optimized payload with all enhancements
+            $payload = $this->buildOptimizedPayload($paymentData);
 
-            // Add statement descriptor if provided
-            if (!empty($paymentData['statement_descriptor'])) {
-                $request['statement_descriptor'] = $paymentData['statement_descriptor'];
-            }
+            \Log::info('📦 Payload otimizado construído:', [
+                'payload_keys' => array_keys($payload),
+                'has_items' => isset($payload['items']),
+                'has_additional_info' => isset($payload['additional_info']),
+                'has_device_id' => isset($payload['device_id']),
+                'has_notification_url' => isset($payload['notification_url'])
+            ]);
 
-            // Create payment
-            $payment = $this->paymentClient->create($request);
+            // Create payment using SDK
+            $payment = $this->paymentClient->create($payload);
 
-            return [
-                'status' => true,
+            \Log::info('✅ Pagamento criado via SDK:', [
                 'payment_id' => $payment->id,
-                'status_payment' => $payment->status,
-                'status_detail' => $payment->status_detail ?? null,
-                'transaction_id' => $payment->id,
-                'payer_reference' => $payment->payer->id ?? null,
-                'message' => $payment->status
-            ];
+                'status' => $payment->status,
+                'status_detail' => $payment->status_detail ?? null
+            ]);
+
+            // Handle response and return standardized format
+            return $this->handlePaymentResponse($payment, $paymentData);
+
         } catch (MPApiException $e) {
-            Log::error('Mercado Pago API Error: ' . $e->getMessage());
+            \Log::error('❌ Mercado Pago API Error:', [
+                'message' => $e->getMessage(),
+                'api_response' => $e->getApiResponse() ?? null
+            ]);
+            
             return [
                 'status' => false,
                 'error' => $e->getMessage(),
-                'api_error' => true
+                'api_error' => true,
+                'message' => 'Erro na API do Mercado Pago: ' . $e->getMessage()
             ];
         } catch (\Exception $e) {
-            Log::error('Error creating payment: ' . $e->getMessage());
+            \Log::error('❌ Error creating optimized payment:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return [
                 'status' => false,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'message' => 'Erro ao processar pagamento: ' . $e->getMessage()
             ];
         }
     }
@@ -278,69 +271,6 @@ class MercadoPagoService
         }
     }
 
-    /**
-     * Create payment with optimizations (items, additional_info, device_id)
-     * This is the main method that replaces cURL implementation
-     * 
-     * @param array $paymentData
-     * @return array
-     */
-    public function createPaymentWithOptimizations($paymentData = [])
-    {
-        try {
-            \Log::info('🚀 Iniciando createPaymentWithOptimizations', [
-                'payment_method_id' => $paymentData['payment_method_id'] ?? 'unknown',
-                'amount' => $paymentData['amount'] ?? 0
-            ]);
-
-            // Build optimized payload with all enhancements
-            $payload = $this->buildOptimizedPayload($paymentData);
-
-            \Log::info('📦 Payload otimizado construído:', [
-                'payload_keys' => array_keys($payload),
-                'has_items' => isset($payload['items']),
-                'has_additional_info' => isset($payload['additional_info']),
-                'has_device_id' => isset($payload['device_id']),
-                'has_notification_url' => isset($payload['notification_url'])
-            ]);
-
-            // Create payment using SDK
-            $payment = $this->paymentClient->create($payload);
-
-            \Log::info('✅ Pagamento criado via SDK:', [
-                'payment_id' => $payment->id,
-                'status' => $payment->status,
-                'status_detail' => $payment->status_detail ?? null
-            ]);
-
-            // Handle response and return standardized format
-            return $this->handlePaymentResponse($payment, $paymentData);
-
-        } catch (MPApiException $e) {
-            \Log::error('❌ Mercado Pago API Error:', [
-                'message' => $e->getMessage(),
-                'api_response' => $e->getApiResponse() ?? null
-            ]);
-            
-            return [
-                'status' => false,
-                'error' => $e->getMessage(),
-                'api_error' => true,
-                'message' => 'Erro na API do Mercado Pago: ' . $e->getMessage()
-            ];
-        } catch (\Exception $e) {
-            \Log::error('❌ Error creating optimized payment:', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            
-            return [
-                'status' => false,
-                'error' => $e->getMessage(),
-                'message' => 'Erro ao processar pagamento: ' . $e->getMessage()
-            ];
-        }
-    }
 
     /**
      * Build optimized payload with items, additional_info, device_id, notification_url

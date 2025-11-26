@@ -1535,7 +1535,7 @@ class BookingsController extends Controller
 
             // Usar MercadoPagoService com otimizações
             $mercadoPagoService = new \Classiebit\Eventmie\Services\MercadoPagoService();
-            $result = $mercadoPagoService->createPaymentWithOptimizations($paymentData);
+            $result = $mercadoPagoService->createPayment($paymentData);
 
             \Log::info('📤 Resposta do MercadoPagoService:', [
                 'status' => $result['status'] ?? false,

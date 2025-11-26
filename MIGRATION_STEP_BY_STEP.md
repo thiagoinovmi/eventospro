@@ -302,6 +302,7 @@ paymentData.device_id = this.deviceId;
 ### **DURANTE EXECUÇÃO**
 - [x] **ETAPA 1:** MercadoPagoService expandido ✅
 - [x] **ETAPA 2:** Cartão migrado para SDK ✅
+- [x] **ETAPA 2.1:** Nomenclatura corrigida (createPayment unificado) ✅
 - [ ] **ETAPA 3:** PIX migrado para SDK
 - [ ] **ETAPA 4:** Boleto migrado para SDK
 - [ ] **ETAPA 5:** Carteira migrada para SDK
