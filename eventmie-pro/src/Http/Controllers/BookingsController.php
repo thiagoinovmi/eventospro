@@ -2088,116 +2088,136 @@ class BookingsController extends Controller
      */
     private function registerMercadoPagoTransaction($responseData, $validated, $user, $paymentMethodId)
     {
-        $mpTransaction = new \Classiebit\Eventmie\Models\MercadoPagoTransaction();
-        
-        // 🔑 CAMPOS OBRIGATÓRIOS (sempre preenchidos)
-        $mpTransaction->user_id = $user->id;
-        $mpTransaction->event_id = $validated['event_id'];
-        $mpTransaction->booking_id = $validated['booking_id'] ?? null;
-        $mpTransaction->payment_id = $responseData['id'] ?? null;
-        $mpTransaction->status = $responseData['status'] ?? 'pending';
-        $mpTransaction->status_detail = $responseData['status_detail'] ?? null;
-        $mpTransaction->amount = (float)($responseData['transaction_amount'] ?? $validated['total']);
-        $mpTransaction->currency = $responseData['currency_id'] ?? 'BRL';
-        $mpTransaction->payment_method_type = $responseData['payment_method_id'] ?? $paymentMethodId;
-        $mpTransaction->installments = (int)($responseData['installments'] ?? $validated['installments'] ?? 1);
-        $mpTransaction->payer_email = $responseData['payer']['email'] ?? $user->email;
-        $mpTransaction->payer_name = $responseData['payer']['first_name'] ?? $user->name;
-        $mpTransaction->payer_document = $this->extractDocument($responseData['payer'] ?? []) ?? str_replace(['.', '-'], '', $user->document ?? '');
-        
-        // 🔑 CAMPOS ADICIONAIS (do retorno da API)
-        $mpTransaction->merchant_order_id = $responseData['order_id'] ?? null;
-        $mpTransaction->notification_id = $responseData['notification_id'] ?? null;
-        $mpTransaction->webhook_received = false;
-        $mpTransaction->webhook_data = null;
-        $mpTransaction->refund_id = null;
-        $mpTransaction->refund_amount = null;
-        $mpTransaction->refund_status = null;
-        
-        \Log::info('📋 Campos preenchidos da resposta da API:', [
-            'payment_id' => $mpTransaction->payment_id,
-            'status' => $mpTransaction->status,
-            'status_detail' => $mpTransaction->status_detail,
-            'amount' => $mpTransaction->amount,
-            'currency' => $mpTransaction->currency,
-            'payment_method_id' => $mpTransaction->payment_method_type,
-            'installments' => $mpTransaction->installments,
-            'payer_email' => $mpTransaction->payer_email,
-            'payer_name' => $mpTransaction->payer_name,
-            'payer_document' => $mpTransaction->payer_document,
-            'merchant_order_id' => $mpTransaction->merchant_order_id,
-            'notification_id' => $mpTransaction->notification_id
-        ]);
-        
-        // 🔑 CAMPOS ESPECÍFICOS POR TIPO DE PAGAMENTO
-        
-        // PIX: Salvar QR Code
-        if ($paymentMethodId === 'pix' || $responseData['payment_method_id'] === 'pix') {
-            $pixData = $responseData['point_of_interaction']['transaction_data'] ?? [];
+        try {
+            $mpTransaction = new \Classiebit\Eventmie\Models\MercadoPagoTransaction();
             
-            if (isset($pixData['qr_code'])) {
-                $mpTransaction->qr_code = $pixData['qr_code'];
-                \Log::info('✅ QR Code PIX salvo:', ['qr_code' => substr($pixData['qr_code'], 0, 50) . '...']);
+            // 🔑 Garantir que responseData é um array
+            if (!is_array($responseData)) {
+                $responseData = [];
             }
             
-            if (isset($pixData['qr_code_base64'])) {
-                $base64 = $pixData['qr_code_base64'];
-                if (strpos($base64, 'data:image') === 0) {
-                    $base64 = preg_replace('/^data:image\/[^;]+;base64,/', '', $base64);
+            // 🔑 CAMPOS OBRIGATÓRIOS (sempre preenchidos)
+            $mpTransaction->user_id = $user->id;
+            $mpTransaction->event_id = $validated['event_id'] ?? null;
+            $mpTransaction->booking_id = $validated['booking_id'] ?? null;
+            $mpTransaction->payment_id = $responseData['id'] ?? null;
+            $mpTransaction->status = $responseData['status'] ?? 'pending';
+            $mpTransaction->status_detail = $responseData['status_detail'] ?? null;
+            $mpTransaction->amount = (float)($responseData['transaction_amount'] ?? $validated['total'] ?? 0);
+            $mpTransaction->currency = $responseData['currency_id'] ?? 'BRL';
+            $mpTransaction->payment_method_type = $responseData['payment_method_id'] ?? $paymentMethodId;
+            $mpTransaction->installments = (int)($responseData['installments'] ?? $validated['installments'] ?? 1);
+            
+            // 🔑 Payer info com verificações seguras
+            $payer = $responseData['payer'] ?? [];
+            $mpTransaction->payer_email = $payer['email'] ?? $user->email;
+            $mpTransaction->payer_name = $payer['first_name'] ?? $user->name;
+            $mpTransaction->payer_document = $this->extractDocument($payer) ?? str_replace(['.', '-'], '', $user->document ?? '');
+            
+            // 🔑 CAMPOS ADICIONAIS (do retorno da API)
+            $mpTransaction->merchant_order_id = $responseData['order_id'] ?? null;
+            $mpTransaction->notification_id = $responseData['notification_id'] ?? null;
+            $mpTransaction->webhook_received = false;
+            $mpTransaction->webhook_data = null;
+            $mpTransaction->refund_id = null;
+            $mpTransaction->refund_amount = null;
+            $mpTransaction->refund_status = null;
+        
+            \Log::info('📋 Campos preenchidos da resposta da API:', [
+                'payment_id' => $mpTransaction->payment_id,
+                'status' => $mpTransaction->status,
+                'status_detail' => $mpTransaction->status_detail,
+                'amount' => $mpTransaction->amount,
+                'currency' => $mpTransaction->currency,
+                'payment_method_id' => $mpTransaction->payment_method_type,
+                'installments' => $mpTransaction->installments,
+                'payer_email' => $mpTransaction->payer_email,
+                'payer_name' => $mpTransaction->payer_name,
+                'payer_document' => $mpTransaction->payer_document,
+                'merchant_order_id' => $mpTransaction->merchant_order_id,
+                'notification_id' => $mpTransaction->notification_id
+            ]);
+            
+            // 🔑 CAMPOS ESPECÍFICOS POR TIPO DE PAGAMENTO
+            
+            // PIX: Salvar QR Code
+            if ($paymentMethodId === 'pix' || $responseData['payment_method_id'] === 'pix') {
+                $pixData = $responseData['point_of_interaction']['transaction_data'] ?? [];
+                
+                if (isset($pixData['qr_code'])) {
+                    $mpTransaction->qr_code = $pixData['qr_code'];
+                    \Log::info('✅ QR Code PIX salvo:', ['qr_code' => substr($pixData['qr_code'], 0, 50) . '...']);
                 }
-                $mpTransaction->qr_code_base64 = $base64;
-                \Log::info('✅ QR Code Base64 salvo:', ['length' => strlen($base64)]);
+                
+                if (isset($pixData['qr_code_base64'])) {
+                    $base64 = $pixData['qr_code_base64'];
+                    if (strpos($base64, 'data:image') === 0) {
+                        $base64 = preg_replace('/^data:image\/[^;]+;base64,/', '', $base64);
+                    }
+                    $mpTransaction->qr_code_base64 = $base64;
+                    \Log::info('✅ QR Code Base64 salvo:', ['length' => strlen($base64)]);
+                }
+                
+                $mpTransaction->qr_code_expires_at = now()->addMinutes(30);
+                
+                \Log::info('📦 Dados PIX completos:', [
+                    'qr_code_presente' => !empty($mpTransaction->qr_code),
+                    'qr_code_base64_presente' => !empty($mpTransaction->qr_code_base64),
+                    'expires_at' => $mpTransaction->qr_code_expires_at
+                ]);
             }
             
-            $mpTransaction->qr_code_expires_at = now()->addMinutes(30);
-            
-            \Log::info('📦 Dados PIX completos:', [
-                'qr_code_presente' => !empty($mpTransaction->qr_code),
-                'qr_code_base64_presente' => !empty($mpTransaction->qr_code_base64),
-                'expires_at' => $mpTransaction->qr_code_expires_at
-            ]);
-        }
-        
-        // Boleto: Salvar URL
-        if ($paymentMethodId === 'boleto' || $responseData['payment_method_id'] === 'boleto') {
-            $boletoData = $responseData['transaction_details']['external_resource_url'] ?? null;
-            if ($boletoData) {
-                \Log::info('📄 URL Boleto salvo:', ['url' => $boletoData]);
+            // Boleto: Salvar URL
+            if ($paymentMethodId === 'boleto' || $responseData['payment_method_id'] === 'boleto') {
+                $boletoData = $responseData['transaction_details']['external_resource_url'] ?? null;
+                if ($boletoData) {
+                    \Log::info('📄 URL Boleto salvo:', ['url' => $boletoData]);
+                }
             }
-        }
-        
-        // Cartão de Crédito/Débito: Informações adicionais
-        if (in_array($paymentMethodId, ['credit_card', 'debit_card']) || in_array($responseData['payment_method_id'] ?? '', ['credit_card', 'debit_card'])) {
-            \Log::info('💳 Dados do Cartão:', [
-                'issuer_id' => $responseData['issuer_id'] ?? null,
-                'card_id' => $responseData['card_id'] ?? null,
-                'cardholder_name' => $responseData['cardholder']['name'] ?? null
+            
+            // Cartão de Crédito/Débito: Informações adicionais
+            if (in_array($paymentMethodId, ['credit_card', 'debit_card']) || in_array($responseData['payment_method_id'] ?? '', ['credit_card', 'debit_card'])) {
+                \Log::info('💳 Dados do Cartão:', [
+                    'issuer_id' => $responseData['issuer_id'] ?? null,
+                    'card_id' => $responseData['card_id'] ?? null,
+                    'cardholder_name' => $responseData['cardholder']['name'] ?? null
+                ]);
+            }
+            
+            $mpTransaction->save();
+            
+            \Log::info('✅ MercadoPagoTransaction salva com sucesso:', [
+                'id' => $mpTransaction->id,
+                'payment_id' => $mpTransaction->payment_id,
+                'booking_id' => $mpTransaction->booking_id,
+                'user_id' => $mpTransaction->user_id,
+                'status' => $mpTransaction->status,
+                'status_detail' => $mpTransaction->status_detail,
+                'amount' => $mpTransaction->amount,
+                'currency' => $mpTransaction->currency,
+                'payment_method_type' => $mpTransaction->payment_method_type,
+                'installments' => $mpTransaction->installments,
+                'payer_email' => $mpTransaction->payer_email,
+                'payer_name' => $mpTransaction->payer_name,
+                'payer_document' => $mpTransaction->payer_document,
+                'merchant_order_id' => $mpTransaction->merchant_order_id,
+                'notification_id' => $mpTransaction->notification_id,
+                'qr_code_salvo' => !empty($mpTransaction->qr_code),
+                'base64_salvo' => !empty($mpTransaction->qr_code_base64)
             ]);
+            
+            return $mpTransaction;
+        } catch (\Exception $e) {
+            \Log::error('💥 EXCEÇÃO ao registrar transação:', [
+                'exception_class' => get_class($e),
+                'message' => $e->getMessage(),
+                'code' => $e->getCode(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
         }
-        
-        $mpTransaction->save();
-        
-        \Log::info('✅ MercadoPagoTransaction salva com sucesso:', [
-            'id' => $mpTransaction->id,
-            'payment_id' => $mpTransaction->payment_id,
-            'booking_id' => $mpTransaction->booking_id,
-            'user_id' => $mpTransaction->user_id,
-            'status' => $mpTransaction->status,
-            'status_detail' => $mpTransaction->status_detail,
-            'amount' => $mpTransaction->amount,
-            'currency' => $mpTransaction->currency,
-            'payment_method_type' => $mpTransaction->payment_method_type,
-            'installments' => $mpTransaction->installments,
-            'payer_email' => $mpTransaction->payer_email,
-            'payer_name' => $mpTransaction->payer_name,
-            'payer_document' => $mpTransaction->payer_document,
-            'merchant_order_id' => $mpTransaction->merchant_order_id,
-            'notification_id' => $mpTransaction->notification_id,
-            'qr_code_salvo' => !empty($mpTransaction->qr_code),
-            'base64_salvo' => !empty($mpTransaction->qr_code_base64)
-        ]);
-        
-        return $mpTransaction;
     }
     
     /**
