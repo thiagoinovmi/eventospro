@@ -364,26 +364,27 @@ class MercadoPagoService
             $payload['payer']['first_name'] = $nameParts[0];
             $payload['payer']['last_name'] = count($nameParts) > 1 ? implode(' ', array_slice($nameParts, 1)) : 'Silva';
             
-            // 🔍 DEBUG: Verificar dados do usuário
+            // 🔍 DEBUG: Verificar dados do usuário (usando nomes corretos dos campos)
             \Log::info('🔍 DEBUG - Dados do usuário no MercadoPagoService:', [
                 'user_id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
                 'document' => $user->document,
                 'phone' => $user->phone,
-                'zip_code' => $user->zip_code,
-                'street_name' => $user->street_name,
-                'street_number' => $user->street_number,
-                'city' => $user->city ?? null,
-                'state' => $user->state ?? null
+                'address_zip_code' => $user->address_zip_code,
+                'address_street' => $user->address_street,
+                'address_number' => $user->address_number,
+                'address_city' => $user->address_city ?? null,
+                'address_state' => $user->address_state ?? null
             ]);
             
             // Add address if available (required for fraud analysis)
-            if (!empty($user->zip_code) || !empty($user->street_name) || !empty($user->street_number)) {
+            // 🔑 Usar nomes corretos: address_zip_code, address_street, address_number
+            if (!empty($user->address_zip_code) || !empty($user->address_street) || !empty($user->address_number)) {
                 $payload['payer']['address'] = [
-                    'zip_code' => $user->zip_code ?? '28000000',
-                    'street_name' => $user->street_name ?? 'Rua Principal',
-                    'street_number' => (int)($user->street_number ?? 1)
+                    'zip_code' => $user->address_zip_code ?? '28000000',
+                    'street_name' => $user->address_street ?? 'Rua Principal',
+                    'street_number' => (int)($user->address_number ?? 1)
                 ];
                 
                 \Log::info('✅ Endereço DO USUÁRIO adicionado ao payer:', [
@@ -401,9 +402,9 @@ class MercadoPagoService
                 
                 \Log::warning('⚠️ Endereço não preenchido no usuário, usando valores padrão:', [
                     'user_id' => $user->id,
-                    'user_zip_code' => $user->zip_code,
-                    'user_street_name' => $user->street_name,
-                    'user_street_number' => $user->street_number,
+                    'user_address_zip_code' => $user->address_zip_code,
+                    'user_address_street' => $user->address_street,
+                    'user_address_number' => $user->address_number,
                     'default_zip_code' => '28000000',
                     'default_street_name' => 'Rua Principal',
                     'default_street_number' => 1
