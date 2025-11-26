@@ -120,7 +120,7 @@ class TestMercadoPagoFull extends Command
         $payload = [
             'transaction_amount' => 5.00,
             'description' => 'Teste Mínimo',
-            'payment_method_id' => 'mastercard',
+            'payment_method_id' => 'master',
             'payer' => [
                 'email' => 'test@test.com',
                 'identification' => [
@@ -152,7 +152,7 @@ class TestMercadoPagoFull extends Command
         $payload = [
             'transaction_amount' => 5.00,
             'description' => 'Teste Completo - Evento #1',
-            'payment_method_id' => 'mastercard',
+            'payment_method_id' => 'master',
             'payer' => [
                 'email' => 'thiagotinformatica@gmail.com',
                 'first_name' => 'USUARIO',
